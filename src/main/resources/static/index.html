@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>海德智能化称重系统</title>
+    <!--	<link rel="shortcut icon" href="_img/favicon.ico">-->
+    <script>
+        const token = sessionStorage.getItem('token')
+        if (!token) location.replace('login.html')  //未登录拦截
+    </script>
+    <!--第三方css-->
+    <link rel="stylesheet" href="_plugin/fontawesome/css/all.css">
+    <!--自定义css-->
+    <link rel="stylesheet" href="_css/index.css">
+    <style>
+        /*-------------------------layer*/
+        .layui-layer-page,
+        .layui-layer-iframe {
+            border-radius: 10px !important;
+            overflow: hidden;
+        }
+
+        .layui-layer {
+            border-radius: 1px;
+        }
+
+        .layui-layer .layui-layer-title {
+            height: 50px;
+            line-height: 50px;
+            background: #0272e4;
+            color: #fff;
+            font-size: 16px;
+            border: 0;
+        }
+
+        .layui-layer .layui-layer-title:before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 14px;
+            background: #fff;
+            border-radius: 2px;
+            margin-right: 10px;
+            position: relative;
+            top: 1px;
+        }
+
+        .layui-layer .layui-layer-close {
+            background: url(_img/main/layui_layer_close.png);
+            background-position: initial !important;
+            width: 14px;
+            height: 14px;
+        }
+
+        .index_head .index_ctrl_msg .dot {
+            top: 20%;
+            left: 40%;
+            width: 15px;
+            height: 15px;
+        }
+
+        .index_ctrl_user .userIco {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .logo img {
+            padding-top: 5px;
+        }
+
+        .index_head .index_slogan {
+            font-size: 20px;
+            font-family: Microsoft YaHei;
+            font-weight: 400;
+            color: #333333;
+            margin-left: 20px;
+            display: inline-flex;
+            align-items: center;
+            padding: 0 .4em;
+            position: relative;
+        }
+
+        @media screen and (max-device-width: 1366px) {
+            .index_ctrl_user .userIco {
+                width: 35px;
+                height: 35px;
+            }
+        }
+
+        .none {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="flexible">
+
+<main>
+    <!-------------------------------左上logo-->
+    <div class="index_logo">
+        <div class="logo"><img src="_img/index/logo.png" alt=""></div>
+        <!--		<img class="logo" src="_img/index_logo.png">-->
+        <div class="index_ctrl index_ctrl_flexible" title="收缩菜单">
+            <i class="fal fa-outdent"></i>
+        </div>
+    </div>
+
+
+    <!-------------------------------头部-->
+    <div class="index_head">
+        <div class="index_head_left">
+            <div class="index_slogan">
+                <!--				山东云娇有限公司—云娇CRM-->
+            </div>
+        </div>
+
+        <div class="index_head_right">
+            <div class="index_ctrl index_ctrl_refresh" title="内页刷新">
+                <i class="fal fa-redo"></i>
+            </div>
+            <div class="index_ctrl index_ctrl_fullscreen" title="全屏">
+                <i class="fal fa-expand-arrows"></i>
+            </div>
+            <!--<div class="index_ctrl index_ctrl_msg" title="消息">
+                <i class="fal fa-bell"></i>
+                <span class="dot"></span>
+            </div>-->
+            <div class="index_ctrl index_ctrl_user">
+                <img class="userIco" src="_img/index/avatar.png"
+                     onerror="this.src='_img/index/avatar.png';this.onerror=null"/>
+                <span class="username"></span>
+                <i class="fas fa-caret-down"></i>
+                <!--菜单-->
+                <div class="index_dialog dialog_user">
+                    <a href="##" class="upPass"><i class="fal fa-lock-alt fa-fw"></i>修改密码</a>
+                    <hr>
+                    <a href="##" class="exit"><i class="fal fa-sign-out-alt fa-fw"></i>安全退出</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-------------------------------左侧菜单-->
+    <div class="index_menu">
+        <ul class="menu">
+            <!--<li class="home">
+                <label data-url="home.html" data-id="home" title="首页" class="noChild active">
+                    <i class="fal fa-home-alt fa-fw"></i>
+                    <span>首页</span>
+                </label>
+            </li>-->
+        </ul>
+    </div>
+
+    <!-------------------------------右侧主体-->
+    <div class="index_main">
+        <!--tab页标题-->
+        <div class="index_main_tabsBox">
+            <div class="index_ctrl index_ctrl_left disabled" title="向左">
+                <i class="fal fa-chevron-double-left"></i>
+            </div>
+            <ul class="index_main_tabs">
+                <!--<li data-id="home" class="active">
+                    <label>首页</label>
+                </li>-->
+            </ul>
+            <div class="index_ctrl index_ctrl_right disabled" title="向右">
+                <i class="fal fa-chevron-double-right"></i>
+            </div>
+        </div>
+        <!--tab页内容-->
+        <div class="index_main_iframeBox">
+            <iframe data-id="home" src="home.html" class="active"></iframe>
+        </div>
+    </div>
+</main>
+
+<!--第三方js-->
+<script src="_plugin/jquery/jquery-3.3.1.min.js"></script>
+<script src="_plugin/layer/layer.js"></script>
+<script src="_plugin/zj/zMath.js"></script>
+<script src="_plugin/zj/zJsonFormat.js"></script>
+<!--自定义js-->
+<script src="_js/index.js"></script>
+
+<script>
+    /*拦截器 ajax返回码若为1008则退至登录页面*/
+    $.ajaxSetup({
+        dataFilter: ajax_dataFilter
+    })
+
+    function ajax_dataFilter(res) {
+        if (res.includes('"code":1008')) {
+            sessionStorage.clear()
+            sessionStorage.setItem('loginError', res.msg)
+            location.replace('login.html')
+        } else {
+            return res
+        }
+    }
+
+    /*ajax全局设置请求头*/
+    $.ajaxSettings = $.extend($.ajaxSettings, {
+        headers: {
+            token: token,
+        }
+    });
+</script>
+<script>
+    $('.index_ctrl_msg').click(function () {
+        layer.open({
+            type: 2,
+            // offset: 'rb',
+            offset: 'r',//坐标
+            // offset: ['100px', '50px'],  //坐标
+            // skin: 'layerdemo',
+            anim: -1,  //弹出动画
+            shadeClose: true,  //是否点击遮罩关闭
+            shade: 0.2,  //遮罩
+            closeBtn: 0, //关闭按钮
+            maxmin: false,
+            title: false,
+            area: ['600px', '80%'],
+            content: `xiaoxi.html`
+        })
+    })
+
+</script>
+<script>
+    //获取菜单
+    const loginRole = sessionStorage.getItem('loginRole')
+    let url = '_data/index_menu.json'
+    if (loginRole == 2) {
+        url = '_data/index_menu_role.json'
+    }
+    $.get(
+        // '../sys/menu/listByRole.do',  //根据权限获取菜单
+        url,   //菜单不设限
+        {
+            token,
+            roleIds: loginRole,
+            menuType: 1,   //pc端
+        },
+        res => {
+            // console.log(res)
+            if (res.code != 1111) {
+                layer.msg('获取菜单失败:' + res.msg)
+                return false
+            }
+            let data = res.data
+            // console.log(data)
+
+            let dataTree = zJsonFormat(data, 'id', 'pid', 'child') //把列表格式的菜单数据转为树状格式
+            // console.log(dataTree)
+
+            let $menuTree = getChildMenu(dataTree, 0)
+            $('.index_menu .menu').append($menuTree.html())
+            //模拟点击称重
+            $('.index_menu .menu [data-url="chengzhong.html"]').click()
+        }
+    )
+
+    //生成菜单树
+    function getChildMenu(data, i) {
+        let sign = '<i class="sign fal fa-chevron-down"></i>' //右侧指示符
+        let $ul = $('<ul class="menu_in"></ul>')
+        $.each(data, function () {
+            let $child = (this.child && this.child.length) ? getChildMenu(this.child, i + 1) : ''
+            let icon = `<i class="${this.icon} fa-fw"></i>`
+            $ul.append(`
+				<li>
+					<label data-url="${this.url}" data-menucode="${this.menuCode}" data-id="${this.id}" title="${this.name}" class="${this.child ? 'hasChild' : 'noChild'}">
+						${i == 0 ? icon : ''}
+						<span>${this.name}</span>
+						${this.child ? sign : ''}
+					</label>
+					${this.child ? $child[0].outerHTML : ''}
+				</li>
+			`)
+        })
+        return $ul
+    }
+</script>
+<script>
+    //右上角用户名
+    const loginNameStr = JSON.parse(sessionStorage.getItem('loginData')).realName
+    $('.index_ctrl_user .username').text(loginNameStr || '管理员')
+    //右上角头像
+    const userIco = JSON.parse(sessionStorage.getItem('loginData')).userIco
+    if (userIco) {
+        $('.index_ctrl_user .userIco').attr('src', hostDoc + userIco)
+    }
+    //安全退出
+    $('.index_dialog.dialog_user .exit').click(function () {
+        sessionStorage.clear()
+        location.replace('login.html')
+    })
+
+    //------------------------------
+    //修改密码
+    $('.index_dialog.dialog_user .upPass').click(function () {
+        layer.open({
+            type: 2,
+            maxmin: false,
+            title: '修改密码',
+            area: ['400px', '330px'],
+            content: `index_updatePw.html`
+        })
+
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link type="text/css" rel="styleSheet" href="./step.css"/>
+    <!-- <script src="./jquery-3.5.1.min.js"></script> -->
+    <script src="https://www.jq22.com/jquery/jquery-2.1.1.js"></script>
+    <script src="./step.js"></script>
+</head>
+
+<style>
+    .btnext {
+        background: blue;
+        color: #fff;
+        text-align: center;
+        border-radius: 10px;
+        float: left;
+        margin-right: 10px;
+        padding: 10px 10px;
+        cursor: pointer;
+    }
+
+    input {
+        width: 160px;
+        height: 40px;
+        border: 1px solid #e9e9e9;
+        padding-left: 10px;
+        float: left;
+        margin-right: 10px;
+    }
+</style>
+
+<body>
+<div id="test"
+     style="width: 600px;margin-top: 200px;margin-left: 50px;border: 1px solid #e9e9e9;height: 40px; padding: 36px 0px;">
+
+    <div id="luStep">
+    </div>
+
+</div>
+<div style="margin-top: 34px; margin-left: 100px;">
+    <div class="btnext" onclick="next()">下一步</div>
+    <div class="btnext" onclick="btup()">上一步</div>
+    <input type="number" value="" placeholder="响应式测试，输入宽度">
+    <div class="btnext" onclick="divWight()">确定宽度</div>
+</div>
+
+</body>
+
+
+<script>
+    data = {
+        data: ['步骤1', '步骤2', '步骤3', '步骤4'],
+        index: 0 //0是第一步
+    }
+
+
+    var dom = $('#luStep');
+    dom.stepInit(data);
+
+
+    var key = 0;
+
+    function next() { //点击下一步
+        if (key >= 3) return;
+        key++;
+        dom.toStep(key);
+    }
+
+    function btup() {
+        if (key <= 0) return;
+        key--;
+        dom.toStep(key);
+    }
+
+    function divWight() {
+        var value = $('input').val();
+        $("#test").css({width: value + 'px'})
+        dom.empty();
+        dom.stepInit(data);
+    }
+
+</script>
+
+</html>

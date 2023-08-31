@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+    <!--第三方css-->
+    <link rel="stylesheet" href="_plugin/layui/css/layui.css">
+    <link rel="stylesheet" href="_plugin/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="_plugin/zTree/css/bootstrapStyle/bootstrapStyle.css">
+    <!--自定义css-->
+    <link rel="stylesheet" href="_css/main.css">
+    <link rel="stylesheet" href="_css/chengzhong.css">
+    <link rel="stylesheet" href="_css/font-some.css">
+</head>
+
+<body>
+
+<div class="bodyGrid">
+    <!--	操作按钮-->
+    <operation>
+        <div class="topBtn"></div>
+    </operation>
+    <!--	称重显示-->
+    <weigh>
+        <div class="container">
+            <div class="box">
+                <div class="chartNum">
+                    <div class="cueLight">
+                        <ul>
+                            <li class="transBox"><span></span>传输</li>
+                            <li class="stableBox"><span></span>稳定</li>
+                        </ul>
+                    </div>
+                    <div class="box-items" id="TNum">
+                        <li class="number-item"><span><i></i></span></li>
+                    </div>
+                    <li class="kgItem"><span><i>K</i></span></li>
+                    <li class="kgItem"><span><i>g</i></span></li>
+                </div>
+
+                <div class="form-row">
+                    <div class="col-6">
+                        <div class="form-group form-row">
+                            <label class="col-4 col-form-label">车号</label>
+                            <div class="col-8">
+                                <input class="form-control" name="carCode">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group form-row">
+                            <label class="col-4 col-form-label">规格</label>
+                            <div class="col-8">
+                                <input class="form-control" name="guige">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group form-row">
+                            <label class="col-4 col-form-label">毛重</label>
+                            <div class="col-8">
+                                <input class="form-control" name="maoZ">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group form-row">
+                            <label class="col-4 col-form-label">发货单位</label>
+                            <div class="col-8">
+                                <input class="form-control" name="address">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group form-row">
+                            <label class="col-4 col-form-label">皮重</label>
+                            <div class="col-8">
+                                <input class="form-control" name="piZ">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group form-row">
+                            <label class="col-4 col-form-label">收货单位</label>
+                            <div class="col-8">
+                                <input class="form-control" name="reAddress">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group form-row">
+                            <label class="col-4 col-form-label">净重</label>
+                            <div class="col-8">
+                                <input class="form-control" name="jingZ">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group form-row">
+                            <label class="col-4 col-form-label">货名</label>
+                            <div class="col-8">
+                                <input class="form-control" name="huoming">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group form-row">
+                            <label class="col-2 col-form-label">备注</label>
+                            <div class="col-10">
+                                <input class="form-control" name="remark">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <footer>
+                    <div class="btnBar">
+                        <div class="btn-group">
+                            <button class="btn_insert1" lay-submit lay-filter="btn_insert1">保存</button>
+                        </div>
+                        <div class="btn-group">
+                            <!--							<button class="btn_dataCof" lay-submit lay-filter="btn_dataCof">取数</button>-->
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn_cancel">清空</button>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+
+        </div>
+    </weigh>
+
+    <!--	操作面板-->
+    <panel> <!--过磅选择-->
+        <div class="typeBox">
+            <div class="WeighingType">
+                <form>
+                    <div>过磅类型:</div>
+                    <input class="typeBtn" type="radio" value="1" id="type1"> <label
+                        for="type1">采购</label><br> <input class="typeBtn"
+                                                          type="radio" value="2" id="type2"><label
+                        for="type2">销售</label>
+                    <br> <input class="typeBtn" type="radio" value="3" id="type3"><label
+                        for="type3">内部</label> <br> <input class="typeBtn"
+                                                           type="radio" value="4" id="type4"><label
+                        for="type4">其他</label>
+                    <br>
+                </form>
+            </div>
+
+            <div class="WeighingMode">
+                <form>
+                    <div>过磅模式:</div>
+                    <input class="typeBtn" type="radio" value="5" id="type5"> <label
+                        for="type5">标准过磅</label><br> <input class="typeBtn"
+                                                            type="radio" value="6" id="type6"><label
+                        for="type6">一次过磅</label>
+                    <br>
+                    <!--					<input class="typeBtn" type="radio" value="3" id="type3"><label for="type3">内部过磅</label> <br>-->
+                    <!--					<input class="typeBtn" type="radio" value="4" id="type4"><label for="type4">其他过磅</label> <br>-->
+                </form>
+            </div>
+            <div class="WeighingStatus">
+                <form>
+                    <div>状态:</div>
+                    <ul>
+                        <li><span class="beforeInfr1"></span>1-北车检</li>
+                        <li><span class="beforeInfr2"></span>1-北计量</li>
+                        <li><span class="afterInfr1"></span>2-南计量</li>
+                        <li><span class="afterInfr2"></span>2-南车检</li>
+
+                        <!--						<li><span></span>前地感</li>-->
+                        <!--						<li><span></span>后地感</li>-->
+                    </ul>
+                </form>
+            </div>
+        </div>
+
+        <!--手动操作-->
+        <div class="handBox">
+            <div class="pilotLamp">
+                <div>红绿灯</div>
+                <button class="btn">
+                    <span style="background-color: #af0000"></span>红灯
+                </button>
+                <button class="btn">
+                    <span style="background-color: #00B83F"></span>绿灯
+                </button>
+            </div>
+            <div class="beforeBrake">
+                <div>前道闸</div>
+                <button class="btn btn_beforePole" data-type="2">
+                    <i class="fa fa-arrow-up fa-lg"></i>起杆
+                </button>
+                <button class="btn btn_beforePole" data-type="9">
+                    <i class="fa fa-arrow-down fa-lg"></i>落杆
+                </button>
+            </div>
+            <div class="AfterBrake">
+                <div>后道闸</div>
+                <button class="btn btn_afterPole" data-type="5">
+                    <i class="fa fa-arrow-up fa-lg"></i>起杆
+                </button>
+                <button class="btn btn_afterPole" data-type="10">
+                    <i class="fa fa-arrow-down fa-lg"></i>落杆
+                </button>
+            </div>
+        </div>
+        <div class="AutoWeighing">
+            <div>
+                <input class="typeBtn" type="checkbox" value="7" id="type7">
+                <label for="type7">自动过磅</label><br>
+            </div>
+            <div>
+                <button class="btn btn-info btn_reset">初始化设备</button>
+            </div>
+        </div>
+
+        <!--日志-->
+        <div class="infoRecord">
+            <div class="messageBox">
+                <!--<div class="infoContent">
+                    <span>2021-08-25 09:26:00 车辆开始称重</span>
+                </div>-->
+            </div>
+        </div>
+    </panel>
+
+    <!--	信息记录-->
+    <dataTable>
+        <div class="divInsert" id="bodyInsert">
+            <table class="table table-bordered table-sm tableDiy"
+                   id="tableInsert">
+                <thead class="thead-light">
+                <tr>
+                    <th>流水号</th>
+                    <th>车号</th>
+                    <th>过磅类型</th>
+                    <th>发货单位</th>
+                    <th>收货单位</th>
+                    <th>货名</th>
+                    <th>规格</th>
+                    <th>毛重</th>
+                    <th>皮重</th>
+                    <th>净重</th>
+                    <th>毛重司磅员</th>
+                    <th>皮重司磅员</th>
+                    <th>毛重时间</th>
+                    <th>皮重时间</th>
+                    <th>备注</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td class="roughWeight"></td>
+                    <td class="tareWeight"></td>
+                    <td class="netWeight"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><select class="form-control custom-select" data-id="recordType" lay-ignore>
+                        <!--						<option value="">所有</option>-->
+                        <option value="1">本日记录</option>
+                        <!--						<option value="2">本周记录</option>-->
+                        <!--						<option value="3">本月记录</option>-->
+                        <!--						<option value="4">本季记录</option>-->
+                        <!--						<option value="5">本年记录</option>-->
+                    </select></td>
+                    <td colspan="2"><select class="form-control custom-select" data-id="logType" lay-ignore>
+                        <option value="">全部记录</option>
+                        <option value="1">未完成记录</option>
+                        <option value="2">已完成记录</option>
+                    </select></td>
+                    <!--&lt;!&ndash;<td></td>
+                    <td></td>&ndash;&gt;
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>-->
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </dataTable>
+</div>
+<!--审批弹框-->
+<form class="layui-form layerForm" id="formVerify" lay-filter="formVerify">
+    <main>
+        <div class="form-row">
+            <div class="col-12">
+                <p>该用户没有配置从机设备，无法进行称重;请先配置从机设备</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="btnBar">
+            <div class="btn-group">
+                <button class="btn btn_submit">确定</button>
+            </div>
+        </div>
+    </footer>
+</form>
+<!--第三方js-->
+<script src="_plugin/layui/layui.all.js"></script>
+<script src="_plugin/layui/lay/modules/laydate.js"></script>
+<script src="_plugin/jquery/jquery-3.3.1.min.js"></script>
+<script src="_plugin/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="_plugin/moment/moment.min.js"></script>
+<script src="_plugin/echarts/echarts.min.js"></script>
+<script src="_plugin/zj/zMath.js"></script>
+<!--自定义js-->
+<script src="_js/main.js"></script>
+
+<script>
+    // 一进页面自动勾选上自动过磅
+    $('#type7').prop('checked', true)
+    $('.box .form-control').prop('disabled', true)
+    $('.handBox .btn,.btn_cancel,.btn_insert1,.btn_dataCof').prop('disabled', true)
+    getScrool()
+
+    function getScrool() {  // 滚动条始终在最下面
+        let top = $(".messageBox")[0].scrollHeight;
+        $(".messageBox").scrollTop(top);
+    }
+
+    /*websocket*/
+    let ws_url = location.origin.replace('http', 'ws') + '/weightproject/websocket/socketServer.do?' + loginId
+    //let ws_url = location.origin.replace('http', 'ws') + '/mdwisdomstore/websocket/socketServer.do?' + loginId
+    // let ws_url = 'http://192.168.1.217:8080/weightproject/websocket/socketServer.do?userId=' + loginId
+    let ws = null           //ws实例
+
+    ws_init()
+    setInterval(() => {   //20秒轮询
+        if (ws.readyState == 1) {
+            ws.send('heartCheck')   //正常则发送心跳
+        } else {
+            ws_init()   //断开则初始化
+        }
+    }, 20000)
+
+
+    function ws_init() {    //初始化
+        ws = new WebSocket(ws_url)
+        ws.onopen = ws_onopen         //连接
+        ws.onmessage = ws_onmessage   //接收
+        // ws.onclose = ws_onclose       //断开
+        // ws.onerror = ws_onerror       //错误
+    }
+
+    function ws_onopen() {
+        console.log('ws连接成功')
+    }
+
+    function ws_onmessage(e) {
+        console.log(e)
+
+        let data = JSON.parse(e.data)
+        //let result = JSON.parse(e.result)
+        if (data.msgType == '1111') {  //初始信息(首次返回的消息)
+            console.log('连接成功')
+        } else if (data.type == '1') {  //前红外线1---北车检---状态显示
+            if (data.map == false) {
+                $('.WeighingStatus .beforeInfr1').css('background-color', '#A60000')
+            } else if (data.map == true) {
+                $('.WeighingStatus .beforeInfr1').css('background-color', '#00B83F')
+            }
+        } else if (data.type == '2') {  //前红外线2---北计量---状态显示
+            if (data.map == false) {
+                $('.WeighingStatus .beforeInfr2').css('background-color', '#A60000')
+            } else if (data.map == true) {
+                $('.WeighingStatus .beforeInfr2').css('background-color', '#00B83F')
+            }
+        } else if (data.type == '3') {  // 后红外1---南计量---状态显示
+            if (data.map == false) {
+                $('.WeighingStatus .afterInfr1').css('background-color', '#A60000')
+            } else if (data.map == true) {
+                $('.WeighingStatus .afterInfr1').css('background-color', '#00B83F')
+            }
+        } else if (data.type == '4') {  // 后红外2---南车检---状态显示
+            if (data.map == false) {
+                $('.WeighingStatus .afterInfr2').css('background-color', '#A60000')
+            } else if (data.map == true) {
+                $('.WeighingStatus .afterInfr2').css('background-color', '#00B83F')
+            }
+        } else if (data.type == '5') {  // 称重日志
+            let div = `<div class="infoContent">
+				<span>${data.map}</span>
+				</div>`
+            $('.messageBox').append(div)
+            getScrool()
+        } else if (data.type == '6') { // 车辆信息
+            $('.container [name="carCode"]').val(data.map.carNum)  // 车号
+            $('.container [name="address"]').val(data.map.faHuo)  //发货单位
+            $('.container [name="reAddress"]').val(data.map.shouHuo)  //收货单位
+            $('.container [name="huoming"]').val(data.map.goods) // 货名
+            $('.container [name="guige"]').val(data.map.spec)  // 规格
+            $('.container [name="remark"]').val(data.map.backup5)  // 备注
+        } else if (data.type == '7') {  // 称重kg
+            start(data.map.dataHex)
+            if (data.map.status == '38') {  // 传输
+                $('.container .transBox span').css('background', 'linear-gradient(white, green)')
+            } else {
+                $('.container .transBox span').css('background', 'linear-gradient(white, red)')
+            }
+            if (data.map.status == '30') {  // 稳定
+                $('.container .stableBox span').css('background', 'linear-gradient(white, green)')
+                if ($('#type7').prop('checked') == false && data.map.dataHex != '') {  //保存按钮
+                    $('.btn_cancel,.btn_insert1,.btn_dataCof').prop('disabled', false)
+                }
+            } else {
+                $('.container .stableBox span').css('background', 'linear-gradient(white, red)')
+                if ($('#type7').prop('checked') == false) {  //保存按钮
+                    $('.btn_cancel,.btn_insert1,.btn_dataCof').prop('disabled', true)
+                }
+            }
+        } else if (data.type == '8') {  // 毛重、淨重、皮重
+            $('.container [name="maoZ"]').val(data.map.毛重)  //毛重
+            $('.container [name="piZ"]').val(data.map.皮重)  // 皮重
+            $('.container [name="jingZ"]').val(data.map.净重)  // 净重
+        } else if (data.type == '9') {
+            $('.container [name="carCode"]').val('')  // 车号
+            $('.container [name="address"]').val('')  //发货单位
+            $('.container [name="reAddress"]').val('')  //收货单位
+            $('.container [name="huoming"]').val('') // 货名
+            $('.container [name="guige"]').val('')  // 规格
+            $('.container [name="remark"]').val('')  // 备注
+            $('.container [name="maoZ"]').val('') //毛重
+            $('.container [name="piZ"]').val('')  // 皮重
+            $('.container [name="jingZ"]').val('')  // 净重
+            getTables()
+        } else if (data.msgType == '0') { //导出成功
+
+        }
+    }
+
+    //页面关闭前
+    /*onbeforeunload = function () {
+        opener.$('#export').removeAttr('disabled')   //启用父级页面"导出"按钮
+        ws.close()  //断开连接
+    }*/
+
+</script>
+<script>
+    //数字滚动
+    var chartNum = ['0', '0', '0', '0', '0', '0'];     // 默认总数
+    start('000000');
+
+    function start(num) {
+        console.log(num)
+        var strHtml = "";
+        for (var i = 0; i < chartNum.length; i++) {
+            strHtml += `<li class="number-item">
+				        <span><i class="item" ref="numberItem">0123456789</i></span></li>`;
+        }
+        $("#TNum").html(strHtml);
+        toOrderNum(num);
+        setNumberTransform();
+        // 定时改变数字
+        /*setInterval(function setInt() {
+            toOrderNum('34534');
+            setNumberTransform();
+        }, 1000)*/
+    }
+
+    function toOrderNum(num) {
+        num = num.toString()     // 数字变成字符串
+        if (num.length < 6) {  // 如未满位数，添加"0"补位
+            num = '0' + num
+            toOrderNum(num) // 递归添加"0"补位
+        } else if (num.length === 6) {      // 数中加入逗号
+            // num = num.slice(0, 2) + ',' + num.slice(2, 5) + ',' + num.slice(5, 8)
+            chartNum = num.split('') // 将其便变成数据
+        } else {
+            alert('显示异常');
+        }
+    }
+
+    function setNumberTransform() {
+        var numberItems = $('.item');
+        const numberArr = chartNum.filter(item => !isNaN(item));
+        for (var index = 0; index < numberItems.length; index++) {
+            const elem = numberItems[index];
+            elem.style.transform = 'translate(-50%, -' + numberArr[index] * 10 + '%)'
+        }
+    }
+
+    //称重记录
+    let dataType = {
+        token,
+    }
+    $('#bodyInsert [data-id="recordType"]').change(function () {  // 记录查询
+        dataType.recordType = $(this).find('option:checked').val()
+        getTables()
+    })
+
+    $('#bodyInsert [data-id="logType"]').change(function () { // 记录查询
+        dataType.logType = $(this).find('option:checked').val()
+        getTables()
+    })
+    getTables()
+
+    function getTables() {
+        $.post(
+            '../adminx/record/pageList.do',
+            dataType,
+            res => {
+                if (res.code != 1111) {
+                    layer.msg(res.msg)
+                    return false
+                }
+                let data = res.data
+                $('#tableInsert tbody').empty()
+                data.forEach(function (item, i) {
+                    addRow()
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl1"]').val(item.流水号)  //流水号
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl2"]').val(item.车号)  //车号
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl3"]').val(item.过磅类型)  //过磅类型
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl4"]').val(item.发货单位)  //发货单位
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl5"]').val(item.收货单位)  //收货单位
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl6"]').val(item.货名)  //货名
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl7"]').val(item.规格)  //规格
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl8"]').val(item.毛重)  //毛重
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl9"]').val(item.皮重)  //皮重
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl10"]').val(item.净重)  //净重
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl11"]').val(item.毛重司磅员)  //毛重司磅员
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl12"]').val(item.皮重司磅员)  //皮重司磅员
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl13"]').val(item.毛重时间)  //毛重时间
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl14"]').val(item.皮重时间)  //皮重时间
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl15"]').val(item.备注)  //备注
+                })
+                totalAmount()
+            }
+        )
+    }
+
+    function addRow(i) {
+        let row = `<tr>
+				<td><input class="form-control disabled" disabled data-id="jl1" title="流水号"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl2" title="车号"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl3" title="过磅类型"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl4" title="发货单位"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl5" title="收货单位"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl6" title="货名"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl7" title="规格"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl8" title="毛重"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl9" title="皮重"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl10" title="净重"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl11" title="毛重司磅员"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl12" title="皮重司磅员"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl13" title="毛重时间"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl14" title="皮重时间"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl15" title="备注"/></td>
+				</tr>`
+        if (i == null) {
+            $('#tableInsert tbody').append(row)
+        } else {
+            $('#tableInsert tbody tr').eq(i).after(row)
+        }
+        $('#tableInsert tbody .lineNumber').each(function (i) { //更新行号
+            $(this).val(i + 1)
+        })
+    }
+
+    //合计数量/金额
+    function totalAmount() {
+        let roughWeight = 0, tareWeight = 0, netWeight = 0
+        //合计毛重
+        $('#tableInsert tbody [data-id="jl8"]').each(function () {
+            roughWeight = zMath.plus(roughWeight, $(this).val() * 1)
+        })
+        //合计皮重
+        $('#tableInsert tbody [data-id="jl9"]').each(function () {
+            tareWeight = zMath.plus(tareWeight, $(this).val() * 1)
+        })
+        //合计净重
+        $('#tableInsert tbody [data-id="jl10"]').each(function () {
+            netWeight = zMath.plus(netWeight, $(this).val() * 1)
+        })
+        $('#tableInsert tfoot .roughWeight').text(roughWeight.toFixed(toDecimal))  //毛重
+        $('#tableInsert tfoot .tareWeight').text(tareWeight.toFixed(toDecimal)) //皮重
+        $('#tableInsert tfoot .netWeight').text(netWeight.toFixed(toDecimal)) //净重
+    }
+
+
+    //初始化设备
+    $('.btn_reset').click(function () {
+        $.post(
+            '../adminx/slave/initSystem.do',
+            {
+                token,
+            },
+            res => {
+                if (res.code != 1111) {
+                    layer.msg(res.msg)
+                    return false
+                }
+                layer.msg(res.msg)
+            }
+        )
+    })
+
+
+    //过磅类型选择
+    $(".WeighingType input[type='radio']").click(function () {
+        $(this).prop('checked', true)
+        $(this).siblings().prop('checked', false)
+        let val = $('input:radio:checked').val();
+    });
+
+    //过磅模式选择
+    $(".WeighingMode input[type='radio']").click(function () {
+        $(this).prop('checked', true)
+        $(this).siblings().prop('checked', false)
+        let val = $('input:radio:checked').val();
+    });
+
+    //是否自动过磅
+    $('#type7').click(function () {
+        // console.log($(this).prop('checked'))
+        if ($(this).prop('checked') == true) {
+            $('.box .form-control').prop('disabled', true)
+            $('.handBox .btn,.btn_cancel,.btn_insert1,.btn_dataCof').prop('disabled', true)
+        } else {
+            $('.box .form-control').prop('disabled', false)
+            $('.handBox .btn').prop('disabled', false)
+        }
+    })
+
+    // 清空按钮
+    $('.btn_cancel').click(function () {
+        $('.container [name="carCode"]').val('')  // 车号
+        $('.container [name="address"]').val('')  //发货单位
+        $('.container [name="reAddress"]').val('')  //收货单位
+        $('.container [name="huoming"]').val('') // 货名
+        $('.container [name="guige"]').val('')  // 规格
+        $('.container [name="remark"]').val('')  // 备注
+        $('.container [name="maoZ"]').val('') //毛重
+        $('.container [name="piZ"]').val('')  // 皮重
+        $('.container [name="jingZ"]').val('')  // 净重
+    })
+
+    // 保存按钮
+    $('.btn_insert1').click(function () {
+        let field = {
+            carNum: $('.container [name="carCode"]').val(), //车号
+            type: 'PO', // 过磅类型
+            faHuo: $('.container [name="address"]').val(), //发货单位
+            shouHuo: $('.container [name="reAddress"]').val(), // 收货单位
+            goodsName: $('.container [name="huoming"]').val(), // 货名
+            spec: $('.container [name="guige"]').val(), // 规格
+            userName: loginRealName,  // 录入人名称
+        }
+        field.token = token
+        $.post(
+            '../adminx/record/add.do',
+            field,
+            res => {
+                if (res.code != 1111) {
+                    layer.msg(res.msg)
+                    return false
+                }
+                layer.msg(res.msg)
+            }
+        )
+    })
+
+    $('.btn_dataCof').click(function () {
+        $('.container [name="maoZ"]').val(data.map.毛重)  //毛重
+        $('.container [name="piZ"]').val(data.map.皮重)  // 皮重
+        $('.container [name="jingZ"]').val(data.map.净重)  // 净重
+    })
+
+    if (loginSlaveList == '') {
+        layer.open({
+            type: 1,
+            title: '信息',
+            area: ['350px', '203px'], //宽高
+            content: $('#formVerify')
+        })
+    }
+
+    //返回
+    $('.btn_submit').click(function () {
+        layer.closeAll('page');
+    })
+    //前道闸 起杆、落杆
+    $('.btn_beforePole').click(function () {
+        let poleType = $(this).attr('data-type')
+        let slaveIp = ''
+        let serialSort = ''
+        loginSlaveList.forEach(function (item, i) {
+            if (poleType == item.type) {
+                serialSort = item.serialSort
+                slaveIp = item.slaveIp
+            }
+        })
+        $.post(
+            '../adminx/slave/updateSlave.do',
+            {
+                token,
+                slaveIp: slaveIp,
+                sort: serialSort,
+                status: true,
+                type: poleType
+            },
+            res => {
+                done(res)   //常规操作后的处理
+            }
+        )
+    })
+
+    //后道闸 起杆、落杆
+    $('.btn_afterPole').click(function () {
+        let poleType = $(this).attr('data-type')
+        let slaveIp = ''
+        let serialSort = ''
+        loginSlaveList.forEach(function (item, i) {
+            if (poleType == item.type) {
+                serialSort = item.serialSort
+                slaveIp = item.slaveIp
+            }
+        })
+        $.post(
+            '../adminx/slave/updateSlave.do',
+            {
+                token,
+                slaveIp: slaveIp,
+                sort: serialSort,
+                status: true,
+                type: poleType
+            },
+            res => {
+                done(res)   //常规操作后的处理
+            }
+        )
+    })
+</script>
+</body>
+</html>

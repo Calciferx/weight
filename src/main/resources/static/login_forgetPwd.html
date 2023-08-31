@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>找回密码</title>
+    <link rel="shortcut icon" href="_img/favicon.ico">
+    <!--	<link rel="shortcut icon" href="_img/logo.png">-->
+    <!--第三方css-->
+    <link rel="stylesheet" href="_plugin/layui/css/layui.css">
+    <link rel="stylesheet" href="_plugin/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="_plugin/zTree/css/bootstrapStyle/bootstrapStyle.css">
+    <link rel="stylesheet" href="_plugin/jqueryStep/css/jquery.step.css">
+    <!--自定义css-->
+    <link rel="stylesheet" href="_css/main.css">
+    <style>
+        html, body {
+            margin: 0;
+            font-family: "Microsoft YaHei";
+            height: 100%;
+        }
+
+        body {
+            background: linear-gradient(120deg, #00c264, #039956);
+
+        }
+
+        .background {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            /*height: 90%;*/
+            background-image: url("_img/login/background.png");
+            /*background-size: cover;*/
+            background-position: 50%;
+            background-repeat: no-repeat;
+        }
+
+        .main {
+            width: 1160px;
+            height: 680px;
+            position: relative;
+            top: 50%;
+            margin-top: -360px;
+            left: 50%;
+            margin-left: -580px;
+        }
+
+        .safeArea {
+            width: 980px;
+            height: 520px;
+            position: absolute;
+            top: 100px;
+            right: 120px;
+            background: #fff;
+            border: 1px solid #d4d3d3;
+            color: #333;
+            border-radius: 10px;
+            opacity: .95;
+            padding: 20px;
+        }
+
+        .btnBar {
+            position: absolute;
+            bottom: 40px;
+            left: 440px;
+        }
+
+        .btn {
+            color: #fff;
+        }
+
+        .bottomBtn {
+            width: 164px;
+            height: 40px;
+        }
+
+        .smsCode.active {
+            padding: 6px;
+        }
+
+        .inputBox {
+            padding: 20px 0;
+        }
+
+        .inputBox .form-row {
+            margin-left: 105px;
+        }
+
+        .enterDone {
+            padding: 20px 26%;
+            font-size: 18px;
+        }
+
+        #passstrength {
+            color: #f41a12;
+        }
+    </style>
+</head>
+<body>
+<!--<div>-->
+<div class="background">
+    <div class="main">
+        <!--登录盒子-->
+        <div class="safeArea">
+            <form class="layui-form" id="formInsert" lay-filter="formInsert">
+                <div id="step" class="step"></div>
+                <div class="inputBox">
+                    <div class="form-row enterPhone">
+                        <div class="col-12">
+                            <div class="form-group form-row">
+                                <label class="col-2 col-form-label">手机号</label>
+                                <div class="col-6">
+                                    <input class="form-control" name="phone" id="phone" maxlength="11"
+                                           autocomplete="off">
+                                    <span id="passstrength"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group form-row">
+                                <label class="col-2 col-form-label">短信验证码</label>
+                                <div class="col-4">
+                                    <input class="form-control" name="smsCode">
+                                </div>
+                                <div class="col-2">
+                                    <button type="button" class="btn btn-outline-secondary smsCode">获取验证码</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row enterPwd none">
+                        <div class="col-12">
+                            <div class="form-group form-row">
+                                <label class="col-2 col-form-label">新密码</label>
+                                <div class="col-6">
+                                    <input type="password" class="form-control" name="password" id="newPass">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group form-row">
+                                <label class="col-2 col-form-label">确认密码</label>
+                                <div class="col-6">
+                                    <input type="password" class="form-control" id="newPassCfm">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row enterDone none">
+                        新密码重置成功，请重新登录！
+                    </div>
+                </div>
+                <div class="btnBar">
+                    <!--				<div class="btn-group">-->
+                    <!--					<button class="btn btn-outline-secondary bottomBtn prevStep">上一步</button>-->
+                    <!--				</div>-->
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary bottomBtn nextStep" lay-submit
+                                lay-filter="btn_submit">
+                            下一步
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+<!--</div>-->
+<!--第三方js-->
+<script src="_plugin/layui/layui.all.js"></script>
+<script src="_plugin/jquery/jquery-3.3.1.min.js"></script>
+<script src="_plugin/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="_plugin/jqueryStep/js/jquery.step.min.js"></script>
+
+<script>
+    // $('#phone').val(opener.$('#userName').val()) //父页面手机号
+    //生成验证码
+    // var verifyCode = new zVerify('verifyCode', {
+    // 	background: '#eaecee', //背景颜色
+    // 	colorArr: [50, 150],   //字体颜色随机区间
+    // })
+    const host = 'http://192.168.1.217:8080/weightproject'  //接口路径  本地
+    //进度条
+    var $step = $('.step')
+    $step.step({
+        index: 0,
+        time: 500,
+        title: ['身份验证', '登录密码重置', '重置完成']
+    });
+</script>
+<script>
+    var count = 60, timer = null;
+    //获取验证码
+    $('.smsCode').click(function () {
+        if (timer == null) { //防止用户重复点击按钮--------------------
+            timer = setInterval(function () {
+                count--;
+                $('.smsCode').addClass('active')
+                $('.smsCode').text(count + 's后重新获取');
+                if (count <= 0) {
+                    clearInterval(timer);
+                    $('.smsCode').removeClass('active')
+                    $('.smsCode').text('获取验证码');
+                    timer = null;
+                }
+            }, 1000);
+            console.log('点击获取----------')
+        } else {
+            console.log('在获取中----------')
+        }
+    })
+
+
+    /*	$('#phone').keyup(function () {
+            // var myreg = new RegExp("/^[1][3,4,5,6,7,8,9][0-9]{9}$/")
+            var myreg = new RegExp("/^[1][3,4,5,6,7,8,9][0-9]{9}$/")
+            var phone = $(this).val();
+            if (!myreg.test(phone)) {
+                $("#passstrength").addClass("errorTextColor");
+                $("#passstrength").html("请输入正确的手机号");
+                return false;
+            } else {
+                $('#passstrength').className = 'ok';
+                $('#passstrength').html('');
+                return true
+            }
+        })*/
+    //监听下一步按钮
+    layui.form.on('submit(btn_submit)', function (data) {
+        let field = data.field
+        console.log(field)
+        console.log($step.getIndex())
+        let stepIndex = $step.getIndex()  //获取该步骤index
+        if (stepIndex == 0) {//当前步骤为输入手机号-------------------------------------
+            if (!field.phone) {
+                layer.msg('请输入手机号')
+                return false
+            }
+            if (!field.smsCode) {
+                layer.msg('请输入验证码')
+                return false
+            }
+
+            $.post(
+                host + '/adminx/nongUser/oneById',
+                field,
+                function (res) {
+                    if (res.code != 1111) {
+                        layer.msg(res.msg)
+                        return false
+                    }
+                    $('.enterPwd').css('display', 'flex')
+                    $('.enterPwd').siblings().css('display', 'none')
+                    $('.enterPwd').removeClass('none')
+                    $step.nextStep(); //下一步
+                }
+            )
+
+        } else if (stepIndex == 1) {//当前步骤为输入新密码-------------------------------
+            let newPass = $('#newPass').val()
+            let newPassCfm = $('#newPassCfm').val()
+            if (!newPass) {
+                layer.msg('请输入密码')
+                return false
+            }
+            if (!newPassCfm) {
+                layer.msg('请输入确认密码')
+                return false
+            }
+            if (newPass != newPassCfm) {
+                layer.msg('新密码两次输入不一致')
+                return false
+            }
+            field.msgid = '1111' //短信验证码id(?)
+            // console.log(field)
+            // return false
+            $.post(
+                host + '/adminx/nongUser/forgotPassword',
+                field,
+                function (res) {
+                    if (res.code != 1111) {
+                        layer.msg(res.msg)
+                        return false
+                    }
+                    $('.enterDone').css('display', 'flex')
+                    $('.enterDone').siblings().css('display', 'none')
+                    $('.enterDone').removeClass('none')
+                    $('.nextStep').text('重新登录')
+                    $step.nextStep(); //下一步
+                }
+            )
+
+        } else if (stepIndex == 2) {//当前步骤为重置完成----------------------------------
+            location.replace('login.html')
+        }
+        // $step.getIndex()  //获取该步骤index
+        // $step.toStep(2); //跳到第三步
+    })
+
+</script>
+</body>
+</html>

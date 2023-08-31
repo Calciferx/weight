@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+    <!--第三方css-->
+    <link rel="stylesheet" href="_plugin/layui/css/layui.css">
+    <link rel="stylesheet" href="_plugin/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="_plugin/zTree/css/bootstrapStyle/bootstrapStyle.css">
+    <!--自定义css-->
+    <link rel="stylesheet" href="_css/main.css">
+</head>
+<style>
+    .layui-layer .layui-layer-btn .layui-layer-btn0 {
+        background-color: #00b9a3 !important;
+        border-color: #00b9a3 !important;
+        color: #fff;
+    }
+
+    form.bodyGrid main {
+        margin-top: -53px;
+    }
+
+    /*tab-----------------*/
+    .layui-tab .layui-tab-title {
+        height: 30px;
+    }
+
+    .layui-tab-title li {
+        line-height: 61px;
+    }
+
+    .layui-tab {
+        padding: 0 10px 10px;
+        margin: 0;
+    }
+
+    .form-row {
+        margin-top: 10px;
+    }
+
+    .biaoti {
+        font-size: 16px;
+        font-weight: bold;
+        margin: 20px 0 0 20px;
+        color: #333333;
+    }
+
+    /*保存按钮----------------------------*/
+    .layui-form > footer {
+        position: fixed;
+        margin: 0;
+        padding: 0 20px 30px 0;
+        background: transparent;
+        outline: none;
+        box-shadow: none;
+    }
+</style>
+<body>
+<!--副框架-->
+<form class="layui-form bodyGrid" id="formInsert" lay-filter="formInsert">
+    <main>
+        <div class="layui-tab" lay-filter="tab">
+            <ul class="layui-tab-title">
+                <li lay-id="0" class="layui-this">公共</li>
+                <li lay-id="1">县级市场分类分析</li>
+            </ul>
+            <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show">
+                    <div class="biaoti">启用审批流</div>
+                    <div class="form-row" id="common">
+                    </div>
+                </div>
+                <div class="layui-tab-item">
+                    <div class="biaoti">设置市场占有情况</div>
+                    <div class="form-row" id="analysis">
+
+                        <!--<div class="col-6">
+                            <div class="form-group form-row">
+                                <label class="col-4 col-form-label">一般</label>
+                                <div class="col-8">
+                                    <input class="form-control" name="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group form-row">
+                                <label class="col-4 col-form-label">僵尸</label>
+                                <div class="col-8">
+                                    <input class="form-control" name="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group form-row">
+                                <label class="col-4 col-form-label">空白</label>
+                                <div class="col-8">
+                                    <input class="form-control" name="">
+                                </div>
+                            </div>
+                        </div>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="btnBar">
+            <div class="btn-group">
+                <button class="btn_submit" lay-submit lay-filter="btn_submit">保存</button>
+            </div>
+        </div>
+    </footer>
+</form>
+
+
+<!--第三方js-->
+<script src="_plugin/layui/layui.all.js"></script>
+<script src="_plugin/jquery/jquery-3.3.1.min.js"></script>
+<script src="_plugin/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!--自定义js-->
+<script src="_js/main.js"></script>
+
+<script>
+    /*查询相关----------------------------------------------------------*/
+    getFlow()
+
+    function getFlow() {
+        $('#formInsert #common').empty()
+        $.post(
+            host + '/adminx/options/findList.do',
+            {
+                token
+            },
+            function (res) {
+                if (res.code != 1111) {
+                    layer.msg(res.msg)
+                    return false
+                }
+                let data = res.data
+                data.forEach(function (item, i) {
+                    let type = item.type
+                    if (type == 'auditDistrbutor') {
+                        type = '经销商档案'
+                    } else if (type == 'auditPlantUser') {
+                        type = '种植户档案'
+                    } else if (type == 'auditMeeting') {
+                        type = '市场活动'
+                    } else if (type == 'auditNewView') {
+                        type = '观摩会'
+                    } else if (type == 'auditContractD') {
+                        type = '电子合同'
+                    } else if (type == 'auditOrder') {
+                        type = '发货单'
+                    } else if (type == 'auditChangeOrder') {
+                        type = '变更单'
+                    } else if (type == 'auditClientAddress') {
+                        type = '客户地址档案'
+                    } else if (type == 'auditClientContract') {
+                        type = '客户联系人档案'
+                    } else if (type == 'auditPriceReview') {
+                        type = '商品价格评审'
+                    } else {
+                        return false
+                    }
+                    // console.log(type)
+                    let div = `<div class="col-6">
+				<div class="form-group form-row">
+					<div class="col-4">
+						<div class="custom-control custom-checkbox custom-control-inline">
+							<input type="checkbox" class="form-control custom-control-input" name="${item.type}"
+							       id="${item.id}"
+							       value="0" lay-ignore>
+							<label class="custom-control-label" for="${item.id}"></label>
+						</div>
+					</div>
+					<label class="col-8 col-form-label">${type}</label>
+				</div>
+			</div>`
+                    $('#formInsert #common').append(div)
+                    //复选框赋值
+                    item.status == 1 ? $(`.form-control#${item.id}`).prop('checked', true) : $(`.form-control#${item.id}`).prop('checked', false)
+                    $('#formInsert #common [name="auditMeeting"]').attr('disabled', true)   // 市场活动禁用审批流
+                })
+            }
+        )
+    }
+
+    //县级市场分类分析
+    function getClassificationAnalysis() {
+        $('#formInsert #analysis').empty()
+        $.post(
+            host + '/adminx/classificationAnalysis/list',
+            {
+                token
+            },
+            res => {
+                if (res.code != 1111) {
+                    layer.msg(res.msg)
+                    return false
+                }
+                let data = res.data
+                layform.val('formInsert', data)
+                data.forEach(function (item, i) {
+                    let classification = item.classification
+                    switch (classification * 1) {
+                        case 1:
+                            classification = '优秀'
+                            break
+                        case 2:
+                            classification = '一般'
+                            break
+                        case 3:
+                            classification = '僵尸'
+                            break
+                        case 4:
+                            classification = '空白'
+                            break
+                    }
+                    let div = `
+				<div class="col-6 bazaar" data-id="${item.id}">
+				<div class="form-group form-row">
+				<label class="col-3 col-form-label">${classification}</label>
+				<div class="col-4">
+				<input class="form-control" name="minimum" value="${item.minimum}" onKeyUp="value=value.replace(/[\\W]/g,'')" placeholder="最小值">
+				</div>
+				<div class="col-1">
+				-
+				</div>
+				<div class="col-4">
+				<input class="form-control" name="max" value="${item.max}" onKeyUp="value=value.replace(/[\\W]/g,'')" placeholder="最大值">
+				</div>
+				</div>
+				</div>`
+                    $('#formInsert #analysis').append(div)
+                })
+                //当前表单数据(暂存, 修改页点击返回时判断是否有改动)(放在最后)
+                thisform = layform.val('formInsert')
+            }
+        )
+    }
+
+</script>
+<script>
+    /*按钮事件----------------------------------------------------------*/
+    //监听tab切换
+    element.on('tab(tab)', function (data) {
+        let tabType = $('.layui-tab .layui-this').attr('lay-id')
+        if (tabType == '0') {
+            getFlow()
+        } else if (tabType == '1') {
+            getClassificationAnalysis()
+        }
+    })
+
+
+    //保存_执行 (表单内容, 按钮名称)
+    function doSubmit(field, btn) {
+        let tabType = $('.layui-tab .layui-this').attr('lay-id')
+        if (tabType == '0') {
+            let jsontr = []
+            $('#common .form-control ').each(function () {   //遍历
+                let status = $(this).prop('checked') ? 1 : 0
+                jsontr.push({
+                    id: $(this).attr('id'),
+                    status: status,
+                })
+            })
+            jsontr = JSON.stringify(jsontr)  //封装成json数据
+
+            $.post(
+                host + '/adminx/options/update.do',
+                {
+                    token,
+                    JsonStr: jsontr
+                },
+                res => {
+                    layer.msg(res.msg)
+                    if (res.code != 1111) {
+                        return false
+                    }
+                }
+            )
+        } else if (tabType == '1') {
+            let jsonStr = []
+            $('#analysis .bazaar').each(function () {
+                jsonStr.push({
+                    objectId: $(this).attr('data-id'),
+                    minimum: $(this).find('[name="minimum"]').val(),
+                    max: $(this).find('[name="max"]').val(),
+                })
+            })
+            jsonStr = JSON.stringify(jsonStr)  //封装成json数据
+            $.post(
+                host + '/adminx/classificationAnalysis/batchUpdate',
+                {
+                    token,
+                    jsonStr: jsonStr
+                },
+                res => {
+                    if (res.code != 1111) {
+                        layer.msg(res.msg)
+                        return false
+                    }
+                    layer.msg(res.msg)
+                }
+            )
+        }
+
+    }
+
+
+</script>
+</body>
+</html>

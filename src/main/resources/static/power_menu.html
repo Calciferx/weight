@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>菜单管理</title>
+    <!--第三方css-->
+    <link rel="stylesheet" href="_plugin/layui/css/layui.css">
+    <link rel="stylesheet" href="_plugin/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="_plugin/zTree/css/bootstrapStyle/bootstrapStyle.css">
+    <link rel="stylesheet" href="_plugin/fontawesome/css/all.css">
+    <!--自定义css-->
+    <link rel="stylesheet" href="_css/main.css">
+    <style>
+        .ztreeTable {
+            margin: 0;
+            padding: 0;
+            border-top: 1px solid #E3E3E3;
+            border-left: 1px solid #E3E3E3;
+        }
+
+        .ztreeTable li ul {
+            padding-left: 0px;
+        }
+
+
+        /*微调图标*/
+        .ztreeTable li span.button {
+            margin-top: 1px;
+        }
+
+        /*微调引导线*/
+        .ztreeTable li span.switch {
+            margin-bottom: 2px;
+        }
+
+        .ztreeTable li a {
+            width: 100%;
+        }
+
+        .ztreeTable li a.curSelectedNode {
+            height: 100%;
+            background-color: transparent;
+        }
+
+        .ztreeTable div.tr {
+            height: 24px;
+            line-height: 24px;
+        }
+
+        .ztreeTable div.tr:hover {
+            background-color: #f4f9f9;
+            z-index: -1;
+        }
+
+        .ztreeTable div.th,
+        .ztreeTable div.td {
+            height: 100%;
+            display: inline-block;
+            border-right: 1px solid #E3E3E3;
+            border-bottom: 1px solid #E3E3E3;
+            overflow: hidden;
+            padding: 0 10px;
+        }
+
+        .ztreeTable div.th {
+            font-weight: bold;
+            background: #f0f1f2;
+            border-bottom-width: 2px;
+        }
+
+        .ztreeTable div.td:first-child {
+            text-align: left;
+        }
+
+        .ztreeTable div.td button {
+            width: 20px;
+            height: 18px;
+            font-size: 12px;
+            margin: 0 2px;
+            margin-top: -5px;
+            border-radius: 3px;
+            background-color: #007eff;
+        }
+
+        .ztreeTable div.td button i {
+            position: relative;
+            top: -2px;
+        }
+
+        input[type=button] {
+            background: #fff;
+            border: 1px solid #4a90d4;
+            border-radius: 2px;
+            margin: 0 2px 0 2px;
+            padding: 0 3px;
+            cursor: pointer;
+        }
+
+
+        .bodyGrid {
+            /*grid-template: 1fr / 1fr;*/
+            grid-template-rows: 1fr;
+            grid-template-columns: 1fr;
+            grid-template-areas: "main";
+            padding: 10px;
+        }
+
+        .bodyGrid > main {
+            border-radius: 10px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+<!--主框架-->
+<div class="bodyGrid">
+    <main>
+        <!--		<table class="layui-table" id="dataTable" lay-filter="dataTable"></table>-->
+        <ul class="ztree ztreeTable" id="menuTree">
+        </ul>
+    </main>
+</div>
+<!--第三方js-->
+<script src="_plugin/jquery/jquery-3.3.1.min.js"></script>
+<script src="_plugin/bootstrap/js/bootstrap.min.js"></script>
+<script src="_plugin/layui/layui.all.js"></script>
+<script src="_plugin/zTree/js/jquery.ztree.all.min.js"></script>
+<!--自定义js-->
+<script src="_js/main.js"></script>
+<script>
+
+    //初始化列表
+    function queryHandler(treeMenu) {
+        //初始化树
+        $.fn.zTree.init($("#menuTree"), settingTable, treeMenu);
+        // initRowBar()
+        //添加表头
+        var li_head = '<li><div class="tr">'
+            + '<div class="th" style="width:35%">名称</div>'
+            + '<div class="th" style="width:7%">菜单区分</div>'
+            + '<div class="th" style="width:6%" colspan="2">排序</div>'
+            + '<div class="th" style="width:25%">链接</div>'
+            + '<div class="th" style="width:13%">备注</div>'
+            + '<div class="th" style="width:14%">操作</div>'
+            + '</div></li>'
+        var rows = $("#menuTree").find('li');
+        if (rows.length > 0) {
+            rows.eq(0).before(li_head)
+        } else {
+            $("#menuTree").append(li_head);
+            $("#menuTree").append('<li ><div style="text-align: center;line-height: 30px;" >无数据</div></li>')
+        }
+    }
+
+    /**
+     * 自定义DOM节点
+     */
+    function addDiyDom(treeId, treeNode) {
+        var $tree_li = $("#" + treeNode.tId);
+        var $tree_switch = $("#" + treeNode.tId + "_switch");
+        var $tree_a = $("#" + treeNode.tId + "_a");
+        var $tree_ico = $("#" + treeNode.tId + "_ico");
+        var $tree_span = $("#" + treeNode.tId + "_span");
+
+
+        $tree_switch.css('margin-left', (treeNode.level * 1.5) + 'em')
+
+        var tree_tr = '<div class="tr">'
+            + '<div class="td" style="width:35%">'
+            + $tree_switch[0].outerHTML
+            + $tree_a[0].outerHTML
+            + '</div>'
+            + '<div class="td" style="width:7%">' + (treeNode.menuType ? (treeNode.menuType == 1 ? 'PC' : 'APP') : '') + '</div>'
+            + '<div class="td" style="width:3%">' + (treeNode.level > 1 ? '' : (treeNode.sortno ? treeNode.sortno : '')) + '</div>'
+            + '<div class="td" style="width:3%">' + (treeNode.level > 1 ? (treeNode.sortno ? treeNode.sortno : '') : '') + '</div>'
+            + '<div class="td" style="width:25%"><span class="inblock w40 tr">' + (treeNode.link ? treeNode.link : '') + '</span></div>'
+            + '<div class="td" style="width:13%">' + (treeNode.remark ? treeNode.remark : '') + '</div>'
+            + '<div class="td" style="width:14%">' + opt(treeNode) + '</div>'
+            + '</div>'
+        $tree_switch.remove()
+        $tree_a.remove()
+        $tree_li.prepend(tree_tr)
+    }
+
+    function opt(treeNode) {
+        let row = [
+            // `<button type="button" class="btn btn-sm btn-success btn_xinzeng" data-id="${treeNode.id}" data-name="${treeNode.name}" ${treeNode.isParent ? '' : 'disabled'}><i class="fal fa-plus"></i></button>`,
+            // `<button type="button" class="btn btn-sm btn-warning btn_xiugai" data-id="${treeNode.id}" data-name="${treeNode.name}" ${treeNode.id == 0 ? 'disabled' : ''}><i class="fal fa-edit"></i></button>`,
+            `<button type="button" class="btn btn-sm btn-success btn_xinzeng" data-id="${treeNode.id}" data-name="${treeNode.name}"><i class="fal fa-plus"></i></button>`,
+            `<button type="button" class="btn btn-sm btn-warning btn_xiugai" data-id="${treeNode.id}" data-name="${treeNode.name}"><i class="fal fa-edit"></i></button>`,
+            `<button type="button" class="btn btn-sm btn-danger btn_shanchu" data-id="${treeNode.id}" ${treeNode.id == 0 ? 'disabled' : ''}><i class="fal fa-trash-alt"></i></button>`,
+        ]
+        return row.join('');
+    }
+</script>
+<script>
+    //新增
+    $('#menuTree').on('click', '.btn_xinzeng', function () {
+        let treeObj = $.fn.zTree.getZTreeObj('menuTree')
+        thistr = treeObj.getNodeByParam('id', $(this).attr('data-id'))
+        layer.open({
+            type: 2,
+            title: false,
+            closeBtn: 0,
+            shade: 0,
+            anim: -1,
+            area: ['100%', '100%'],
+            content: 'power_menu_add.html?thisdo=insert'
+        })
+    })
+
+    //修改
+    $('#menuTree').on('click', '.btn_xiugai', function () {
+        layer.open({
+            type: 2,
+            title: false,
+            closeBtn: 0,
+            shade: 0,
+            anim: -1,
+            area: ['100%', '100%'],
+            content: `power_menu_add.html?id=${$(this).attr('data-id')}&thisdo=update`
+        })
+    })
+
+    //删除
+    $('#menuTree').on('click', '.btn_shanchu', function () {
+        let id = $(this).attr('data-id')
+        layer.confirm('删除后无法恢复，确定删除？', {
+            btn: ['确定', '取消'] //按钮
+        }, function () {
+            $.post(
+                '../sys/menu/delete.do',
+                {
+                    token,
+                    menuId: id
+                },
+                res => {
+                    layer.msg(res.msg)
+                    if (res.code == 1111) {
+                        getTree()
+                    }
+                }
+            )
+        });
+    })
+
+
+</script>
+<script>
+    var settingTable = {
+        view: {
+            showLine: false,
+            // showIcon: false,
+            addDiyDom: addDiyDom,
+        },
+        data: {
+            simpleData: {
+                enable: true
+            }
+        },
+        callback: {
+            // onClick: zTreeOnClick,	//节点被点击时触发
+            // onCheck: zTreeOnCheck,	//复选框被改变时触发
+        }
+    };
+
+    //获取数据
+    function getTree() {
+        $.post(
+            '../sys/menu/listAll.do'
+            , {
+                token: token
+            }
+            , function (data) {
+                if (data.code == 1111) {
+                    let zTreeNodes = data.data
+                    $.each(zTreeNodes, function () {
+                        this.pId = this.pid
+                        this.link = this.url
+                        this.img = this.icon
+                        this.menuType = this.menuType
+                        this.open = true
+                        this.isParent = this.type == 1 ? false : true
+                        delete this.url
+                        delete this.icon
+                    })
+                    zTreeNodes.unshift({id: 0, name: '菜单', isParent: true, open: true})
+                    queryHandler(zTreeNodes);
+                } else {
+                    layer.msg(data.msg)
+                }
+            }
+        )
+    }
+
+    $(function () {
+        getTree()
+    });
+</script>
+</body>
+</html>

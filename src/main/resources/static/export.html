@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+    <!--第三方css-->
+    <link rel="stylesheet" href="_plugin/layui/css/layui.css">
+    <link rel="stylesheet" href="_plugin/bootstrap/css/bootstrap.min.css">
+    <!--自定义css-->
+    <link rel="stylesheet" href="_css/main.css">
+    <style>
+        main {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding-bottom: 10vh;
+        }
+
+        .layui-badge-dot {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .layui-anim {
+            -webkit-animation-duration: .7s;
+            animation-duration: .7s;
+        }
+
+    </style>
+</head>
+<body>
+<main>
+    <div class="loadingBox">
+        <div>
+            <span class="layui-badge-dot layui-anim layui-anim-scale layui-anim-loop"></span>
+            <span class="layui-badge-dot layui-bg-orange layui-anim layui-anim-scale layui-anim-loop"></span>
+            <span class="layui-badge-dot layui-bg-green layui-anim layui-anim-scale layui-anim-loop"></span>
+            <span class="layui-badge-dot layui-bg-cyan layui-anim layui-anim-scale layui-anim-loop"></span>
+            <span class="layui-badge-dot layui-bg-blue layui-anim layui-anim-scale layui-anim-loop"></span>
+            <span class="layui-badge-dot layui-bg-black layui-anim layui-anim-scale layui-anim-loop"></span>
+        </div>
+        <div style="font-size: 20px; font-weight: 700; margin: 30px 0 10px;" i18n-text="数据打包中"></div>
+    </div>
+</main>
+<!--第三方js-->
+<script src="_plugin/jquery/jquery-3.3.1.min.js"></script>
+<script src="_plugin/layui/layui.all.js"></script>
+<script src="_plugin/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    let datasl = opener.datasl   //获取父级页面导出相关信息
+    console.log(datasl)
+    opener.$('.btn_export').attr('disabled', true)   //禁用父级页面"导出"按钮
+    $('title').text(datasl.exportName)
+
+    let _socket = 'ws://192.168.1.217:8080/weightproject/websocket/socketServer.do?' + JSON.parse(sessionStorage.getItem('loginData')).id
+    // let _socket = location.origin.replace('http', 'ws') + '/weightproject/websocket/socketServer.do?' + JSON.parse(sessionStorage.getItem('loginData')).id
+    let ws = null
+
+    setInterval(function () {  //20秒轮询
+        if (ws.readyState == 1) {
+            ws.send('heart')  //心跳
+        } else {
+            init_ws()
+        }
+    }, 20000)
+
+    init_ws()
+
+    function init_ws() {
+        ws = new WebSocket(_socket)
+
+        ws.onopen = function () {    //连接
+            console.log('连接成功')
+        }
+        ws.onmessage = function (res) {  //接收
+            console.log(res)
+            let data = JSON.parse(res.data)
+            if (data.msgType == '1111') {
+                datasl.webSocketName = data.data
+                // datasl.clientName = data.data
+                // console.log(datasl)
+                $.post(
+                    datasl.url,
+                    datasl,
+                    function (res) {
+                        console.log(res)
+                        if (res.code != 1111) {
+                            alert('导出失败')
+                            close()
+                            return false
+                        }
+                        let file = res.data
+                        $('body').append(`<a id="downloadTempfile" class="d-none" href="..${file}" download="${datasl.exportName}"></a>`)
+                        $('#downloadTempfile')[0].click()
+
+                        setTimeout(() => {   //关闭窗口
+                            close()
+                        }, 500)
+                    }
+                )
+            }
+            /*else if (data.msgType == '0') { //导出成功
+                console.log(data)
+                // console.log(datasl.url)
+                // console.log(datasl.url.includes(data.api))
+                // console.log(data.data)
+
+                if (data.code == 1111 && datasl.url.includes(data.api)) { //若ws返回的接口名 与 当前导出接口名一致
+                    $('body').append(`<a id="downloadTempfile" class="d-none" href="..${data.data}" download="${datasl.exportName}"></a>`)
+                    $('#downloadTempfile')[0].click()
+
+                    setTimeout(() => {   //关闭窗口
+                        close()
+                    }, 500)
+                }
+
+            }*/
+        }
+    }
+
+    //页面关闭前
+    onbeforeunload = function () {
+        opener.$('.btn_export').removeAttr('disabled')   //启用父级页面"导出"按钮
+        ws.close()  //断开连接
+    }
+</script>
+</body>
+</html>

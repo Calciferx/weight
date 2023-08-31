@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 操作日志(sys_log_info) -->
+<mapper namespace="com.calcifer.weight.repository.LogInfoMapper">
+    <!-- 字段映射 -->
+    <resultMap id="sysLogInfoMap" type="logInfo">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="type" property="type" jdbcType="VARCHAR"/>
+        <result column="modular" property="modular" jdbcType="VARCHAR"/>
+        <result column="function_log" property="functionLog" jdbcType="VARCHAR"/>
+        <result column="operation_log" property="operationLog" jdbcType="VARCHAR"/>
+        <result column="name_log" property="nameLog" jdbcType="VARCHAR"/>
+        <result column="ip_log" property="ipLog" jdbcType="VARCHAR"/>
+        <result column="order_date" property="orderDate" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="VARCHAR"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="log_type" property="logType" jdbcType="VARCHAR"/>
+        <result column="business_id" property="businessId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 表查询字段 -->
+    <sql id="allColumns">
+                id, modular, function_log, operation_log, name_log, ip_log, order_date, create_time, code, content
+    </sql>
+    <!-- 查询所有操作日志 -->
+    <select id="findSysLogInfoAll" resultMap="sysLogInfoMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM sys_log_info
+    </select>
+
+    <!-- 根据条件参数查询操作日志列表 -->
+    <select id="findSysLogInfoByCondition" resultMap="sysLogInfoMap">
+        SELECT
+        <include refid="allColumns"/>
+        FROM sys_log_info
+        <where>
+            <if test="type != null and type != ''">
+                AND type LIKE '%' || #{type} || '%'
+            </if>
+            <if test="modular != null and modular != ''">
+                AND modular LIKE '%' || #{modular} || '%'
+            </if>
+            <if test="functionLog != null and functionLog != ''">
+                AND function_log LIKE '%' || #{functionLog} || '%'
+            </if>
+            <if test="operationLog != null and operationLog != ''">
+                AND operation_log LIKE '%' || #{operationLog} || '%'
+            </if>
+            <if test="nameLog != null and nameLog != ''">
+                AND name_log LIKE '%' || #{nameLog} || '%'
+            </if>
+            <if test="ipLog != null and ipLog != ''">
+                AND ip_log LIKE '%' || #{ipLog} || '%'
+            </if>
+            <if test="orderDate != null and orderDate != ''">
+                AND order_date LIKE '%' || #{orderDate} || '%'
+            </if>
+            <if test="code != null and code != ''">
+                AND code LIKE '%' || #{code} || '%'
+            </if>
+            <if test="content != null and content != ''">
+                AND content LIKE '%' || #{content} || '%'
+            </if>
+            <if test="logType != null and logType != ''">
+                AND log_type LIKE '%' || #{logType} || '%'
+            </if>
+            <if test="businessId != null and businessId != ''">
+                AND business_id LIKE '%' || #{businessId} || '%'
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <!-- 根据主键查询操作日志信息 -->
+    <select id="findSysLogInfoByIds" resultMap="sysLogInfoMap" parameterType="list">
+        SELECT
+        <include refid="allColumns"/>
+        FROM sys_log_info WHERE id IN
+        <foreach collection="list" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 新增操作日志信息 -->
+    <insert id="addSysLogInfo">
+        INSERT INTO sys_log_info (id,
+                                  modular,
+                                  function_log,
+                                  operation_log,
+                                  name_log,
+                                  ip_log,
+                                  order_date,
+                                  create_time,
+                                  code,
+                                  content)
+        VALUES (#{id,jdbcType=VARCHAR},
+                #{modular,jdbcType=VARCHAR},
+                #{functionLog,jdbcType=VARCHAR},
+                #{operationLog,jdbcType=VARCHAR},
+                #{nameLog,jdbcType=VARCHAR},
+                #{ipLog,jdbcType=VARCHAR},
+                #{orderDate,jdbcType=VARCHAR},
+                #{createTime,jdbcType=VARCHAR},
+                #{code,jdbcType=VARCHAR},
+                #{content,jdbcType=VARCHAR})
+    </insert>
+
+    <!-- 批量新增操作日志信息 -->
+    <insert id="addSysLogInfos" parameterType="list">
+        INSERT INTO sys_log_info (
+        id, type, modular, function_log, operation_log, name_log, ip_log, order_date, create_time, code, content,
+        log_type, business_id
+        )
+        <foreach collection="list" index="index" item="item" separator="UNION ALL">
+            SELECT
+            #{item.id,jdbcType=VARCHAR},
+            #{item.type,jdbcType=VARCHAR},
+            #{item.modular,jdbcType=VARCHAR},
+            #{item.functionLog,jdbcType=VARCHAR},
+            #{item.operationLog,jdbcType=VARCHAR},
+            #{item.nameLog,jdbcType=VARCHAR},
+            #{item.ipLog,jdbcType=VARCHAR},
+            #{item.orderDate,jdbcType=VARCHAR},
+            #{item.createTime,jdbcType=VARCHAR},
+            #{item.code,jdbcType=VARCHAR},
+            #{item.content,jdbcType=VARCHAR},
+            #{item.logType,jdbcType=VARCHAR},
+            #{item.businessId,jdbcType=VARCHAR}
+            FROM DUAL
+        </foreach>
+    </insert>
+
+    <!-- 修改操作日志信息 -->
+    <update id="updateSysLogInfo">
+        UPDATE sys_log_info
+        <set>
+            <if test="type != null">
+                type = #{type,jdbcType=VARCHAR},
+            </if>
+            <if test="modular != null">
+                modular = #{modular,jdbcType=VARCHAR},
+            </if>
+            <if test="functionLog != null">
+                function_log = #{functionLog,jdbcType=VARCHAR},
+            </if>
+            <if test="operationLog != null">
+                operation_log = #{operationLog,jdbcType=VARCHAR},
+            </if>
+            <if test="nameLog != null">
+                name_log = #{nameLog,jdbcType=VARCHAR},
+            </if>
+            <if test="ipLog != null">
+                ip_log = #{ipLog,jdbcType=VARCHAR},
+            </if>
+            <if test="orderDate != null">
+                order_date = #{orderDate,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=VARCHAR},
+            </if>
+            <if test="code != null">
+                code = #{code,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="logType != null">
+                log_type = #{logType,jdbcType=VARCHAR},
+            </if>
+            <if test="businessId != null">
+                business_id = #{businessId,jdbcType=VARCHAR}
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 批量修改操作日志信息 -->
+    <update id="updateSysLogInfos" parameterType="list">
+        <foreach collection="list" index="index" item="item" open="BEGIN" close="END;">
+            UPDATE sys_log_info
+            <set>
+                <if test="item.type != null">
+                    type = #{item.type, jdbcType=VARCHAR},
+                </if>
+                <if test="item.modular != null">
+                    modular = #{item.modular, jdbcType=VARCHAR},
+                </if>
+                <if test="item.functionLog != null">
+                    function_log = #{item.functionLog, jdbcType=VARCHAR},
+                </if>
+                <if test="item.operationLog != null">
+                    operation_log = #{item.operationLog, jdbcType=VARCHAR},
+                </if>
+                <if test="item.nameLog != null">
+                    name_log = #{item.nameLog, jdbcType=VARCHAR},
+                </if>
+                <if test="item.ipLog != null">
+                    ip_log = #{item.ipLog, jdbcType=VARCHAR},
+                </if>
+                <if test="item.orderDate != null">
+                    order_date = #{item.orderDate, jdbcType=VARCHAR},
+                </if>
+                <if test="item.createTime != null">
+                    create_time = #{item.createTime, jdbcType=VARCHAR},
+                </if>
+                <if test="item.code != null">
+                    code = #{item.code, jdbcType=VARCHAR},
+                </if>
+                <if test="item.content != null">
+                    content = #{item.content, jdbcType=VARCHAR},
+                </if>
+                <if test="item.logType != null">
+                    log_type = #{item.logType, jdbcType=VARCHAR},
+                </if>
+                <if test="item.businessId != null">
+                    business_id = #{item.businessId, jdbcType=VARCHAR}
+                </if>
+            </set>
+            WHERE id = #{item.id};
+        </foreach>
+    </update>
+
+    <!-- 根据主键删除操作日志 -->
+    <delete id="deleteSysLogInfoById" parameterType="string">
+        DELETE
+        FROM sys_log_info
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 根据主键批量删除操作日志 -->
+    <delete id="deleteSysLogInfoByIds" parameterType="list">
+        DELETE FROM sys_log_info WHERE id IN
+        <foreach collection="list" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

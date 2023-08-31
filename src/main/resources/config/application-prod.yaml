@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: jdbc:sqlserver://192.168.111.131:1433;databaseName=weight20
+    username: xxxx
+    password: xxxxxxxxx
+calcifer:
+  weight:
+    slave-ip: 10.206.4.243
+    scale-port: COM3
+    front-card-reader-port: COM2
+    back-card-reader-port: COM4
+    enable-auth: true
+    enable-auto-scan: true
+    enable-device-init: true

@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+    <!--第三方css-->
+    <link rel="stylesheet" href="_plugin/layui/css/layui.css">
+    <link rel="stylesheet" href="_plugin/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="_plugin/zTree/css/bootstrapStyle/bootstrapStyle.css">
+    <!--自定义css-->
+    <link rel="stylesheet" href="_css/main.css">
+    <style>
+        .searchBox {
+            width: 150px;
+            /*height: 38px;*/
+        }
+
+        .searchBox .form-control {
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="bodyGrid">
+    <header>
+        <div class="btnBar">
+            <div class="btn-group searchBox">
+                <select class="form-control custom-select" data-id="staticsType" lay-ignore>
+                    <option value="2">车号</option>
+                    <option value="1">货名</option>
+                </select>
+            </div>
+            <div class="btn-group searchBox">
+                <select class="form-control custom-select" data-id="weighingMode" lay-ignore>
+                    <option value="标准过磅">标准过磅</option>
+                    <option value="一次过磅">一次过磅</option>
+                    <option value="">全部</option>
+                </select>
+            </div>
+            <div class="btn-group searchBox">
+                <input class="form-control" data-id="startTime" id="startTime" placeholder="请选择开始时间" readonly>
+            </div>
+            <div class="btn-group">至</div>
+            <div class="btn-group searchBox">
+                <input class="form-control" data-id="endTime" id="endTime" placeholder="请选择结束时间" readonly>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-outline-info btn_select1">查询</button>
+            </div>
+        </div>
+        <div class="btnBar">
+            <div class="btn-group">
+                <button class="btn_export" do-ignore>导出</button>
+                <button class="btn_print" do-ignore>打印</button>
+            </div>
+        </div>
+    </header>
+    <main>
+        <h3 class="chartTitle" style="text-align: center">统计报表</h3>
+        <table class="layui-table" id="dataTable" lay-filter="dataTable"></table>
+    </main>
+</div>
+<!--第三方js-->
+<script src="_plugin/layui/layui.all.js"></script>
+<script src="_plugin/layui/lay/modules/laydate.js"></script>
+<script src="_plugin/jquery/jquery-3.3.1.min.js"></script>
+<script src="_plugin/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="_plugin/moment/moment.min.js"></script>
+<!--自定义js-->
+<script src="_js/main.js"></script>
+<script>
+    datasl = {
+        staticsType: $('.searchBox [data-id="staticsType"]').val(),  //车号|货号
+        startTime: moment().format('YYYY-MM-01 00:00:00'),
+        endTime: moment().format('YYYY-MM-DD hh:mm:ss')
+    }
+    /*查询相关----------------------------------------------------------*/
+    $('.btn_select1').click(function () {
+        let type = $('.searchBox [data-id="staticsType"]').val()  //车号|货号
+        datasl.staticsType = type
+        datasl.weighingMode = $('.searchBox [data-id="weighingMode"]').val()
+        datasl.startTime = $('.searchBox [data-id="startTime"]').val()
+        datasl.endTime = $('.searchBox [data-id="endTime"]').val()
+        getTable()
+    })
+
+    //获取表格
+    function getTable() {
+        datasl.token = token
+        datasl.flag = 1   //查询
+        laytable.render({
+            elem: '#dataTable',
+            url: '../adminx/report/findList.do',
+            where: datasl,
+            method: 'post',
+            headers: {token: token},
+            height: 'full-140',  //设定高度-差值
+            totalRow: true,   //开启合计
+            cols: [[
+                // {width: 60, type: 'numbers', title: '序号'},
+                {
+                    minWidth: 150, title: datasl.staticsType == 2 ? '车号' : '货名',
+                    field: datasl.staticsType == 2 ? 'carNo' : 'goodsName', totalRowText: '合计'
+                },
+                {minWidth: 150, title: '车次', field: 'carNum',},
+                {
+                    minWidth: 150, title: '毛重', field: 'roughWeight',
+                    templet: `<div>{{(d.roughWeight*1).toFixed(2)}}</div>`
+                },
+                {
+                    minWidth: 150, title: '皮重', field: 'tareWeight',
+                    templet: `<div>{{(d.tareWeight*1).toFixed(2)}}</div>`
+                },
+                {
+                    minWidth: 150, title: '净重', field: 'netWeight',
+                    templet: `<div>{{(d.netWeight*1).toFixed(2)}}</div>`
+                },
+                // {minWidth: 100, title: '净重', field: 'netWeight', totalRow: true},
+            ]],
+            page: false,
+            /*page: {
+                layout: ['prev', 'page', 'next', 'skip', 'count', 'limit'], //组件
+                limits: [10, 20, 30, 50, 100, 150],  //每页展示条数
+                limit: 20,  //默认每页展示条数
+            },*/
+            request: {
+                pageName: 'page',    //页码的参数名称，默认：page
+                limitName: 'pageSize'   //每页数据量的参数名，默认：limit
+            },
+            response: {
+                statusCode: 1111  //规定成功状态码，table 组件默认为 0
+            },
+            parseData: function (res) { //表格渲染前的数据预处理
+                return {
+                    code: res.code,    //解析接口状态
+                    msg: res.msg,      //解析提示文本,当code与statusCode不等(即失败)时提示
+                    count: res.total,  //解析数据长度
+                    data: res.data,     //解析数据列表
+                    "totalRow": res.data.length > 0 ?
+                        {
+                            "carNum": res.data.carNum,
+                            "roughWeight": (res.data[0].roughWeight * 1).toFixed(2),  //毛重合计
+                            "tareWeight": (res.data[0].tareWeight * 1).toFixed(2),  //皮重合计
+                            "netWeight": (res.data[0].netWeight * 1).toFixed(2),  //净重合计
+                        } : {
+                            "carNum": 0,
+                            "roughWeight": 0,  //毛重合计
+                            "tareWeight": 0,  //皮重合计
+                            "netWeight": 0,  //净重合计
+                        }
+                };
+            },
+            done: function (res) {
+                done_table(res)   //加载表格后的处理
+            }
+        })
+    }
+</script>
+<script>
+    //----------------------------------
+    //导出
+    $('.btn_export').click(function () {
+        datasl.url = '../adminx/report/findList.do'
+        datasl.exportName = '统计报表导出'
+        datasl.flag = 2   //导出
+
+        // console.log(datasl)
+        open('export.html')
+    })
+
+    laydate.render({
+        elem: '#startTime', //指定元素
+        max: 0,
+        type: 'datetime',
+        trigger: 'click',
+        value: moment().format('YYYY-MM-DD 00:00:00')
+    })
+
+    laydate.render({
+        elem: '#endTime', //指定元素
+        max: 0,
+        type: 'datetime',
+        trigger: 'click',
+        value: new Date()
+    })
+
+
+    $('.btn_print').click(function () {
+        if (!$('[lay-id="dataTable"] .layui-table-main tr')[0]) {
+            layer.msg('无需打印')
+            return false
+        }
+        init_printAndExportBox()
+        $('#printAndExportBox thead th').css('width', '24%')
+        $('#printAndExportBox tbody td').css('width', '24%')
+        $('#printAndExportBox').prepend(`<h3 style="text-align: center">${$('.chartTitle').text()}</h3>`)
+        $('#printAndExportBox').print()
+        $('#printAndExportBox').remove() //移除临时区域
+    })
+</script>
+</body>
+</html>

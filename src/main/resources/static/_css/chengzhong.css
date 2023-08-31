@@ -1,0 +1,243 @@
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    margin: 0;
+    background-color: red;
+}
+
+.bodyGrid {
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 60% 38.9%;
+    /*grid-template-rows: 515px 290px;*/
+    grid-template-rows: 515px 1fr;
+    grid-template-areas: "weigh panel" "dataTable dataTable ";
+    grid-gap: 15px 19px;
+    padding: 12px;
+    background: #eff6fd;
+    overflow: auto;
+    position: fixed;
+    top: 0;
+    z-index: 1;
+}
+
+.bodyGrid > operation {
+    grid-area: operation;
+}
+
+.bodyGrid > weigh {
+    grid-area: weigh;
+}
+
+.bodyGrid > panel {
+    grid-area: panel;
+}
+
+.bodyGrid > dataTable {
+    grid-area: dataTable;
+}
+
+ul, li {
+    list-style: none;
+    display: inline-block;
+}
+
+footer {
+    background: #fff;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 5px;
+    margin-top: 10px;
+    padding-bottom: 20px;
+    position: sticky;
+    bottom: 0px;
+    right: 0;
+    left: 0;
+    outline: 10px solid #fff;
+    z-index: 1;
+}
+
+.form-row {
+    margin-right: 16px;
+}
+
+.cueLight {
+    margin: 5px 15px 0 0;
+}
+
+.cueLight ul li {
+    display: block;
+    font-size: 16px;
+    padding-bottom: 5px;
+}
+
+.cueLight li > span {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    margin-right: 5px;
+    background: linear-gradient(white, green); /* ��׼���﷨ */
+}
+
+/*-------------��Ϣ��¼----------------------------------------------------*/
+#bodyInsert {
+    margin: 15px;
+}
+
+#tableInsert thead, #tableInsert tbody tr, #tableInsert tfoot {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+#tableInsert thead, #tableInsert tfoot {
+    width: calc(100% - 7px);
+}
+
+#tableInsert tbody {
+    display: block;
+    height: 165px;
+    overflow-y: scroll;
+}
+
+/*------------�������------------------------------------------------------*/
+panel {
+    position: relative;
+}
+
+.typeBox {
+    display: flex;
+}
+
+.typeBtn {
+    margin: 0 10px;
+}
+
+.WeighingType, .WeighingMode, .WeighingStatus {
+    margin: 10px;
+    padding: 5px;
+    width: 30%;
+    border: 1px solid #eaecef;
+    background: #FFFFFF;
+    box-shadow: 0px 6px 7px 0px rgba(2, 24, 139, 0.12);
+    border-radius: 5px;
+}
+
+.WeighingType div, .WeighingMode div, .WeighingStatus div, .handBox div {
+    font-size: 15px;
+    font-weight: 800;
+    padding-bottom: 5px;
+}
+
+.WeighingStatus ul li {
+    display: block;
+    padding-bottom: 5px;
+}
+
+/*״̬*/
+.WeighingStatus span {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border-radius: 10%;
+    vertical-align: middle;
+    margin: 0 5px;
+    background-color: #00B83F;
+}
+
+/*----------�ֶ�����-----------------------------------------------------*/
+.handBox {
+    display: flex;
+    margin: 10px;
+    padding: 5px;
+    width: 95%;
+    border: 1px solid #eaecef;
+    background: #FFFFFF;
+    box-shadow: 0px 6px 7px 0px rgba(2, 24, 139, 0.12);
+    border-radius: 5px;
+    vertical-align: middle;
+}
+
+.handBox .pilotLamp, .handBox .beforeBrake, .handBox .AfterBrake {
+    width: 30%;
+    margin: 0 20px 0 10px;
+}
+
+.handBox .btn {
+    display: block;
+    border: 1px solid #DCDFE6;
+    margin: 5px 0 0 5px;
+}
+
+.pilotLamp .btn span {
+    display: inline-block;
+    width: 20px;
+    height: 15px;
+    border-radius: 30%;
+    margin: 0 10px 0 5px;
+}
+
+.handBox i {
+    margin: 0 10px 0 5px;
+    color: #0066cf;
+}
+
+#bodyInsert .form-control, .input-group > .form-control {
+    height: 25px;
+    padding: 0 8px;
+}
+
+.AutoWeighing {
+    display: flex;
+    align-items: baseline;
+}
+
+.AutoWeighing div {
+    margin-right: 15px;
+}
+
+.AutoWeighing .btn {
+    height: 30px;
+    padding: 0 4px;
+}
+
+/*------------------��־---------------*/
+.messageBox {
+    position: absolute;
+    margin: 0 10px;
+    border: 1px solid #DCDFE6;
+    background: #FFFFFF;
+    /*box-shadow: 0px 6px 7px 0px rgba(2, 24, 139, 0.12);*/
+    border-radius: 5px;
+    padding: 10px;
+    width: 95%;
+    height: 155px;
+    overflow: auto;
+}
+
+@media screen and (max-device-width: 1366px) {
+    .bodyGrid {
+        grid-template-columns: 60% 38.9%;
+        grid-template-rows: 500px 281px;
+        grid-gap: 15px 19px;
+    }
+
+    #tableInsert tbody {
+        height: 145px;
+    }
+
+    #bodyInsert .form-control, .input-group > .form-control {
+        height: 20px;
+        padding: 0 8px;
+    }
+
+    .AutoWeighing {
+        margin-bottom: 2px;
+    }
+}

@@ -1,0 +1,6 @@
+2020年6月29日
+修复了页面高度不足时, laydate闪退的bug, 带来的副作用: focus不起效.
+修改文件:
+layui.all.js
+关键代码:
+trigger:"focus"  =>   trigger:"click"

@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+    <!--第三方css-->
+    <link rel="stylesheet" href="_plugin/layui/css/layui.css">
+    <link rel="stylesheet" href="_plugin/bootstrap/css/bootstrap.min.css">
+    <!--自定义css-->
+    <link rel="stylesheet" href="_css/main.css">
+</head>
+<body>
+<!--主框架-->
+<div class="bodyGrid">
+    <header>
+        <div class="btnBar">
+            <div class="btn-group roleBox">
+                <button class="btn btn_insert1">添加用户</button>
+                <button class="btn btn_delete">取消授权</button>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn_cancel">返回</button>
+            </div>
+        </div>
+        <div class="btnBar">
+            <!--<div class="btn-group">
+                <button class="btn_search">模糊查询</button>
+                <div class="input-group">
+                    <input class="form-control" data-id="keywords">
+                    <div class="input-group-append">
+                        <button class="btn_search_do">模糊查询</button>
+                    </div>
+                </div>
+            </div>-->
+            <div class="btn-group">
+                <button class="btn btn_export" do-ignore>导出</button>
+                <!--<button class="btn_print">打印</button>-->
+            </div>
+        </div>
+    </header>
+    <main>
+        <table class="layui-table" id="dataTable" lay-filter="dataTable"></table>
+    </main>
+</div>
+
+<!--第三方js-->
+<script src="_plugin/layui/layui.all.js"></script>
+<script src="_plugin/jquery/jquery-3.3.1.min.js"></script>
+<script src="_plugin/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!--自定义js-->
+<script src="_js/main.js"></script>
+
+<script>
+    let roleId = get_parm('roleId')  //角色id
+    let roleFlag = get_parm('flag')  //来源
+    if (roleFlag == 'yzjs') {  //来自客户预置角色
+        $('.roleBox').addClass('none')
+    }
+</script>
+<script>
+    //获取表格
+    function getTable() {
+        datasl.token = token
+        datasl.roleId = roleId
+        datasl.flag = 2   //查询
+        laytable.render({
+            elem: '#dataTable',
+            url: host + '/adminx/role/findUser',
+            where: datasl,
+            method: 'post',
+            headers: {token: token},
+            height: 'full-100',
+            cols: [[
+                {
+                    width: 46, type: 'checkbox', fixed: 'left'
+                }, {
+                    minWidth: 120, title: '登录账号', field: 'userName'
+                }, {
+                    minWidth: 120, title: '真实姓名', field: 'realName'
+                }, {
+                    minWidth: 120, title: '营销区域', field: 'areaName'
+                    // }, {
+                    // 	minWidth: 120, title: '角色', field: 'roleName'
+                }, {
+                    minWidth: 120, title: '手机号码', field: 'phone'
+                }, {
+                    minWidth: 120, title: '邮箱', field: 'email'
+                }, {
+                    minWidth: 160, title: '创建时间', field: 'createTime'
+                }, {
+                    width: 80, title: '状态', fixed: 'right',
+                    templet: function (d) {
+                        switch (d.status * 1) {
+                            case 0:
+                                d.status = `<span class="status_fz">停用</span>`
+                                break
+                            case 1:
+                                d.status = `<span class="status_ok">启用</span>`
+                                break
+                        }
+                        return d.status
+                    },
+                },
+            ]],
+            /*page: {
+                layout: ['prev', 'page', 'next', 'skip', 'count', 'limit'], //组件
+                limits: [10, 20, 30, 50, 100, 150],  //每页展示条数
+                limit: 20,  //默认每页展示条数
+            },
+            request: {
+                pageName: 'page',    //页码的参数名称，默认：page
+                limitName: 'pageSize'   //每页数据量的参数名，默认：limit
+            },*/
+            response: {
+                statusCode: 1111  //规定成功状态码，table 组件默认为 0
+            },
+            parseData: function (res) { //表格渲染前的数据预处理
+                return {
+                    code: res.code,    //解析接口状态
+                    msg: res.msg,      //解析提示文本,当code与statusCode不等(即失败)时提示
+                    count: res.total,  //解析数据长度
+                    data: res.data     //解析数据列表
+                };
+            },
+            done: function (res) {
+                done_table(res)   //加载表格后的处理
+            }
+
+        })
+    }
+</script>
+<script>
+    /*按钮事件----------------------------------------------------------*/
+    if (get_parm('roleType') == '4') {  // 管理员角色 控制只能有一个用户
+        $('.btn_insert1').attr('disabled', true)
+        $('.btn_delete').attr('disabled', true)
+    }
+    //----------------------------------
+    //添加用户
+    $('.btn_insert1').click(function () {
+        layer.open({
+            type: 2,
+            resize: false,
+            // title: false,
+            title: '选择用户',
+            area: [`800px`, `90%`],
+            content: `power_user_choose.html?isCheckbox=checkbox`,
+        })
+    })
+
+    //添加用户_执行
+    function conf_users(userIds) {
+        // console.log(userIds)
+        // console.log(roleId)
+        // return false
+        $.post(
+            host + '/adminx/role/assignUsers',
+            {
+                token,
+                roleId,
+                userIds,
+            },
+            function (res) {
+                if (res.code != 1111) {
+                    layer.msg(res.msg)
+                    return false
+                }
+                laytable.reload('dataTable') //刷新表格当前页
+            }
+        )
+    }
+
+    //----------------------------------
+    //取消授权
+    $('.btn_delete').click(function () {
+        let checkeds = laytable.checkStatus('dataTable').data  //获取选中数据(复选框)
+        if (!$('body').attr('thisdo')) {
+            if (!checkeds.length) {
+                layer.msg('请至少选择一个用户')
+                return false
+            }
+        } else {
+            checkeds = [thistr]
+        }
+
+        layer.confirm(`是否取消这${checkeds.length}位用户的权限？`, {
+            btn: ['确定', '取消'] //按钮
+        }, function () {
+            $.post(
+                host + '/adminx/role/removeUsers',
+                {
+                    token,
+                    roleId,
+                    userIds: checkeds.map(item => item.userId).join(',')
+                },
+                res => {
+                    done(res)   //常规操作后的处理
+                }
+            )
+        })
+    })
+</script>
+</body>
+</html>

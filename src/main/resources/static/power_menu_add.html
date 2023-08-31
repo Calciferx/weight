@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>新增菜单项</title>
+    <!--第三方css-->
+    <link rel="stylesheet" href="_plugin/layui/css/layui.css">
+    <link rel="stylesheet" href="_plugin/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="_plugin/zTree/css/bootstrapStyle/bootstrapStyle.css">
+    <link rel="stylesheet" href="_plugin/fontawesome/css/all.css">
+
+    <link rel="stylesheet" href="_plugin/fontIconPicker/css/jquery.fonticonpicker.css">
+    <link rel="stylesheet"
+          href="_plugin/fontIconPicker/themes/bootstrap-theme/jquery.fonticonpicker.bootstrap.min.css">
+    <!--自定义css-->
+    <link rel="stylesheet" href="_css/main.css">
+    <style>
+        form.bodyGrid {
+            /*grid-template: 1fr / 1fr;*/
+            /*grid-template-areas: "main";*/
+            z-index: 0;
+            padding: 0;
+            border-radius: 0;
+        }
+
+        /*----------------------------------------------------------fontIconPicker重写*/
+        .icons-selector .selector-popup {
+            width: 540px;
+        }
+
+        /*图标选择器*/
+        .icons-selector {
+            height: 100%;
+        }
+
+        .icons-selector .selector {
+            height: 100%;
+        }
+
+        .icons-selector .selected-icon i,
+        .icons-selector .selector-button i {
+            line-height: initial;
+        }
+
+        .fip-bootstrap.icons-selector .selected-icon,
+        .fip-bootstrap.icons-selector .selector-button {
+            border-radius: 3px 0 0 3px;
+            border-color: #e5e5e5;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .fip-bootstrap.icons-selector .selector-button {
+            border-radius: 0 3px 3px 0;
+            background: #fff;
+        }
+
+        .icons-selector .selector-search input[type="text"], .icons-selector .selector-category select {
+            padding: 7px 10px;
+            height: initial;
+        }
+
+
+        .icons-selector .selector-search i {
+            top: 8px;
+            right: 8px;
+        }
+
+        .icons-selector .fip-box {
+            width: 35px;
+            height: 30px;
+            line-height: 30px;
+        }
+
+        .fip-bootstrap.icons-selector .fip-box {
+            background-color: #fff;
+        }
+
+        /*上传图片重写---------------------------------------------*/
+        .imgBox {
+            width: 80px;
+            height: 80px;
+            background-image: url("_img/main/upload.png");
+        }
+
+        .imgBox:not(.addImgs) {
+            border: 1px #e5e5e5 solid;
+        }
+    </style>
+</head>
+<body>
+<!--副框架-->
+<form class="layui-form bodyGrid" id="formInsert" lay-filter="formInsert">
+    <header>
+        <div class="btnBar">
+            <div class="btn-group btn-group-sm">
+                <button class="btn_submit" lay-submit lay-filter="btn_submit">保存</button>
+            </div>
+            <div class="btn-group btn-group-sm">
+                <button class="btn_submit_new" lay-submit lay-filter="btn_submit_new">保存新增</button>
+            </div>
+            <div class="btn-group btn-group-sm">
+                <button class="btn_return" ignore>返回</button>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="form-row">
+            <div hidden>
+                <input name="eName" title="英文名称">
+                <input name="code" title="编号">
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">父级</label>
+                    <div class="col-8">
+                        <input class="form-control" name="pname" lay-verify="required" disabled>
+                        <input name="pid" lay-verify="required" title="父级id">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">类型</label>
+                    <div class="col-8">
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" name="type" id="type0" value="0"
+                                   lay-ignore>
+                            <label class="custom-control-label" for="type0">目录</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" name="type" id="type1" value="1"
+                                   lay-ignore>
+                            <label class="custom-control-label" for="type1">功能</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">名称</label>
+                    <div class="col-8">
+                        <input class="form-control" name="name" lay-verify="required">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">路径</label>
+                    <div class="col-8">
+                        <input class="form-control" name="url" lay-verify="required">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">图标</label>
+                    <div class="col-8">
+                        <input class="form-control" name="icon" lay-verify="required">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">排序</label>
+                    <div class="col-8">
+                        <input class="form-control" name="sortno" type="number" lay-verify="required|number">
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group form-row">
+                    <label class="col-2 col-form-label">备注</label>
+                    <div class="col-10">
+                        <textarea class="form-control" name="remark"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</form>
+
+<script src="_plugin/jquery/jquery-3.3.1.min.js"></script>
+<script src="_plugin/bootstrap/js/bootstrap.min.js"></script>
+<script src="_plugin/layui/layui.all.js"></script>
+
+<script src="_plugin/fontIconPicker/jquery.fonticonpicker.js"></script>
+<script src="_plugin/fontIconPicker/data/fontIcon_fontAwesome.js"></script>
+<script src="_js/main.js"></script>
+<script>
+    //"类型"联动
+    $('#formInsert [name="type"]').change(function () {
+        if ($(this).val() == 1) {  //功能
+            $('#formInsert [name="url"]').prop('disabled', false).attr('lay-verify', 'required').parents('.form-group').find('.required').show()
+            $('#formInsert [name="icon"]').prop('disabled', true).attr('lay-verify', '').val('').parents('.form-group').find('.required').hide()
+        } else { //目录
+            $('#formInsert [name="url"]').prop('disabled', true).attr('lay-verify', '').val('').parents('.form-group').find('.required').hide()
+            if ($('#formInsert [name="menuType"]').val() == 1) {
+                $('#formInsert [name="icon"]').prop('disabled', false).attr('lay-verify', 'required').parents('.form-group').find('.required').show()
+            }
+        }
+    })
+
+    //"菜单区分"联动
+    $('#formInsert [name="menuType"]').change(function () {
+        if ($(this).val() == 1) {  //PC
+            if ($('#formInsert [name="type"]:checked').val() == 1) {  //功能
+                $('#formInsert [name="url"]').prop('disabled', false).attr('lay-verify', 'required').parents('.form-group').find('.required').show()
+                $('#formInsert [name="icon"]').prop('disabled', true).attr('lay-verify', '').val('').parents('.form-group').find('.required').hide()
+            } else { //目录
+                $('#formInsert [name="url"]').prop('disabled', true).attr('lay-verify', '').val('').parents('.form-group').find('.required').hide()
+                if ($('#formInsert [name="menuType"]').val() == 1) {
+                    $('#formInsert [name="icon"]').prop('disabled', false).attr('lay-verify', 'required').parents('.form-group').find('.required').show()
+                }
+            }
+        } else { //APP
+            // $('#formInsert [name="url"]').prop('disabled', true).attr('lay-verify', '').val('').parents('.form-group').find('.required').hide()
+            $('#formInsert [name="icon"]').prop('disabled', true).attr('lay-verify', '').val('').parents('.form-group').find('.required').hide()
+        }
+    })
+</script>
+<script>
+    let thisdo = get_parm('thisdo')
+    $('body').attr('thisdo', thisdo)
+    if (thisdo == 'insert') {
+        $('#formInsert [name="pname"]').val(parent.thistr.name)
+        $('#formInsert [name="pid"]').val(parent.thistr.id)
+        $('#type1').click()
+        $('#menuType1').click()
+        thisform = layform.val('formInsert')   //当前表单数据(暂存, 点击返回时判断是否有改动)
+    } else if (thisdo == 'update') {
+        getDetail()
+    }
+
+    //查询详情(用于详情和修改)
+    function getDetail() {
+        $.post(
+            '../sys/menu/info.do',
+            {
+                token: token,
+                menuId: get_parm('id')
+            },
+            res => {
+                if (res.code != 1111) {
+                    layer.msg(res.msg)
+                    return false
+                }
+                res.data.pname = res.data.parentName == '--' ? '菜单' : res.data.parentName
+
+                $('#type' + res.data.type).click()
+                $('#formInsert [name="type"]').prop('disabled', true)
+                layform.val('formInsert', res.data)
+                iconPicker.refreshPicker()
+                if (res.data.menuType == 2 && res.data.icon) {//APP图标
+                    $('#formInsert .ImgDetail').append(`<div class="form-control imgBox">
+						<div class="imgShow" data-url="${res.data.icon}"><img src="${hostDoc}${res.data.icon}"></div>
+						<i class="closeDotted"><img src="_img/main/close.png"></i>
+					</div>`)
+
+                    goodsImgCount()   //上传文件的显隐
+                }
+
+                thisform = layform.val('formInsert')   //当前表单数据(暂存, 点击返回时判断是否有改动)
+            }
+        )
+    }
+</script>
+<script>
+    /*图标选择器*/
+    let iconPicker = $('#formInsert [name="icon"]').fontIconPicker({
+        source: fontIcon_fontAwesome,//图标集
+        // searchSource: font_awesome_search,//搜索集
+        theme: 'fip-bootstrap',//四种主题风格：fip-grey, fip-darkgrey, fip-bootstrap, fip-inverted
+        // emptyIcon: false,//是否显示空
+        // emptyIconValue: "none",//空值
+        iconsPerPage: 56, //每页显示图标的个数，默认20
+        // hasSearch: false,//是否显示搜索框，默认true
+        // attributeName: 'data-icomoon',//规定属性名以调用字体
+    });
+</script>
+<script>
+    //保存_执行 (表单内容, 按钮名称)
+    function doSubmit(field, btn) {
+        field.token = token
+        field.seq = field.sortno
+        // field.icon = $('#icon').val()
+        if (field.menuType == 2) {
+            let icon = $('.oneFile .imgShow').attr('data-url')
+            if (!icon) {
+                layer.msg('请选择APP图标')
+                return false
+            }
+            field.icon = $('.oneFile .imgShow').attr('data-url')  //app图标
+        }
+        // console.log(field)
+        // return false
+        let url = '../sys/menu/add.do'
+        if ($('body').attr('thisdo') == 'update') {
+            url = '../sys/menu/update.do'
+            field.menuId = get_parm('id')
+        }
+        $.post(
+            url,
+            field,
+            res => {
+                parent.layer.msg(res.msg)
+                if (res.code != 1111) {
+                    return false
+                }
+                if ($('body').attr('thisdo') == 'insert') { //如果是新增
+                    parent.getTree()
+                    if (btn == 'btn_submit') { //保存
+                        parent.layer.close(parent.layer.getFrameIndex(window.name))
+                    } else if (btn == 'btn_submit_new') {  //保存新增
+                        layform.val('formInsert', thisform)
+                    }
+                } else if ($('body').attr('thisdo') == 'update') { //如果是修改
+                    parent.getTree()
+                    parent.layer.close(parent.layer.getFrameIndex(window.name))
+                }
+            }
+        )
+    }
+
+    //监听返回按钮
+    $(document).on('click', '.btn_return', function (e) {
+        let thisdo = $('body').attr('thisdo')
+        if (['insert', 'update'].includes(thisdo) && !equals_object(layform.val('formInsert'), thisform)) {
+            //如果是新增修改页 且 表单内容有变动
+            layer.confirm('是否保存已编辑数据？', {btn: ['是', '否']},
+                function (index) {
+                    $('.do_submit').click()
+                },
+                function () {
+                    parent.layer.close(parent.layer.getFrameIndex(window.name))
+                })
+        } else {
+            parent.layer.close(parent.layer.getFrameIndex(window.name))
+        }
+    })
+
+    //上传附件
+    $('.imgInput').change(function () {
+        let $this = $(this)
+        //展示图片
+        // let file = this.files[0]
+        // if (file) {
+        // 	let fr = new FileReader()
+        // 	fr.readAsDataURL(file)
+        // 	fr.onload = function () {
+        // 		$this.parents('.addImgs').siblings('.ImgDetail').append(`<div class="form-control imgBox"><div class="imgShow "><img src="${this.result}"></div><i class="closeDotted"><img src="_img/main/close.png"></i></div>`)
+        // 	}
+        // } else {
+        // }
+
+        // return false
+        uploadFile($this)
+    })
+
+    //上传附件
+    function uploadFile($this) {
+        $.ajaxSettings.async = false
+        var formData = new FormData();
+        formData.append("token", token);
+        formData.append("image", $this[0].files[0]);
+        // var imagesFiles = $('.imgInput')[0].files
+        // $.each(imagesFiles, function () {
+        // 	formData.append("images", this);
+        // })
+        $.ajax({
+            url: host + '/adminx/fileupload/fileuploadOne',
+            type: 'post',
+            data: formData,
+            contentType: false,//上传文件必须设置。告诉jQuery不要去设置Content-Type请求头
+            processData: false,//上传文件必须设置。告诉jQuery不要去处理发送的数据
+            success: function (data) {
+                //console.log(JSON.stringify(data))
+                if (data.code == 1111) {
+                    $this.parents('.addImgs').siblings('.ImgDetail').append(`<div class="form-control imgBox">
+						<div class="imgShow" data-url="${data.data}"><img src="${hostDoc}${data.data}"></div>
+						<i class="closeDotted"><img src="_img/main/close.png"></i>
+					</div>`)
+                } else {
+                    layer.alert('上传失败')
+                }
+            },
+            error: function () {
+                layer.alert('上传失败')
+            }
+        })
+
+        goodsImgCount()   //上传文件的显隐
+        $.ajaxSettings.async = true
+    }
+
+    //删除文件
+    $('#formInsert').on('click', '.closeDotted', function () {
+        $(this).parents('.imgBox').remove()
+        goodsImgCount()   //上传文件的显隐
+    })
+
+    //上传文件的显隐
+    function goodsImgCount() {
+        if ($('.oneFile > div').length > 0) { //只允许上传1张
+            $('.oneFile').siblings('.addImgs').hide()
+        } else {
+            $('.oneFile').siblings('.addImgs').show()
+        }
+    }
+</script>
+</body>
+</html>

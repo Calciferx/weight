@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *, *::before, *::after {
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, textarea, p, blockquote, th, td, hr, button, article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+            margin: 0;
+            padding: 0;
+        }
+
+        .exception {
+            display: flex;
+            align-items: center;
+            height: 80%;
+            min-height: 500px;
+        }
+
+        .exception .imgBlock {
+            flex: 0 0 62.5%;
+            width: 62.5%;
+            padding-right: 152px;
+            zoom: 1;
+        }
+
+        .exception .imgEle {
+            height: 360px;
+            width: 100%;
+            max-width: 430px;
+            float: right;
+            background-repeat: no-repeat;
+            background-position: 50% 50%;
+            background-size: contain;
+        }
+
+        .exception .imgBlock:before, .exception .imgBlock:after {
+            content: ' ';
+            display: table;
+        }
+
+        .exception .imgBlock:after {
+            clear: both;
+            visibility: hidden;
+            font-size: 0;
+            height: 0;
+        }
+
+
+        h1, h2, h3, h4, h5, h6 {
+            margin-top: 0;
+            margin-bottom: .5em;
+            color: rgba(0, 0, 0, 0.85);
+            font-weight: 500;
+        }
+
+        .exception .content h1 {
+            color: #434e59;
+            font-size: 72px;
+            font-weight: 600;
+            line-height: 72px;
+            margin-bottom: 24px;
+        }
+
+        .exception .content .desc {
+            color: rgba(0, 0, 0, 0.45);
+            font-size: 20px;
+            line-height: 28px;
+            margin-bottom: 16px;
+        }
+
+        a, area, button, [role="button"], input:not([type=range]), label, select, summary, textarea {
+            touch-action: manipulation;
+        }
+
+        input, button, select, optgroup, textarea {
+            margin: 0;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: inherit;
+            color: inherit;
+        }
+
+        button, select {
+            text-transform: none;
+        }
+
+        .ant-btn {
+            line-height: 1.5;
+            display: inline-block;
+            font-weight: 400;
+            text-align: center;
+            touch-action: manipulation;
+            cursor: pointer;
+            background-image: none;
+            border: 1px solid transparent;
+            white-space: nowrap;
+            padding: 0 15px;
+            font-size: 14px;
+            border-radius: 4px;
+            height: 32px;
+            user-select: none;
+            position: relative;
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.015);
+            color: rgba(0, 0, 0, 0.65);
+            background-color: #fff;
+            border-color: #d9d9d9;
+        }
+
+
+        .ant-btn, .ant-btn:active, .ant-btn:focus {
+            outline: 0;
+        }
+
+        .ant-btn-primary {
+            color: #fff;
+            background-color: #ff9800;
+            border-color: #ff9800;
+            text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.035);
+        }
+
+        .ant-btn-primary:hover {
+            background-color: #ffae37;
+            border-color: #ffae37;
+        }
+
+        .ant-btn-primary:active {
+            background-color: #dc8402;
+            border-color: #dc8402;
+        }
+
+
+        @media screen and (max-width: 1200px) {
+            .exception .imgBlock {
+                padding-right: 88px;
+            }
+        }
+
+        @media screen and (max-width: 576px) {
+            .exception {
+                display: block;
+                text-align: center;
+            }
+
+            .exception .imgBlock {
+                padding-right: 0;
+                margin: 0 auto 24px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+<div class="exception">
+    <div class="imgBlock">
+        <div class="imgEle"></div>
+    </div>
+    <div class="content"><h1>500</h1>
+        <div class="desc">抱歉，服务器出错了</div>
+        <div class="actions">
+            <button type="button" class="ant-btn ant-btn-primary" onclick="javascript:location.reload();">
+                <span>刷新当前页</span>
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+    let imgUrl = `url(_img/500.svg)`
+    // let imgUrl = `url(${location.origin}/项目名/页面文件夹/_img/500.svg)`
+    document.getElementsByClassName('imgEle')[0].style.backgroundImage = imgUrl
+</script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+    <!--第三方css-->
+    <link rel="stylesheet" href="_plugin/layui/css/layui.css">
+    <link rel="stylesheet" href="_plugin/bootstrap/css/bootstrap.min.css">
+    <!--自定义css-->
+    <link rel="stylesheet" href="_css/main.css">
+    <style>
+        form.bodyGrid {
+            /*grid-template: 35px 1fr / 200px 1fr;*/
+            grid-template-rows: 1fr 35px;
+            grid-template-columns: 1fr;
+            grid-template-areas: "main main" "header header";
+            grid-gap: 0;
+            background: #fff;
+        }
+
+        form.bodyGrid > * {
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+<!--副框架-->
+<form class="layui-form bodyGrid" id="formInsert" lay-filter="formInsert">
+    <main>
+        <div class="form-row">
+            <div class="col-12">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">原密码</label>
+                    <div class="col-8">
+                        <input type="password" class="form-control" name="oldPass" lay-verify="required">
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">新密码</label>
+                    <div class="col-8">
+                        <input type="password" class="form-control" name="newPass" lay-verify="required">
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">确认密码</label>
+                    <div class="col-8">
+                        <input type="password" class="form-control" name="newPassCfm" lay-verify="required">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="btnBar">
+            <div class="btn-group">
+                <button class="btn_submit" lay-submit lay-filter="btn_submit">确定</button>
+            </div>
+            <div class="btn-group">
+                <button class="btn_cancel">取消</button>
+            </div>
+        </div>
+    </footer>
+</form>
+
+
+<!--第三方js-->
+<script src="_plugin/jquery/jquery-3.3.1.min.js"></script>
+<script src="_plugin/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="_plugin/layui/layui.all.js"></script>
+<!--自定义js-->
+<script src="_js/main.js"></script>
+
+
+<script>
+    //监听确定按钮
+    layform.on('submit(btn_submit)', function (data) {
+        let oldPass = $('[name="oldPass"]').val()
+        let newPass = $('[name="newPass"]').val()
+        let newPassCfm = $('[name="newPassCfm"]').val()
+        if (newPass != newPassCfm) {
+            layer.msg('新密码两次输入不一致')
+            return false
+        }
+        if (newPass == oldPass) {
+            layer.msg('新密码不能与原密码相同')
+            return false
+        }
+
+        $.post(
+            '../adminx/nongUser/updatePassword.do',
+            {
+                name: loginUserName,
+                // userId: loginId,
+                password: oldPass,   //旧密码
+                newPassword: newPass,   //新密码
+            },
+            function (res) {
+                if (res.code != 1111) {
+                    layer.msg(res.msg)
+                    return false
+                }
+                layer.alert('修改成功!<br>请重新登录', function () {
+                    parent.layer.close(parent.layer.index)
+                    sessionStorage.clear();
+                    parent.location.href = 'login.html'
+                })
+            }
+        )
+
+        /*$.post(
+            '../sys/user/verification.do',
+            {
+                token,
+                pwd: oldPass
+            },
+            function (res) {
+                if (res.code != 1111) {
+                    layer.msg('原密码不正确')
+                    return false
+                }
+                let data = res.data
+                if (data) {
+                    $.post(
+                        '../adminx/user/member/updatePassword.do',
+                        {
+                            token,
+                            userId: loginId,
+                            name: loginUserName,
+                            pwd: newPass,
+                            status: 1
+                        },
+                        function (res) {
+                            if (res.code != 1111) {
+                                layer.msg(res.msg)
+                                return false
+                            }
+                            layer.alert('修改成功!<br>请重新登录', function () {
+                                parent.layer.close(parent.layer.index)
+                                sessionStorage.clear();
+                                parent.location.href = 'login.html'
+                            })
+                        }
+                    )
+                }
+            }
+        )*/
+    })
+</script>
+</body>
+</html>

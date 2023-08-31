@@ -1,0 +1,920 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+    <!--第三方css-->
+    <!--	预置角色页面（暂时用不到） 2021年7月19日17:10:57-->
+    <link rel="stylesheet" href="_plugin/layui/css/layui.css">
+    <link rel="stylesheet" href="_plugin/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="_plugin/zTree/css/bootstrapStyle/bootstrapStyle.css">
+    <!--自定义css-->
+    <link rel="stylesheet" href="_css/main.css">
+    <style>
+        .bodyGrid {
+            /*grid-template: 50px 1fr / 1fr 300px 200px;*/
+            grid-template-rows: 50px 1fr;
+            grid-template-columns: 1fr 280px 180px;
+            grid-template-areas: "header header1 header2" "main main1 main2";
+        }
+
+        .bodyGrid > .header_menu {
+            grid-area: header1;
+        }
+
+        .bodyGrid > .header_button {
+            grid-area: header2;
+        }
+
+
+        .bodyGrid > .main_menu {
+            grid-area: main1;
+            padding: 10px;
+            overflow: auto;
+        }
+
+        .bodyGrid > .main_button {
+            grid-area: main2;
+            padding: 10px;
+            overflow: auto;
+        }
+
+
+        form.bodyGrid {
+            grid-template-areas: "header header header" "main main main";
+        }
+
+        .bodyGrid .ztree {
+            padding: 0;
+            display: none;
+        }
+
+        .bodyGrid .ztree + .placeholder {
+            color: #bbb;
+            text-align: center;
+            padding-top: 55px;
+        }
+
+
+        #menuTree li a.curSelectedNode span {
+            background: #ebf5f4;
+            color: var(--info);
+        }
+    </style>
+</head>
+<body>
+<!--主框架-->
+<div class="bodyGrid">
+    <header>
+        <div class="btnBar">
+            <div class="btn-group">
+                <button class="btn_insert">新增</button>
+                <button class="btn_update">修改</button>
+                <!--				<button class="btn_delete">删除</button>-->
+            </div>
+            <div class="btn-group">
+                <button class="btn_select" h="185">查询</button>
+            </div>
+            <div class="btn-group">
+                <button class="btn_freeze">停用</button>
+                <dropdown>
+                    <button class="dropdown-toggle"></button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a href="##" class="dropdown-item btn_cancelFreeze">启用</a>
+                    </div>
+                </dropdown>
+
+                <dropdown>
+                    <button class="btn_filter dropdown-toggle">过滤</button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a href="##" class="dropdown-item custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="check_showAll">
+                            <label class="custom-control-label" for="check_showAll">显示冻结</label>
+                        </a>
+                    </div>
+                </dropdown>
+            </div>
+            <div class="btn-group">
+                <button class="btn_dataCof">数据权限</button>
+                <button class="btn_assignUsers">分配用户</button>
+            </div>
+        </div>
+
+        <div class="btnBar">
+            <div class="btn-group">
+                <button class="btn_export">导出</button>
+                <button class="btn_print">打印</button>
+            </div>
+        </div>
+    </header>
+    <!--	<aside>-->
+    <!--		<ul class="ztree" id="areaTree"></ul>-->
+    <!--	</aside>-->
+    <main>
+        <table class="layui-table" id="dataTable" lay-filter="dataTable"></table>
+    </main>
+
+
+    <header class="header_menu">
+        <div class="btnBar">
+            <div class="btn-group">
+                <button class="btn btn-outline-info btn_saveMenu" type="button">保存菜单配置</button>
+            </div>
+
+        </div>
+    </header>
+    <main class="main_menu">
+        <ul class="ztree" id="menuTree"></ul>
+        <div class="placeholder">点击左侧角色进行配置</div>
+    </main>
+
+    <header class="header_button">
+        <div class="btnBar">
+            <div class="btn-group">
+                <button class="btn btn-outline-info btn_saveButton" type="button">保存按钮配置</button>
+            </div>
+
+        </div>
+    </header>
+    <main class="main_button">
+        <ul class="ztree" id="buttonTree"></ul>
+        <div class="placeholder">点击左侧菜单项进行配置</div>
+    </main>
+</div>
+
+
+<!--副框架-->
+<form class="layui-form bodyGrid" id="formInsert" lay-filter="formInsert">
+    <header>
+        <div class="btnBar">
+            <div class="btn-group btn-group-sm">
+                <button class="btn_submit" lay-submit lay-filter="btn_submit">保存</button>
+            </div>
+            <div class="btn-group btn-group-sm">
+                <button class="btn_submit_new" lay-submit lay-filter="btn_submit_new">保存新增</button>
+            </div>
+            <div class="btn-group btn-group-sm">
+                <button class="btn_return">返回</button>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="form-row">
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">角色名称</label>
+                    <div class="col-8">
+                        <input class="form-control" name="name" lay-verify="required">
+                        <input name="id">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">排序</label>
+                    <div class="col-8">
+                        <input class="form-control" name="sortno" type="number" lay-verify="required">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">CODE</label>
+                    <div class="col-8">
+                        <input class="form-control" name="code">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">角色类型</label>
+                    <div class="col-8">
+                        <select class="form-control custom-select disabled" name="type" lay-verify="required"
+                                lay-ignore>
+                            <option value="1">普通角色</option>
+                            <option value="2" selected>客户预置角色</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">状态</label>
+                    <div class="col-8">
+                        <select class="form-control custom-select disabled" name="status" lay-ignore>
+                            <option value="1">启用</option>
+                            <option value="0">停用</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">创建人</label>
+                    <div class="col-8">
+                        <input class="form-control disabled" name="createUserName" data-id="createUser">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">创建时间</label>
+                    <div class="col-8">
+                        <input class="form-control disabled" name="createTime">
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group form-row">
+                    <label class="col-2 col-form-label">备注</label>
+                    <div class="col-10">
+                        <textarea class="form-control" name="des"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</form>
+
+<!--查询弹框-->
+<form class="layui-form layerForm" id="formSelect" lay-filter="formSelect">
+    <main>
+        <div class="form-row">
+            <div class="col-12">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">角色名称</label>
+                    <div class="col-8">
+                        <input class="form-control" name="name">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="btnBar">
+            <div class="btn-group">
+                <button class="btn_select_do" lay-submit lay-filter="btn_select_do">查询</button>
+            </div>
+            <div class="btn-group">
+                <button class="btn_cancel">取消</button>
+            </div>
+        </div>
+    </footer>
+</form>
+
+<!--数据权限弹框-->
+<form class="layui-form layerForm" id="formData" lay-filter="formData">
+    <main>
+        <div class="form-row">
+            <div class="col-12">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">角色名称</label>
+                    <div class="col-8">
+                        <input class="form-control disabled" name="roleName">
+                        <input name="roleId" title="角色id">
+                        <!--<select class="form-control custom-select" name="distributorLevel" lay-ignore>
+                            <option value=""></option>
+                        </select>-->
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">数据范围</label>
+                    <div class="col-8">
+                        <select class="form-control custom-select" name="dataScope" lay-ignore>
+                            <option value="1">全部</option>
+                            <option value="3">本营销区域</option>
+                            <option value="4">本营销区域及下级</option>
+                            <option value="5">本人</option>
+                            <option value="2">自定义</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 diyDataCof none">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">数据权限</label>
+                    <div class="col-8">
+                        <ul class="ztree" id="areaTree"></ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="btnBar">
+            <div class="btn-group">
+                <button class="btn_submit" lay-submit lay-filter="formData_submit">确定</button>
+            </div>
+            <div class="btn-group">
+                <button class="btn_cancel">取消</button>
+            </div>
+        </div>
+    </footer>
+</form>
+
+
+<!--第三方js-->
+<script src="_plugin/jquery/jquery-3.3.1.min.js"></script>
+<script src="_plugin/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="_plugin/layui/layui.all.js"></script>
+<script src="_plugin/zTree/js/jquery.ztree.all.min.js"></script>
+<!--自定义js-->
+<script src="_js/main.js"></script>
+<script src="_js/tree_area_panal_checkbox.js"></script>
+
+<script>
+    /*全局变量----------------------------------------------------------*/
+
+    let selected = [] //选中的营销区域
+
+</script>
+<script>
+    /*查询相关----------------------------------------------------------*/
+    //过滤
+    $('#check_showAll').change(function () {
+        getTable()
+    })
+
+    function getTable() {
+        datasl.token = token
+        datasl.status = $('#check_showAll').prop('checked') ? '' : 1
+        datasl.type = 2 //客户预置角色
+        laytable.render({
+            elem: '#dataTable',
+            url: host + '/adminx/role/pageList',
+            where: datasl,
+            method: 'post',
+            headers: {token: token},
+            height: 'full-105',  //设定高度-差值
+            cols: [[
+                {minWidth: 120, title: '角色名称', field: 'name'},
+                {minWidth: 60, title: '排序', field: 'sortno'},
+                {minWidth: 120, title: '备注', field: 'des'},
+                {minWidth: 120, title: '创建时间', field: 'createTime'},
+                {
+                    width: 80, title: '状态', fixed: 'right', templet: function (d) {
+                        switch (d.status * 1) {
+                            case 0:
+                                d.status = '<span class="status_fz">停用</span>' //default
+                                break
+                            case 1:
+                                d.status = '<span class="status_ok">启用</span>'
+                                break
+                        }
+                        return d.status
+                    },
+                },
+            ]],
+            page: {
+                layout: ['prev', 'page', 'next', 'skip', 'count', 'limit'], //组件
+                limits: [10, 20, 30, 50, 100, 150],  //每页展示条数
+                limit: 10,  //默认每页展示条数
+            },
+            request: {
+                pageName: 'page',    //页码的参数名称，默认：page
+                limitName: 'pageSize'   //每页数据量的参数名，默认：limit
+            },
+            response: {
+                statusCode: 1111  //规定成功状态码，table 组件默认为 0
+            },
+            parseData: function (res) { //表格渲染前的数据预处理
+                return {
+                    code: res.code,    //解析接口状态
+                    msg: res.msg,      //解析提示文本,当code与statusCode不等(即失败)时提示
+                    count: res.total,  //解析数据长度
+                    data: res.data     //解析数据列表
+                };
+            },
+            done: function (res) {
+                done_table(res)   //加载表格后的处理
+
+                $('#menuTree').attr('data-roleid', '') //清除菜单树上的角色id
+                $('#buttonTree').attr('data-menuid', '')  //清除按钮树上的菜单id
+
+                $('#menuTree').hide().next('.placeholder').show()   //隐藏菜单树
+                $('#buttonTree').hide().next('.placeholder').show()   //隐藏按钮树
+
+                $.fn.zTree.init($('#menuTree'), setting, null)  //重置菜单树
+                $.fn.zTree.init($('#buttonTree'), setting, null)   //重置按钮树
+            }
+        })
+    }
+</script>
+<script>
+    //获取详情(修改)
+    function getDetail() {
+        layform.val('formInsert', thistr)
+
+        //当前表单数据(暂存, 修改页点击返回时判断是否有改动)(放在最后)
+        thisform = layform.val('formInsert')
+    }
+</script>
+<script>
+    /*按钮事件----------------------------------------------------------*/
+
+    //----------------------------------
+    //新增
+    $('.btn_insert').click(function () {
+        setTimeout(function () {
+            let id = thistable.sort(function (a, b) {  //排序
+                return b.id - a.id
+            })[0].id
+            $('#formInsert [name="id"]').val(id * 1 + 1)
+
+            $('#formInsert [data-id="createUser"]').val(loginRealName)
+
+            thisform = layform.val('formInsert')   //当前表单数据(暂存, 点击返回时判断是否有改动)
+        }, 100)
+    })
+
+    //----------------------------------
+    //删除
+    $('.btn_delete').click(function () {
+        let i = $('tr.checked').attr('data-index')
+        let checkeds = i == null ? [] : [thistable[i]]  //获取选中数据(单选框、无选框)
+        if (!$('body').attr('thisdo')) {
+            if (!checkeds.length) {
+                layer.msg('请选择一个角色')
+                return false
+            }
+        } else {
+            checkeds = [thistr]
+        }
+
+        let msg = ''
+        checkeds.forEach(item => {
+            if (item.status == 1) {
+                msg = '已启用的角色不允许删除'
+                return false
+            }
+        })
+        if (msg.length) {
+            layer.msg(msg)
+            return false
+        }
+        $.post(
+            host + '/adminx/role/delete',
+            {
+                token,
+                roleId: checkeds.map(item => item.id).join(',')
+            },
+            res => {
+                done(res)   //常规操作后的处理
+            }
+        )
+    })
+
+    //----------------------------------
+    //修改
+    $('.btn_update').click(function () {
+        let i = $('tr.checked').attr('data-index')
+        let checkeds = i == null ? [] : [thistable[i]]  //获取选中数据(单选框、无选框)
+        if (!$('body').attr('thisdo')) {
+            if (!checkeds.length) {
+                layer.msg('请选择一个角色')
+                return false
+            }
+            thistr = checkeds[0]
+        }
+
+        if (thistr.status == 1) {
+            layer.msg('已启用的角色不允许修改')
+            return false
+        }
+        to_update() //前往修改
+    })
+
+    //保存_执行 (表单内容, 按钮名称)
+    function doSubmit(field, btn) {
+        field.token = token
+        // console.log(field)
+        // return false
+        let url = host + '/adminx/role/add'
+        if ($('body').attr('thisdo') == 'update') {
+            url = host + '/adminx/role/update'
+            deleteField(thisform, field)  //修改传值只传变化的字段
+            field.roleId = thistr.id
+        }
+        $.post(
+            url,
+            field,
+            res => {
+                done_submit(res, btn)   //保存后的处理
+            }
+        )
+    }
+
+
+    //----------------------------------
+    //冻结
+    $('.btn_freeze').click(function () {
+        let i = $('tr.checked').attr('data-index')
+        let checkeds = i == null ? [] : [thistable[i]]  //获取选中数据(单选框、无选框)
+        if (!$('body').attr('thisdo')) {
+            if (!checkeds.length) {
+                layer.msg('请选择一个角色')
+                return false
+            }
+            thistr = checkeds[0]
+        }
+
+        $.post(
+            host + '/adminx/role/update',
+            {
+                roleId: thistr.id,
+                status: 0,  //停用
+            },
+            res => {
+                done(res)   //常规操作后的处理
+            }
+        )
+    })
+
+    //启用
+    $('.btn_cancelFreeze').click(function () {
+        let i = $('tr.checked').attr('data-index')
+        let checkeds = i == null ? [] : [thistable[i]]  //获取选中数据(单选框、无选框)
+        if (!$('body').attr('thisdo')) {
+            if (!checkeds.length) {
+                layer.msg('请选择一个角色')
+                return false
+            }
+            thistr = checkeds[0]
+        }
+
+        $.post(
+            host + '/adminx/role/update',
+            {
+                roleId: thistr.id,
+                status: 1,  //启用
+            },
+            res => {
+                done(res)   //常规操作后的处理
+            }
+        )
+    })
+
+    //----------------------------------
+    //分配用户
+    $('.btn_assignUsers').click(function () {
+        let i = $('tr.checked').attr('data-index')
+        let checkeds = i == null ? [] : [thistable[i]]  //获取选中数据(单选框、无选框)
+
+        if (!$('body').attr('thisdo')) {
+            if (!checkeds.length) {
+                layer.msg('请选择一条数据')
+                return false
+            }
+            thistr = checkeds[0]
+        }
+        layer.open({
+            type: 2,
+            resize: false,
+            closeBtn: 0,
+            title: false,
+            // title: '数据权限',
+            area: [`100%`, `100%`],
+            content: `power_role_confUser.html?roleId=${thistr.id}&flag=yzjs`,
+        })
+
+    })
+
+    //----------------------------------
+    //数据权限
+    $('.btn_dataCof').click(function () {
+        let i = $('tr.checked').attr('data-index')
+        let checkeds = i == null ? [] : [thistable[i]]  //获取选中数据(单选框、无选框)
+        if (!$('body').attr('thisdo')) {
+            if (!checkeds.length) {
+                layer.msg('请选择一条数据')
+                return false
+            }
+            thistr = checkeds[0]
+        }
+        $('#formData')[0].reset()  //重置表单
+
+        layer.open({
+            type: 1,
+            resize: false,
+            title: '数据权限',
+            area: [`800px`, `480px`],
+            content: $('#formData'),
+        })
+
+        /*赋值相关操作--------------------*/
+        layform.val('formData', thistr)  //数据范围赋值
+        $('#formData [name="roleName"]').val(thistr.name)  //角色名称
+        $('#formData [name="roleId"]').val(thistr.id)   //角色id
+        $('#formData .diyDataCof').css('display', 'none')  //隐藏"数据权限"
+        let areaTreeObj = $.fn.zTree.getZTreeObj('areaTree')
+        areaTreeObj.checkAllNodes(false)
+
+        // if (thistr.dataScope == 2) { //如果是自定义数据权限
+        //查询数据范围"自定义"--的数据权限
+        $.post(
+            host + '/adminx/role/findRoleData',
+            {
+                token,
+                roleId: thistr.id
+            },
+            function (res) {
+                if (res.code != 1111) {
+                    layer.msg(res.msg)
+                    return false
+                }
+                let data = res.data || []
+                diyDataCof_isShow(thistr.dataScope) //数据权限的显隐
+                if (data.length) {
+                    data.push({areaId: 0})
+                    $.each(data, function () {
+                        let node = areaTreeObj.getNodeByParam('idKey', this.areaId, null);
+                        if (node) {
+                            areaTreeObj.checkNode(node, true)
+                        }
+                    })
+                }
+            }
+        )
+        // }
+
+    })
+    //数据权限_执行
+    layform.on('submit(formData_submit)', function (data) {
+        let field = data.field
+        field.token = token
+        let jsonStr = []
+        selected.forEach(function (item, i) {
+            jsonStr.push({
+                roleId: field.roleId,   //角色id
+                areaId: item.data_areaId,  //营销区域id
+                ancestors: item.data_ancestors,  //祖级列表
+            })
+        })
+        field.jsonStr = JSON.stringify(jsonStr)
+        if (field.dataScope != 2) {   //如果不是自定义数据权限, 删除该字段
+            delete field.jsonStr
+        }
+        // console.log(field)
+        // return false
+        $.post(
+            host + '/adminx/role/roleDate',
+            field,
+            res => {
+                done(res)   //常规操作后的处理
+            }
+        )
+    })
+</script>
+<script>
+    //监听数据范围改变
+    $('#formData [name="dataScope"]').change(function () {
+        diyDataCof_isShow($(this).val()) //数据权限的显隐
+    })
+
+    //数据权限的显隐
+    function diyDataCof_isShow($thisVal) {
+        if ($thisVal == 2) {  //如果选了自定义,展示"数据权限"
+            $('#formData .diyDataCof').css('display', 'block')
+        } else { //否则,隐藏数据权限
+            $('#formData .diyDataCof').css('display', 'none')
+        }
+    }
+</script>
+<script>
+    //表格点击事件
+    $(document).on('click', '#dataTable+.layui-table-view tr', function (e) { //监听表格内详情按钮
+        thisi = $(this).parents('tbody').find('tr').index($(this))  //获取当前行序列
+        thistr = thistable[thisi]
+
+        $('#menuTree').attr('data-roleid', thistr.id)
+        $('#buttonTree').attr('data-menuid', '')  //清除按钮树上的菜单id
+
+        $('#menuTree').show().next('.placeholder').hide()  //显示菜单树
+        $('#buttonTree').hide().next('.placeholder').show()   //隐藏按钮树
+
+        getMenuTree()
+        $.fn.zTree.init($('#buttonTree'), setting, null)   //重置按钮树
+    })
+
+    //ztree设置
+    let setting = {
+        view: {
+            selectedMulti: false,	//禁止多点选中
+            showIcon: false,
+        },
+        check: {
+            enable: true
+        },
+        data: {
+            simpleData: {
+                enable: true
+            }
+        },
+        callback: {
+            onClick: zTreeOnClick,	//节点被点击时触发
+            // onCheck: zTreeOnCheck,	//复选框被改变时触发
+        }
+    }
+
+    //节点被点击时触发
+    function zTreeOnClick(event, treeId, treeNode) {
+        if (treeId == 'menuTree') {   //如果是菜单树
+            let roleId = $('#menuTree').attr('data-roleid')
+            if (!roleId) {
+                layer.msg('请先选中一个角色')
+                return false
+            }
+            $('#buttonTree').attr('data-menuid', treeNode.id)
+            $('#buttonTree').show().next('.placeholder').hide()   //显示按钮树
+            getButtonTree()
+        } else {         //如果是按钮树
+            let tId = treeNode.tId
+            $('#' + tId + '_check').click()
+        }
+    }
+
+
+    //获取菜单树
+    function getMenuTree() {
+        $.post(
+            // '../adminx/menu/listAll.do',
+            host + '/adminx/menu/listAll',
+            {
+                token: token
+            },
+            function (data) {
+                if (data.code != 1111) {
+                    layer.msg(data.msg)
+                    return false
+                }
+                let zTreeNodes = data.data
+                $.each(zTreeNodes, function () {
+                    this.pId = this.pid
+                    this.name = this.name + (this.menuType ? (this.menuType == 1 ? ' (PC)' : ' (APP)') : '')
+                    this.open = true
+                    this.isParent = this.type == 1 ? false : true
+                    delete this.url
+                    delete this.icon
+                    // console.log(thistr)
+                    if (thistr.name == '超级管理员' && this.code == 'sys') {
+                        this.checked = true
+                        this.chkDisabled = true
+                    }
+                })
+                if (zTreeNodes.length) {
+                    zTreeNodes.unshift({id: 'home', name: '首页', pId: 0, checked: true, chkDisabled: true})
+                    zTreeNodes.unshift({id: 0, name: '菜单', isParent: true, open: true})
+                }
+                $.fn.zTree.init($("#menuTree"), setting, zTreeNodes);
+
+                //获取菜单配置信息
+                $.post(
+                    host + '/adminx/menu/listByRole',
+                    {
+                        token: token,
+                        roleIds: $('#menuTree').attr('data-roleid')
+                    },
+                    function (data) {
+                        if (data.code != 1111) {
+                            layer.msg(data.msg)
+                            return false
+                        }
+                        let menuTreeObj = $.fn.zTree.getZTreeObj('menuTree')
+                        data = data.data
+                        if (data.length) {
+                            data.push({id: 0})
+                            $.each(data, function () {
+                                let node = menuTreeObj.getNodeByParam('id', this.id, null);
+                                if (node) {
+                                    menuTreeObj.checkNode(node, true)
+                                }
+                            })
+                        }
+                    }
+                )
+            }
+        )
+    }
+
+    //获取按钮树
+    function getButtonTree() {
+        $.post(
+            // '../adminx/button/listAllByMenuId.do',
+            host + '/adminx/button/listAllByMenuId',
+            {
+                token: token,
+                menuId: $('#buttonTree').attr('data-menuid')
+            },
+            function (data) {
+                if (data.code != 1111) {
+                    layer.msg(data.msg)
+                    return false
+                }
+                let zTreeNodes = data.data
+                $.each(zTreeNodes, function () {
+                    this.pId = 0
+                })
+                if (zTreeNodes.length) zTreeNodes.unshift({id: 0, name: '按钮', isParent: true, open: true})
+                $.fn.zTree.init($('#buttonTree'), setting, zTreeNodes);
+                //获取按钮配置信息
+                $.post(
+                    // '../adminx/roleButton/listAllByRoleId.do',
+                    host + '/adminx/roleButton/listAllByRoleId',
+                    {
+                        token: token,
+                        roleId: $('#menuTree').attr('data-roleid'),
+                        menuId: $('#buttonTree').attr('data-menuid')
+                    },
+                    function (data) {
+                        if (data.code != 1111) {
+                            layer.msg(data.msg)
+                            return false
+                        }
+                        let buttonTreeObj = $.fn.zTree.getZTreeObj('buttonTree')
+                        data = data.data
+                        if (data.length) {
+                            data.push({id: 0})
+                            $.each(data, function () {
+                                let node = buttonTreeObj.getNodeByParam('id', this.buttonId, null);
+                                if (node) {
+                                    buttonTreeObj.checkNode(node, true);
+                                }
+                            })
+                        }
+                    }
+                )
+            }
+        )
+    }
+
+
+    //监听提交(配置菜单)
+    $('.btn_saveMenu').click(function () {
+        let roleId = $('#menuTree').attr('data-roleid')
+        if (!roleId) {
+            layer.msg('请先选中一个角色')
+            return false
+        }
+        let treeObj = $.fn.zTree.getZTreeObj('menuTree')
+        let nodes = treeObj.getNodesByParam('checked', true);
+        let ids = nodes.map(item => item.id)
+
+        let field = {
+            token: token,
+            roleId: roleId,
+            menuIds: ids.join(',')
+        }
+        //console.log(JSON.stringify(field))
+        $.post(
+            // '../adminx/roleMenu/add.do',
+            host + '/adminx/roleMenu/add',
+            field,
+            function (data) {
+                layer.msg(data.msg)
+            }
+        )
+    })
+
+    //监听提交(配置按钮)
+    $('.btn_saveButton').click(function () {
+        let roleId = $('#menuTree').attr('data-roleid')
+        if (!roleId) {
+            layer.msg('请选中一个角色, 并点击某个菜单项进行配置')
+            return false
+        }
+        let menuId = $('#buttonTree').attr('data-menuid')
+        if (!menuId) {
+            layer.msg('请点击某个菜单项进行配置')
+            return false
+        }
+        let treeObj = $.fn.zTree.getZTreeObj('buttonTree')
+        let nodes = treeObj.getNodesByParam('checked', true);
+        let ids = nodes.map(item => item.id)
+
+        let field = {
+            token: token,
+            roleId: roleId,
+            menuId: menuId,
+            buttonIds: ids.join(',')
+        }
+        //console.log(JSON.stringify(field))
+        $.post(
+            // '../adminx/roleButton/allocationByRoleId.do',
+            host + '/adminx/roleButton/allocationByRoleId',
+            field,
+            function (data) {
+                layer.msg(data.msg)
+            }
+        )
+    });
+</script>
+</body>
+</html>

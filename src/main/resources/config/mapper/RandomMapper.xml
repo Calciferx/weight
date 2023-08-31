@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.calcifer.weight.repository.RandomMapper">
+    <!-- 查询 -->
+    <select id="loadByTime" parameterType="map" resultType="map">
+        select
+        random_num as dictNo
+        from wg_random where type = #{type}
+        <if test="createDay != null and createDay != ''">
+            and DATE_FORMAT(create_day,'%Y-%m-%d') = DATE_FORMAT(#{createDay},'%Y-%m-%d')
+        </if>
+    </select>
+    <!-- 修改 -->
+    <update id="updateByTime" parameterType="map">
+        update wg_random
+        set random_num = random_num +1
+        where type = #{type}
+        <if test="createDay != null and createDay != ''">
+            and DATE_FORMAT(create_day,'%Y-%m-%d') = DATE_FORMAT(#{createDay},'%Y-%m-%d')
+        </if>
+    </update>
+
+    <!-- 添加 -->
+    <insert id="saveInfo" parameterType="map">
+        insert wg_random(
+        random_num,
+        type
+        <if test="createDay != null and createDay != ''">
+            ,create_day
+        </if>
+        ) values(
+        2,
+        #{type}
+        <if test="createDay != null and createDay != ''">
+            ,#{createDay}
+        </if>
+        )
+    </insert>
+
+    <!-- 修改
+ ggy 20180511 add
+-->
+    <update id="update" parameterType="map">
+        update wg_random
+        set random_num = random_num +1
+        where type = #{dictType}
+        <if test="monthStr != null and monthStr != ''">
+            and create_day = #{monthStr}
+        </if>
+    </update>
+    <!-- 查询
+       ggy add 20180511
+    -->
+    <select id="loadBySql" parameterType="map" resultType="map">
+        select
+        random_num as dictNo,
+        create_day as yearStr,
+        dict_no_prefix as dictNoPrefix
+        from wg_random where type = #{dictType}
+        <if test="monthStr !=null and monthStr !=''">
+            and create_day = #{monthStr}
+        </if>
+    </select>
+    <!-- 添加 合同管理
+    	ggy 20200617 add
+     -->
+    <insert id="add" parameterType="map">
+        insert into wg_random(random_num,
+                              dict_name,
+                              dict_no_prefix,
+                              type,
+                              create_day)
+        values (#{dictNo},
+                #{dictName},
+                #{dictNoPrefix},
+                #{dictType},
+                #{yearStr})
+    </insert>
+
+    <!-- 查询随机数是否存在 -->
+    <select id="findByNo" parameterType="map" resultType="Integer">
+        select count(1)
+        from wg_random
+        where type = #{dictType}
+    </select>
+</mapper>

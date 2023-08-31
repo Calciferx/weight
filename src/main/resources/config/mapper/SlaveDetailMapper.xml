@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?> <!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.calcifer.weight.repository.SlaveDetailMapper">
+
+    <!--新增 wqw 20210811-->
+    <insert id="addDetail" parameterType="list">
+        insert into wg_slave_detail(
+        id,
+        type,
+        serial_name,
+        create_time,
+        update_time,
+        serial_sort,
+        slave_id,
+        status
+        )values
+        <foreach collection="list" item="item" index="index" separator=","> <!--  list 为传来的集合数据 -->
+            (#{item.id},
+            #{item.type},
+            #{item.serialName},
+            #{item.createTime},
+            #{item.udpateTime},
+            #{item.serialSort},
+            #{item.slaveId},
+            #{item.status})
+        </foreach>
+    </insert>
+
+    <!--新增 wqw 20210811-->
+    <insert id="addDetails">
+        insert into wg_slave_detail(id,
+                                    type,
+                                    serial_name,
+                                    create_time,
+                                    update_time,
+                                    serial_sort,
+                                    slave_id,
+                                    status)
+        values (#{id},
+                #{type},
+                #{serialName},
+                #{createTime},
+                #{udpateTime},
+                #{serialSort},
+                #{slaveId},
+                #{status})
+    </insert>
+
+    <!--删除 wqw 20210811-->
+    <delete id="delete">
+        delete
+        from wg_slave_detail
+        where slave_id = #{slaveId}
+    </delete>
+    <!--查询-->
+    <select id="querySlaveDetailInfo" resultType="SlaveDetailInfo">
+        select
+        a.id id,
+        a.type type,
+        a.serial_name serialName,
+        a.create_time createTime,
+        a.update_time updateTime,
+        a.serial_sort serialSort,
+        a.slave_id slaveId,
+        a.status status,
+        b.slave_ip slaveIp,
+        b.coil_num coilNum,
+        b.discrete_num discreteNum
+        from wg_slave_detail a
+        left join wg_slave_info b on a.slave_id = b.id
+        <where>
+            <if test="slaveId != null and slaveId != ''">
+                and a.slave_id = #{slaveId}
+            </if>
+            <if test="status != null and status != ''">
+                and a.status = #{status}
+            </if>
+            <if test="slaveIp != null and slaveIp != ''">
+                and b.slave_ip = #{slaveIp}
+            </if>
+        </where>
+        order by a.serial_name asc,a.serial_sort asc
+    </select>
+
+</mapper>
