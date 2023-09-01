@@ -123,7 +123,7 @@
     <!--开发环境:输出到控制台和文件-->
     <springProfile name="dev">
         <!-- 从低到高为：All < Trace < Debug < Info < Warn < Error < Fatal < OFF-->
-        <root level="WARN">
+        <root level="INFO">
             <appender-ref ref="Console"/>
             <appender-ref ref="RollingFileWarn"/>
             <appender-ref ref="RollingFileError"/>
@@ -142,9 +142,11 @@
     <!--生产环境:输出到文件-->
     <springProfile name="prod">
         <root level="INFO">
+            <appender-ref ref="Console"/>
             <appender-ref ref="RollingFileInfo"/>
             <appender-ref ref="RollingFileWarn"/>
             <appender-ref ref="RollingFileError"/>
+            <appender-ref ref="RollingFileAboveInfo"/>
         </root>
     </springProfile>
 </configuration>
