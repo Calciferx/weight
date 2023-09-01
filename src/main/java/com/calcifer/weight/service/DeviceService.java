@@ -155,11 +155,11 @@ public class DeviceService {
     @PreDestroy
     public void destroy() throws ModbusIOException {
         // 串口
-        SerialPortUtil.closePort(scaleSerialPort);
-        SerialPortUtil.closePort(frontSerialPort);
-        SerialPortUtil.closePort(backSerialPort);
+        if (scaleSerialPort != null) SerialPortUtil.closePort(scaleSerialPort);
+        if (frontSerialPort != null) SerialPortUtil.closePort(frontSerialPort);
+        if (backSerialPort != null) SerialPortUtil.closePort(backSerialPort);
         // modbus
-        modbusMaster.disconnect();
+        if (modbusMaster != null) modbusMaster.disconnect();
     }
 
     public void controlModBusDevice(ModBusDeviceEnum modBusDeviceEnum, boolean status) {
