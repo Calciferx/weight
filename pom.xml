@@ -133,10 +133,22 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <!--            打包时排除配置文件-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.2</version>
+                <configuration>
+                    <excludes>
+                        <exclude>config/application*.yaml</exclude>
+                        <exclude>config/application*.properties</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
         <resources>
             <resource>
-                <directory>.</directory>
+                <directory>deploy</directory>
                 <targetPath>${basedir}/target</targetPath>
                 <includes>
                     <include>*.bat</include>
