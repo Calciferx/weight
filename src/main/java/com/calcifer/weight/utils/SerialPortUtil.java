@@ -5,6 +5,8 @@ import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,7 +52,9 @@ public class SerialPortUtil {
      * @param serialPort 待关闭的串口对象
      */
     public static void closePort(SerialPort serialPort) {
+        log.info("close serial port if it is open");
         if (serialPort != null && serialPort.isOpen()) {
+            log.info("closing serial port...");
             serialPort.closePort();
         }
     }
@@ -81,15 +85,22 @@ public class SerialPortUtil {
                 return null;
             }
 
-            int i = 0;
-            while (serialPort.bytesAvailable() > 0 && i++ < 5) Thread.sleep(20);
-            byte[] readBuffer = new byte[serialPort.bytesAvailable()];
-            int numRead = serialPort.readBytes(readBuffer, readBuffer.length);
-            if (numRead > 0) {
-                reslutData = readBuffer;
+//            byte[] readBuffer = new byte[serialPort.bytesAvailable()];
+//            int numRead = serialPort.readBytes(readBuffer, readBuffer.length);
+            try(InputStream is = serialPort.getInputStream()) {
+                int i = 0;
+                while (is.available() > 0 && i++ < 5) Thread.sleep(20);
+
+                byte[] bytes = new byte[is.available()];
+                int num = is.read(bytes);
+                if (num > 0) {
+                    reslutData = bytes;
+                }
             }
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.info("sleep interrupted.", e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         return reslutData;
     }
@@ -105,7 +116,7 @@ public class SerialPortUtil {
             // 给串口添加监听器
             serialPort.addDataListener(new SerialPortListener(listener));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info("SERIAL PORT ADD LISTENER EXCEPTION!!", e);
         }
     }
 

@@ -243,6 +243,8 @@ public class SlaveController {
     public RespWrapper<Boolean> initSystem(
             @ApiParam(required = true, value = "token") @RequestParam(required = true) String token,
             HttpServletRequest request) throws ModbusIOException {
+        log.info("init system...send reset event");
+        log.info("now state machine status is {}", weighStateMachine.getState());
         weighStateMachine.sendEvent(WeighEventEnum.RESET);
         return new RespWrapper<>(true, RespCodeEnum.SUCCESS);
     }

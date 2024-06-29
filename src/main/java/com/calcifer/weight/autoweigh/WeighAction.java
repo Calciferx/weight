@@ -44,6 +44,7 @@ public class WeighAction {
      */
     public Action<WeighStatusEnum, WeighEventEnum> readCard() {
         return context -> {
+            log.info("========readCard action========");
             // 确定进车方向，红绿灯置为红
             Boolean isReverse = (Boolean) context.getMessageHeader("reverse");
             if (isReverse == null) {
@@ -52,6 +53,7 @@ public class WeighAction {
             }
             deviceService.reverseDirection(isReverse);
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, true);
+            deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, true);
         };
     }
 
@@ -60,6 +62,7 @@ public class WeighAction {
      */
     public Action<WeighStatusEnum, WeighEventEnum> waitTruckEntering() {
         return context -> {
+            log.info("========waitTruckEntering action========");
             // 道闸打开，红绿灯置为绿
             truckInfo = (TruckInfo) context.getMessageHeader("truckInfo");
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
@@ -73,8 +76,10 @@ public class WeighAction {
      */
     public Action<WeighStatusEnum, WeighEventEnum> truckLeave() {
         return context -> {
+            log.info("========truckLeave action========");
             // 红绿灯置为绿
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
+            deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, false);
         };
     }
 
@@ -83,6 +88,7 @@ public class WeighAction {
      */
     public Action<WeighStatusEnum, WeighEventEnum> truckEntering() {
         return context -> {
+            log.info("========truckEntering action========");
             // 无需动作，等待车辆上称完成
             webSocketHandler.sendMessageToAllUser("读卡成功，允许车辆进入");
         };
@@ -93,6 +99,7 @@ public class WeighAction {
      */
     public Action<WeighStatusEnum, WeighEventEnum> truckEntered() {
         return context -> {
+            log.info("========truckEntered action========");
             // 道闸关闭，红绿灯置为红，开始称重
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, true);
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
@@ -105,6 +112,7 @@ public class WeighAction {
      */
     public Action<WeighStatusEnum, WeighEventEnum> weigh() {
         return context -> {
+            log.info("========weigh action========");
             // 称重完毕，记录重量，道闸打开，车辆驶离
             Double weight = (Double) context.getMessageHeader("weight");
             List<RecordPO> recordList = recordService.getRecordList(truckInfo.getCarNum(), CompleteStatusEnum.UNCOMPLETED);
@@ -200,6 +208,7 @@ public class WeighAction {
      */
     public Action<WeighStatusEnum, WeighEventEnum> truckLeavingWeigh() {
         return context -> {
+            log.info("========truckLeavingWeigh action========");
             // 车辆正在下称
         };
     }
@@ -209,6 +218,7 @@ public class WeighAction {
      */
     public Action<WeighStatusEnum, WeighEventEnum> truckLeftWeigh() {
         return context -> {
+            log.info("========truckLeftWeigh action========");
             // 车辆已下称
         };
 
@@ -219,6 +229,7 @@ public class WeighAction {
      */
     public Action<WeighStatusEnum, WeighEventEnum> truckLeaving() {
         return context -> {
+            log.info("========truckLeaving action========");
             // 车辆正在驶离
         };
 
@@ -229,6 +240,7 @@ public class WeighAction {
      */
     public Action<WeighStatusEnum, WeighEventEnum> truckLeft() {
         return context -> {
+            log.info("========truckLeft action========");
             // 车辆已驶离，道闸关闭，红绿灯置为绿
             deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, true);
             deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, false);
@@ -239,12 +251,16 @@ public class WeighAction {
 
     public Action<WeighStatusEnum, WeighEventEnum> reset() {
         return context -> {
-            try {
-                deviceService.destroy();
-            } catch (ModbusIOException e) {
-                throw new RuntimeException(e);
+            log.info("========reset action========");
+            synchronized (AutoScanJob.class) {
+                log.info("reset all devices...");
+                try {
+                    deviceService.destroy();
+                } catch (ModbusIOException e) {
+                    throw new RuntimeException(e);
+                }
+                deviceService.init();
             }
-            deviceService.init();
         };
     }
 }

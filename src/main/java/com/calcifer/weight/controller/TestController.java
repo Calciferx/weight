@@ -1,15 +1,18 @@
 package com.calcifer.weight.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.calcifer.weight.WeightApplication;
 import com.calcifer.weight.autoweigh.WeighEventEnum;
 import com.calcifer.weight.autoweigh.WeighStatusEnum;
 import com.calcifer.weight.entity.dto.SlaveDetailInfo;
+import com.calcifer.weight.entity.enums.ModBusDeviceEnum;
 import com.calcifer.weight.entity.enums.RespCodeEnum;
 import com.calcifer.weight.entity.enums.UserStatusEnum;
 import com.calcifer.weight.entity.po.UserPO;
 import com.calcifer.weight.entity.po.UserSlaveInfo;
 import com.calcifer.weight.entity.vo.RespWrapper;
 import com.calcifer.weight.repository.*;
+import com.calcifer.weight.service.DeviceService;
 import com.calcifer.weight.service.VoiceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +22,10 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 
@@ -47,6 +53,76 @@ public class TestController {
 
     @Autowired
     private VoiceService voiceService;
+
+    @Autowired
+    private DeviceService deviceService;
+
+    @RequestMapping("closeBarrier")
+    public Object closeBarrier() {
+        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
+        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
+        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
+        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
+        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
+        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
+        return "closeBarrier";
+    }
+
+    @RequestMapping("frontOnFalse")
+    public Object frontOnFalse() {
+        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
+        return "frontOnFalse";
+    }
+
+    @RequestMapping("frontOffTrue")
+    public Object frontOffTrue() {
+        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
+        return "frontOffTrue";
+    }
+
+    @RequestMapping("frontOffFalse")
+    public Object frontOffFalse() {
+        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
+        return "frontOffFalse";
+    }
+
+    @RequestMapping("frontLightFalse")
+    public Object frontLightFalse() {
+        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
+        return "frontLightFalse";
+    }
+
+    @RequestMapping("frontLightTrue")
+    public Object frontLightTrue() {
+        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, true);
+        return "frontLightTrue";
+    }
+
+    @RequestMapping("backLightFalse")
+    public Object backLightFalse() {
+        deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, false);
+        return "backLightFalse";
+    }
+
+    @RequestMapping("backLightTrue")
+    public Object backLightTrue() {
+        deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, true);
+        return "backLightTrue";
+    }
+
+    @RequestMapping("listenerTest")
+    public Object listenerTest() {
+        return deviceService.getCardListener() == null;
+    }
+
+    @RequestMapping("jarPathTest")
+    public Object jarPathTest() throws URISyntaxException {
+//        String path1 = new File(WeightApplication.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+        String path2 = WeightApplication.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String path3 = new File(WeightApplication.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getPath();
+
+        return path2 + "\n" + path3;
+    }
 
     @RequestMapping("voiceTest")
     public Object voiceTest(String content) throws IOException {

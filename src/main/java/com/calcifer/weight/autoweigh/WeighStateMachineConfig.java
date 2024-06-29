@@ -57,6 +57,15 @@ public class WeighStateMachineConfig extends StateMachineConfigurerAdapter<Weigh
                 .and()
                 .withExternal().source(WeighStatusEnum.LEAVING).target(WeighStatusEnum.WAIT).event(WeighEventEnum.LEFT).action(weighAction.truckLeft())
                 .and()
-                .withExternal().target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset());
+
+                .withExternal().source(WeighStatusEnum.WAIT).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
+                .and().withExternal().source(WeighStatusEnum.WAIT_CARD).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
+                .and().withExternal().source(WeighStatusEnum.WAIT_ENTER).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
+                .and().withExternal().source(WeighStatusEnum.ENTERING).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
+                .and().withExternal().source(WeighStatusEnum.ON_WEIGH).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
+                .and().withExternal().source(WeighStatusEnum.WEIGHED).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
+                .and().withExternal().source(WeighStatusEnum.LEAVING_WEIGH).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
+                .and().withExternal().source(WeighStatusEnum.LEFT_WEIGH).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
+                .and().withExternal().source(WeighStatusEnum.LEAVING).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset());
     }
 }

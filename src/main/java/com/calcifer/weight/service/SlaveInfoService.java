@@ -13,7 +13,9 @@ public class SlaveInfoService {
     private SlaveMapper slaveMapper;
 
     public SlaveInfo querySlaveInfoBySlaveIp(String slaveIp) {
-        SlaveInfo slaveInfo = new SlaveInfo(slaveIp, "1");
+        SlaveInfo slaveInfo = new SlaveInfo();
+        slaveInfo.setSlaveIp(slaveIp);
+        slaveInfo.setStatus("1");
         List<SlaveInfo> slaveInfos = slaveMapper.querySlaveInfo(slaveInfo);
         if (slaveInfos.isEmpty()) {
             return null;

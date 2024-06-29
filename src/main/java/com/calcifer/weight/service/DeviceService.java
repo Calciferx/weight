@@ -1,5 +1,6 @@
 package com.calcifer.weight.service;
 
+import com.alibaba.fastjson.JSON;
 import com.calcifer.weight.entity.dto.SlaveDetailInfo;
 import com.calcifer.weight.entity.enums.ModBusDeviceEnum;
 import com.calcifer.weight.entity.enums.WSMessageTypeEnum;
@@ -15,6 +16,7 @@ import com.intelligt.modbus.jlibmodbus.exception.ModbusProtocolException;
 import com.intelligt.modbus.jlibmodbus.master.ModbusMaster;
 import com.intelligt.modbus.jlibmodbus.master.ModbusMasterFactory;
 import com.intelligt.modbus.jlibmodbus.tcp.TcpParameters;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,28 +40,33 @@ import static com.calcifer.weight.entity.enums.WSMessageTypeEnum.*;
 @Service
 @Slf4j
 public class DeviceService {
+    public static int INFRA1 = 0;
+    public static int INFRA2 = 1;
+    public static int BARRIER1_ON = 2;
+    public static int BARRIER1_OFF = 3;
+    public static int LIGHT1 = 4;
+    public static int LIGHT2 = 5;
+    public static int BARRIER2_OFF = 6;
+    public static int BARRIER2_ON = 7;
+    public static int INFRA3 = 8;
+    public static int INFRA4 = 9;
+
     private SlaveInfo slaveInfo;
     private SlaveDetailInfo[] slaveDetailInfos;
     private WSMessageTypeEnum[] wsMessageType;
     private int[] wsMessageTypeIndex;
     private ModbusMaster modbusMaster;
 
+    @Getter
     @Resource(name = "cardListener")
     private SerialPortUtil.DataAvailableListener cardListener;
 
+    @Getter
     @Resource(name = "scaleListener")
     private SerialPortUtil.DataAvailableListener scaleListener;
     private SerialPort scaleSerialPort;
     private SerialPort frontSerialPort;
     private SerialPort backSerialPort;
-
-    public SerialPortUtil.DataAvailableListener getCardListener() {
-        return cardListener;
-    }
-
-    public SerialPortUtil.DataAvailableListener getScaleListener() {
-        return scaleListener;
-    }
 
 
     @Value("${calcifer.weight.slave-ip}")
@@ -91,7 +98,11 @@ public class DeviceService {
 
     @PostConstruct
     public void init() {
-        if (!enableDeviceInit) return;
+        log.info("init devices...");
+        if (!enableDeviceInit) {
+            log.info("enableDeviceInit is false, init end.");
+            return;
+        }
         slaveInfo = slaveInfoService.querySlaveInfoBySlaveIp(slaveIp);
         List<SlaveDetailInfo> slaveDetailInfoList = slaveDetailService.querySlaveDetailInfoBySlaveId(slaveInfo.getId());
         Map<String, SlaveDetailInfo> typeMap = slaveDetailInfoList.stream().collect(Collectors.toMap(SlaveDetailInfo::getType, Function.identity()));
@@ -100,19 +111,21 @@ public class DeviceService {
         wsMessageTypeIndex = new int[]{0, 1, 2, 3};
 
         slaveDetailInfos = new SlaveDetailInfo[10];
-        slaveDetailInfos[0] = typeMap.get("1"); // infrared1
-        slaveDetailInfos[1] = typeMap.get("7"); // infrared2
-        slaveDetailInfos[2] = typeMap.get("2"); // barrierGate1On
-        slaveDetailInfos[3] = typeMap.get("9"); // barrierGate1Off
-        slaveDetailInfos[4] = typeMap.get("3"); // trafficLight1
-        slaveDetailInfos[5] = typeMap.get("6"); // trafficLight2
-        slaveDetailInfos[6] = typeMap.get("10"); // barrierGate2Off
-        slaveDetailInfos[7] = typeMap.get("5"); // barrierGate2On
-        slaveDetailInfos[8] = typeMap.get("4"); // infrared3
-        slaveDetailInfos[9] = typeMap.get("8"); // infrared4
+        slaveDetailInfos[INFRA1] = typeMap.get("1"); // infrared1
+        slaveDetailInfos[INFRA2] = typeMap.get("7"); // infrared2
+        slaveDetailInfos[BARRIER1_ON] = typeMap.get("2"); // barrierGate1On
+        slaveDetailInfos[BARRIER1_OFF] = typeMap.get("9"); // barrierGate1Off
+        slaveDetailInfos[LIGHT1] = typeMap.get("3"); // trafficLight1
+        slaveDetailInfos[LIGHT2] = typeMap.get("6"); // trafficLight2
+        slaveDetailInfos[BARRIER2_OFF] = typeMap.get("10"); // barrierGate2Off
+        slaveDetailInfos[BARRIER2_ON] = typeMap.get("5"); // barrierGate2On
+        slaveDetailInfos[INFRA3] = typeMap.get("4"); // infrared3
+        slaveDetailInfos[INFRA4] = typeMap.get("8"); // infrared4
+
 
         initModbusMaster();
         // 关闭道闸 ON先置为false解控，OFF置为true受控，再OFF置为false解除控制
+        log.info("closing barriers...");
         controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
         controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
         controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
@@ -127,11 +140,13 @@ public class DeviceService {
         controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, false);
         controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, false);
         // 红绿灯置为绿
+        log.info("set all light green...");
         controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
         controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
         controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, false);
         controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, false);
         // 打开串口-称
+        log.info("find and open weight's serial ports");
         List<String> ports = SerialPortUtil.findPorts();
         if (!ports.contains(scalePort)) {
             throw new RuntimeException("scale port: " + scalePort + " not exist!");
@@ -139,12 +154,14 @@ public class DeviceService {
         scaleSerialPort = SerialPortUtil.openPort(scalePort, 4800, 7);
         SerialPortUtil.addListener(scaleSerialPort, scaleListener);
         // 打开串口-前读卡器
+        log.info("find and open front card's serial ports");
         if (!ports.contains(frontCardReaderPort)) {
             throw new RuntimeException("front card reader port: " + frontCardReaderPort + " not exist!");
         }
         frontSerialPort = SerialPortUtil.openPort(frontCardReaderPort, 57600, 7);
         SerialPortUtil.addListener(frontSerialPort, cardListener);
         // 打开串口-后读卡器
+        log.info("find and open back card's serial ports");
         if (!ports.contains(backCardReaderPort)) {
             throw new RuntimeException("front card reader port: " + backCardReaderPort + " not exist!");
         }
@@ -154,15 +171,29 @@ public class DeviceService {
 
     @PreDestroy
     public void destroy() throws ModbusIOException {
+        log.info("destroy...close serial ports and disconnect modbus devices");
         // 串口
-        if (scaleSerialPort != null) SerialPortUtil.closePort(scaleSerialPort);
-        if (frontSerialPort != null) SerialPortUtil.closePort(frontSerialPort);
-        if (backSerialPort != null) SerialPortUtil.closePort(backSerialPort);
+        if (scaleSerialPort != null) {
+            log.info("close \"scale\" serial port...");
+            SerialPortUtil.closePort(scaleSerialPort);
+        }
+        if (frontSerialPort != null) {
+            log.info("close \"front\" serial port...");
+            SerialPortUtil.closePort(frontSerialPort);
+        }
+        if (backSerialPort != null) {
+            log.info("close \"back\" serial port...");
+            SerialPortUtil.closePort(backSerialPort);
+        }
         // modbus
-        if (modbusMaster != null) modbusMaster.disconnect();
+        if (modbusMaster != null) {
+            log.info("modbusMaster is not null, disconnecting modbus devices");
+            modbusMaster.disconnect();
+        }
     }
 
     public void controlModBusDevice(ModBusDeviceEnum modBusDeviceEnum, boolean status) {
+        log.info("control modbus device: {}, status: {}",modBusDeviceEnum.getMsg(), status);
         SlaveDetailInfo slaveDetailInfo = slaveDetailInfos[modBusDeviceEnum.getCode()];
         try {
             modbusMaster.writeSingleCoil(1, slaveDetailInfo.getSerialSort(), status);
@@ -181,6 +212,7 @@ public class DeviceService {
     public void controlModBusDevice(Integer sort, boolean status) {
         if (sort == null) return;
         try {
+            log.info("write single coil sort: {}, status: {}", sort, status);
             modbusMaster.writeSingleCoil(1, sort, status);
         } catch (ModbusProtocolException e) {
             log.info("ModbusProtocolException: {}", e.getMessage());
@@ -198,7 +230,7 @@ public class DeviceService {
      * 创建ModBus连接
      */
     private void initModbusMaster() {
-
+        log.info("create modbus connection...");
         try {
             InetAddress ip = InetAddress.getByName(slaveIp);
             TcpParameters tcpParameters = new TcpParameters();
@@ -216,6 +248,7 @@ public class DeviceService {
      */
     public void reverseDirection(boolean isReverse) {
         if (isReverse) {
+            log.info("reverse direction...");
             // 反转数组
             SlaveDetailInfo tmp;
             for (int i = slaveDetailInfos.length / 2 - 1; i > -1; i--) {
@@ -261,31 +294,33 @@ public class DeviceService {
 
         private ModBusDeviceStatus(boolean[] discreteInputs) {
             this.discreteInputs = discreteInputs;
+            log.info("device status: {}, infra1:{}, infra2:{}, infra3:{}, infra4:{}", JSON.toJSONString(discreteInputs), isInfrared1(), isInfrared2(), isInfrared3(), isInfrared4());
         }
 
 
+        // 红外1和红外4 遮挡为true，红外2和红外3遮挡为false
         public boolean isInfrared1() {
-            return discreteInputs[slaveDetailInfos[0].getSerialSort()];
+            return discreteInputs[slaveDetailInfos[INFRA1].getSerialSort()];
         }
 
         public boolean isInfrared2() {
-            return discreteInputs[slaveDetailInfos[1].getSerialSort()];
+            return !discreteInputs[slaveDetailInfos[INFRA2].getSerialSort()];
         }
 
         public boolean isInfrared3() {
-            return discreteInputs[slaveDetailInfos[6].getSerialSort()];
+            return !discreteInputs[slaveDetailInfos[INFRA3].getSerialSort()];
         }
 
         public boolean isInfrared4() {
-            return discreteInputs[slaveDetailInfos[7].getSerialSort()];
+            return discreteInputs[slaveDetailInfos[INFRA4].getSerialSort()];
         }
 
         public boolean isTrafficLight1() {
-            return discreteInputs[slaveDetailInfos[4].getSerialSort()];
+            return discreteInputs[slaveDetailInfos[LIGHT1].getSerialSort()];
         }
 
         public boolean isTrafficLight2() {
-            return discreteInputs[slaveDetailInfos[5].getSerialSort()];
+            return discreteInputs[slaveDetailInfos[LIGHT2].getSerialSort()];
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.calcifer.weight.autoweigh;
 
+import com.alibaba.fastjson.JSON;
 import com.calcifer.weight.entity.dto.WeightInfo;
 import com.calcifer.weight.entity.po.TruckInfo;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
@@ -58,49 +59,57 @@ public class AutoScanJob {
 
     @Scheduled(fixedDelay = 500)
     public void autoScan() throws ModbusProtocolException, ModbusNumberException, ModbusIOException {
-        if (!enableAutoScan) return;
-        DeviceService.ModBusDeviceStatus modBusDeviceStatus = deviceService.readModBusDeviceStatus();
-        if (modBusDeviceStatus.isInfrared1()) {
-            Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.TRUCK_FOUND).setHeader("reverse", false).build();
-            weighStateMachine.sendEvent(message);
-        }
-        if (modBusDeviceStatus.isInfrared4()) {
-            Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.TRUCK_FOUND).setHeader("reverse", true).build();
-            weighStateMachine.sendEvent(message);
-        }
-        if (modBusDeviceStatus.isInfrared2()) {
-            Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.ENTER).build();
-            weighStateMachine.sendEvent(message);
-        }
-        if (!modBusDeviceStatus.isInfrared2()) {
-            Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.ENTERED).build();
-            weighStateMachine.sendEvent(message);
-        }
-        if (modBusDeviceStatus.isInfrared3()) {
-            Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.LEAVING_WEIGH).build();
-            weighStateMachine.sendEvent(message);
-        }
-        if (!modBusDeviceStatus.isInfrared3()) {
-            Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.LEFT_WEIGH).build();
-            weighStateMachine.sendEvent(message);
-        }
-        if (modBusDeviceStatus.isInfrared4()) {
-            Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.LEAVING).build();
-            weighStateMachine.sendEvent(message);
-        }
-        if (!modBusDeviceStatus.isInfrared4()) {
-            Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.LEFT).build();
-            weighStateMachine.sendEvent(message);
+        synchronized (AutoScanJob.class) {
+            if (!enableAutoScan) return;
+            DeviceService.ModBusDeviceStatus modBusDeviceStatus = deviceService.readModBusDeviceStatus();
+            if (modBusDeviceStatus.isInfrared1()) {
+                Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.TRUCK_FOUND).setHeader("reverse", false).build();
+                weighStateMachine.sendEvent(message);
+            }
+            if (!modBusDeviceStatus.isInfrared1()) {
+                Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.CANCEL_ENTER).build();
+                weighStateMachine.sendEvent(message);
+            }
+            if (modBusDeviceStatus.isInfrared4()) {
+                Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.TRUCK_FOUND).setHeader("reverse", true).build();
+                weighStateMachine.sendEvent(message);
+            }
+            if (modBusDeviceStatus.isInfrared2()) {
+                Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.ENTER).build();
+                weighStateMachine.sendEvent(message);
+            }
+            if (!modBusDeviceStatus.isInfrared2()) {
+                Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.ENTERED).build();
+                weighStateMachine.sendEvent(message);
+            }
+            if (modBusDeviceStatus.isInfrared3()) {
+                Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.LEAVING_WEIGH).build();
+                weighStateMachine.sendEvent(message);
+            }
+            if (!modBusDeviceStatus.isInfrared3()) {
+                Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.LEFT_WEIGH).build();
+                weighStateMachine.sendEvent(message);
+            }
+            if (modBusDeviceStatus.isInfrared4()) {
+                Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.LEAVING).build();
+                weighStateMachine.sendEvent(message);
+            }
+            if (!modBusDeviceStatus.isInfrared4()) {
+                Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.LEFT).build();
+                weighStateMachine.sendEvent(message);
+            }
         }
     }
 
     @Bean
-    private SerialPortUtil.DataAvailableListener cardListener() {
+    public SerialPortUtil.DataAvailableListener cardListener() {
         return serialPortEvent -> {
             byte[] data = SerialPortUtil.readFromPort(serialPortEvent.getSerialPort());
-            String dataHex = new BigInteger(1, data).toString(16);
-            if (dataHex.length() == 36 && ("1100EE00").equals(dataHex.substring(0, 8))) {
-                String cardNum = dataHex.substring(8, 32);
+            String dataHex = new BigInteger(1, data).toString(16).toUpperCase();
+            log.info("read card data: {}", dataHex);
+            if (true || dataHex.length() == 36 && ("1100EE00").equals(dataHex.substring(0, 8))) {
+//                String cardNum = dataHex.substring(8, 32);
+                String cardNum = "E2000016660E015616306EDE";
                 log.info("read cardNum: {}", cardNum);
                 TruckInfo truckInfo = cardMapper.getTruckInfo(cardNum);
                 if (truckInfo != null && ("启用").equals(truckInfo.getBackup14())) {
@@ -108,17 +117,19 @@ public class AutoScanJob {
                     Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.READ_CARD).setHeader("truckInfo", truckInfo).build();
                     weighStateMachine.sendEvent(message);
                 } else {
-                    voiceService.voice("未读到卡，或此卡没注册，请联系管理员");
+                    log.error("card not register!!");
+                    voiceService.voice("此卡未注册，请联系管理员");
                 }
             }
         };
     }
 
     @Bean
-    private SerialPortUtil.DataAvailableListener scaleListener() {
+    public SerialPortUtil.DataAvailableListener scaleListener() {
         return serialPortEvent -> {
             byte[] data = SerialPortUtil.readFromPort(serialPortEvent.getSerialPort());
-            String dataHex = new BigInteger(1, data).toString(16);
+            String dataHex = new BigInteger(1, data).toString(16).toUpperCase();
+            log.info("read scale data: {}", dataHex);
             String validDataHex = dataHex.substring(dataHex.indexOf("02"), dataHex.indexOf("0D") + 2);
             if (validDataHex.length() > 32) {
                 String status = dataHex.substring(4, 6);
@@ -143,24 +154,26 @@ public class AutoScanJob {
                     map.put("dataHex", weight);
                     map.put("type", "7");
                     map.put("map", weightInfo);
+                    log.info("weight map: {}", JSON.toJSONString(map));
                     if (queue.size() > 30) {
                         queue.poll();
                         try {
                             queue.put(weightInfo);
                         } catch (InterruptedException e) {
-                            log.info("queue put exception", e);
+                            log.error("queue put exception", e);
                         }
                     } else {
                         try {
                             queue.put(weightInfo);
                         } catch (InterruptedException e) {
-                            log.info("queue put exception", e);
+                            log.error("queue put exception", e);
                         }
                     }
                     webSocketHandler.sendJsonToAllUser(map);
                     List<Integer> dataList = queue.stream().map(o -> Integer.valueOf(o.getDataHex())).collect(Collectors.toList());
                     if (dataList.stream().max(Comparator.comparingInt(o -> o)).get() - dataList.stream().min(Comparator.comparingInt(o -> o)).get() < 10) {
                         Double average = dataList.stream().collect(Collectors.averagingInt(o -> o));
+                        log.info("average weight: {}", average);
                         if (average > MINWEIGHT && average < MAXWEIGHT) {
                             Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.WEIGHED).setHeader("weight", average).build();
                             weighStateMachine.sendEvent(message);

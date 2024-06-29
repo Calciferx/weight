@@ -21,13 +21,9 @@ public class SlaveInfo {
     public SlaveInfo() {
     }
 
-    public SlaveInfo(String slaveIp, String status) {
+    public SlaveInfo(String slaveIp, String id, String status) {
         this.slaveIp = slaveIp;
         this.status = status;
-    }
-
-    public SlaveInfo(String slaveIp, String id, String status) {
-        this(slaveIp, status);
         this.id = id;
     }
 
