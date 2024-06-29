@@ -142,18 +142,12 @@
                     <excludes>
                         <exclude>config/application*.yaml</exclude>
                         <exclude>config/application*.properties</exclude>
+                        <exclude>config/logback*.xml</exclude>
                     </excludes>
                 </configuration>
             </plugin>
         </plugins>
         <resources>
-            <resource>
-                <directory>deploy</directory>
-                <targetPath>${basedir}/target</targetPath>
-                <includes>
-                    <include>*.bat</include>
-                </includes>
-            </resource>
             <resource>
                 <filtering>true</filtering>
                 <directory>${basedir}/src/main/resources</directory>

@@ -13,3 +13,6 @@ calcifer:
     enable-auth: true
     enable-auto-scan: true
     enable-device-init: true
+
+logging:
+  config: file:config/logback-spring.xml
