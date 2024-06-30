@@ -12,7 +12,8 @@ calcifer:
     back-card-reader-port: COM4
     enable-auth: true
     enable-auto-scan: true
-    enable-device-init: true
+    enable-modbus-device-init: true
+    enable-serial-device-init: true
 
 logging:
   config: file:config/logback-spring.xml

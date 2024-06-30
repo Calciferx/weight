@@ -3,6 +3,7 @@ package com.calcifer.weight.autoweigh;
 import com.alibaba.fastjson.JSON;
 import com.calcifer.weight.entity.dto.WeightInfo;
 import com.calcifer.weight.entity.po.TruckInfo;
+import com.calcifer.weight.entity.vo.WeightInfoVO;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
 import com.calcifer.weight.repository.CardMapper;
 import com.calcifer.weight.service.DeviceService;
@@ -11,6 +12,7 @@ import com.calcifer.weight.utils.SerialPortUtil;
 import com.intelligt.modbus.jlibmodbus.exception.ModbusIOException;
 import com.intelligt.modbus.jlibmodbus.exception.ModbusNumberException;
 import com.intelligt.modbus.jlibmodbus.exception.ModbusProtocolException;
+import com.xiaoleilu.hutool.convert.Convert;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,11 +26,13 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.math.BigInteger;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Queue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -45,7 +49,7 @@ public class AutoScanJob {
     @Resource
     private StateMachine<WeighStatusEnum, WeighEventEnum> weighStateMachine;
 
-    private LinkedBlockingQueue<WeightInfo> queue = new LinkedBlockingQueue<>();
+    private final Queue<WeightInfo> queue = new LinkedList<>();
 
     @Autowired
     private CardMapper cardMapper;
@@ -107,9 +111,11 @@ public class AutoScanJob {
             byte[] data = SerialPortUtil.readFromPort(serialPortEvent.getSerialPort());
             String dataHex = new BigInteger(1, data).toString(16).toUpperCase();
             log.info("read card data: {}", dataHex);
-            if (true || dataHex.length() == 36 && ("1100EE00").equals(dataHex.substring(0, 8))) {
-//                String cardNum = dataHex.substring(8, 32);
-                String cardNum = "E2000016660E015616306EDE";
+            Pattern pattern = Pattern.compile("1100EE00.{28}");
+            Matcher matcher = pattern.matcher(dataHex);
+            if (matcher.find()) {
+                String cardNum = matcher.group().substring(8, 32);
+                //                String cardNum = "E2000016660E015616306EDE";
                 log.info("read cardNum: {}", cardNum);
                 TruckInfo truckInfo = cardMapper.getTruckInfo(cardNum);
                 if (truckInfo != null && ("启用").equals(truckInfo.getBackup14())) {
@@ -130,49 +136,31 @@ public class AutoScanJob {
             byte[] data = SerialPortUtil.readFromPort(serialPortEvent.getSerialPort());
             String dataHex = new BigInteger(1, data).toString(16).toUpperCase();
             log.info("read scale data: {}", dataHex);
-            String validDataHex = dataHex.substring(dataHex.indexOf("02"), dataHex.indexOf("0D") + 2);
-            if (validDataHex.length() > 32) {
+            Pattern pattern = Pattern.compile("02.{30}0D");
+            Matcher matcher = pattern.matcher(dataHex);
+            while (matcher.find()) {
+                // 截取有效输出
+                String validHex = matcher.group();
+                // 提取重量信息
+                String numHex = validHex.substring(8, 20);
+                String numStr = Convert.hexStrToStr(numHex, StandardCharsets.US_ASCII).trim();
                 String status = dataHex.substring(4, 6);
-
-                String weightHex = validDataHex.substring(8, 20);
-                StringBuilder weightSB = new StringBuilder();
-                boolean bFlag = true;
-                for (int i = 0; i < weightHex.length() / 2; i++) {
-                    char childChar = hexToChar(weightHex, i * 2, (i + 1) * 2);
-                    if (childChar >= 30 && childChar <= 0x39) {
-                        weightSB.append(childChar);
-                    } else {
-                        bFlag = false;
-                        break;
-                    }
-                }
-
-                if (bFlag) {
-                    Map<String, Object> map = new HashMap<>();
-                    String weight = weightSB.toString().trim();
-                    WeightInfo weightInfo = new WeightInfo(status, dataHex);
-                    map.put("dataHex", weight);
-                    map.put("type", "7");
-                    map.put("map", weightInfo);
-                    log.info("weight map: {}", JSON.toJSONString(map));
+                if (numStr.matches("\\d+")) {
+                    int num = Integer.parseInt(numStr);
+                    WeightInfo weightInfo = new WeightInfo(status, dataHex, num);
+                    WeightInfoVO weightInfoVO = new WeightInfoVO(num, "7", weightInfo);
+                    log.info("weight map: {}", JSON.toJSONString(weightInfoVO));
                     if (queue.size() > 30) {
                         queue.poll();
-                        try {
-                            queue.put(weightInfo);
-                        } catch (InterruptedException e) {
-                            log.error("queue put exception", e);
-                        }
+                        queue.offer(weightInfo);
                     } else {
-                        try {
-                            queue.put(weightInfo);
-                        } catch (InterruptedException e) {
-                            log.error("queue put exception", e);
-                        }
+                        queue.offer(weightInfo);
                     }
-                    webSocketHandler.sendJsonToAllUser(map);
-                    List<Integer> dataList = queue.stream().map(o -> Integer.valueOf(o.getDataHex())).collect(Collectors.toList());
-                    if (dataList.stream().max(Comparator.comparingInt(o -> o)).get() - dataList.stream().min(Comparator.comparingInt(o -> o)).get() < 10) {
-                        Double average = dataList.stream().collect(Collectors.averagingInt(o -> o));
+                    log.info("queue size: {}", queue.size());
+                    webSocketHandler.sendJsonToAllUser(weightInfoVO);
+                    List<Integer> dataList = queue.stream().map(WeightInfo::getWeightNum).collect(Collectors.toList());
+                    if (Collections.max(dataList) - Collections.min(dataList) < 10) {
+                        Double average = dataList.stream().mapToInt(Integer::intValue).average().orElse(0D);
                         log.info("average weight: {}", average);
                         if (average > MINWEIGHT && average < MAXWEIGHT) {
                             Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.WEIGHED).setHeader("weight", average).build();
@@ -182,17 +170,5 @@ public class AutoScanJob {
                 }
             }
         };
-    }
-
-    private char hexToChar(String str, int x, int y) {
-        if (x > str.length())
-            return ' ';
-        int num;
-        if (y > str.length()) {
-            num = Integer.parseInt(str.substring(x), 16);
-        } else {
-            num = Integer.parseInt(str.substring(x, y), 16);
-        }
-        return (char) num;
     }
 }

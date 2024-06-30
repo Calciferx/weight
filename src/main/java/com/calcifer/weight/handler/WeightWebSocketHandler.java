@@ -91,12 +91,13 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
                     session.sendMessage(new TextMessage(message));
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("sendJsonToAllUser message exception", e);
             }
         }
     }
 
     public void sendJsonToAllUser(Object o) {
+        log.info("send json to all user...");
         for (WebSocketSession session : sessionMap.values()) {
             try {
                 if (session.isOpen()) {
@@ -104,7 +105,7 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
                     session.sendMessage(new TextMessage(JSON.toJSONString(o)));
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("sendJsonToAllUser object exception", e);
             }
         }
     }
@@ -124,7 +125,7 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
                 user.sendMessage(message);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("sendMessageToUser exception", e);
         }
     }
 

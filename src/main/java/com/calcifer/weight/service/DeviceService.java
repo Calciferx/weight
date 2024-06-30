@@ -93,16 +93,55 @@ public class DeviceService {
     @Autowired
     private WeightWebSocketHandler webSocketHandler;
 
-    @Value("${calcifer.weight.enable-device-init: true}")
-    private boolean enableDeviceInit;
+    @Value("${calcifer.weight.enable-modbus-device-init: true}")
+    private boolean enableModbusDeviceInit;
+
+    @Value("${calcifer.weight.enable-serial-device-init: true}")
+    private boolean enableSerialDeviceInit;
+
+    private boolean[] deviceStatusArray;
 
     @PostConstruct
     public void init() {
         log.info("init devices...");
-        if (!enableDeviceInit) {
+        if (enableModbusDeviceInit) {
+            initModbusDevice();
+        } else {
             log.info("enableDeviceInit is false, init end.");
-            return;
         }
+        if (enableSerialDeviceInit) {
+            initSerialDevice();
+        } else {
+            log.info("initSerialDevice is false, init end.");
+        }
+    }
+
+    private void initSerialDevice() {
+        // 打开串口-称
+        log.info("find and open weight's serial ports");
+        List<String> ports = SerialPortUtil.findPorts();
+        if (!ports.contains(scalePort)) {
+            throw new RuntimeException("scale port: " + scalePort + " not exist!");
+        }
+        scaleSerialPort = SerialPortUtil.openPort(scalePort, 4800, 7);
+        SerialPortUtil.addListener(scaleSerialPort, scaleListener);
+        // 打开串口-前读卡器
+        log.info("find and open front card's serial ports");
+        if (!ports.contains(frontCardReaderPort)) {
+            throw new RuntimeException("front card reader port: " + frontCardReaderPort + " not exist!");
+        }
+        frontSerialPort = SerialPortUtil.openPort(frontCardReaderPort, 57600, 8);
+        SerialPortUtil.addListener(frontSerialPort, cardListener);
+        // 打开串口-后读卡器
+        log.info("find and open back card's serial ports");
+        if (!ports.contains(backCardReaderPort)) {
+            throw new RuntimeException("front card reader port: " + backCardReaderPort + " not exist!");
+        }
+        backSerialPort = SerialPortUtil.openPort(backCardReaderPort, 57600, 8);
+        SerialPortUtil.addListener(backSerialPort, cardListener);
+    }
+
+    private void initModbusDevice() {
         slaveInfo = slaveInfoService.querySlaveInfoBySlaveIp(slaveIp);
         List<SlaveDetailInfo> slaveDetailInfoList = slaveDetailService.querySlaveDetailInfoBySlaveId(slaveInfo.getId());
         Map<String, SlaveDetailInfo> typeMap = slaveDetailInfoList.stream().collect(Collectors.toMap(SlaveDetailInfo::getType, Function.identity()));
@@ -139,34 +178,13 @@ public class DeviceService {
         controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, true);
         controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, false);
         controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, false);
+
         // 红绿灯置为绿
         log.info("set all light green...");
         controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
         controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
         controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, false);
         controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, false);
-        // 打开串口-称
-        log.info("find and open weight's serial ports");
-        List<String> ports = SerialPortUtil.findPorts();
-        if (!ports.contains(scalePort)) {
-            throw new RuntimeException("scale port: " + scalePort + " not exist!");
-        }
-        scaleSerialPort = SerialPortUtil.openPort(scalePort, 4800, 7);
-        SerialPortUtil.addListener(scaleSerialPort, scaleListener);
-        // 打开串口-前读卡器
-        log.info("find and open front card's serial ports");
-        if (!ports.contains(frontCardReaderPort)) {
-            throw new RuntimeException("front card reader port: " + frontCardReaderPort + " not exist!");
-        }
-        frontSerialPort = SerialPortUtil.openPort(frontCardReaderPort, 57600, 7);
-        SerialPortUtil.addListener(frontSerialPort, cardListener);
-        // 打开串口-后读卡器
-        log.info("find and open back card's serial ports");
-        if (!ports.contains(backCardReaderPort)) {
-            throw new RuntimeException("front card reader port: " + backCardReaderPort + " not exist!");
-        }
-        backSerialPort = SerialPortUtil.openPort(backCardReaderPort, 57600, 7);
-        SerialPortUtil.addListener(backSerialPort, cardListener);
     }
 
     @PreDestroy
@@ -193,6 +211,7 @@ public class DeviceService {
     }
 
     public void controlModBusDevice(ModBusDeviceEnum modBusDeviceEnum, boolean status) {
+//        if (true) return;
         log.info("control modbus device: {}, status: {}",modBusDeviceEnum.getMsg(), status);
         SlaveDetailInfo slaveDetailInfo = slaveDetailInfos[modBusDeviceEnum.getCode()];
         try {
@@ -210,6 +229,7 @@ public class DeviceService {
     }
 
     public void controlModBusDevice(Integer sort, boolean status) {
+//        if (true) return;
         if (sort == null) return;
         try {
             log.info("write single coil sort: {}, status: {}", sort, status);
@@ -286,7 +306,9 @@ public class DeviceService {
         int offset = 0;
         int quantity = slaveInfo.getCoilNum();
         boolean[] discreteInputs = modbusMaster.readDiscreteInputs(slaveAddress, offset, quantity);
-        return new ModBusDeviceStatus(discreteInputs);
+        ModBusDeviceStatus modBusDeviceStatus = new ModBusDeviceStatus(discreteInputs);
+        log.info(modBusDeviceStatus.toString());
+        return modBusDeviceStatus;
     }
 
     public class ModBusDeviceStatus {
@@ -294,9 +316,12 @@ public class DeviceService {
 
         private ModBusDeviceStatus(boolean[] discreteInputs) {
             this.discreteInputs = discreteInputs;
-            log.info("device status: {}, infra1:{}, infra2:{}, infra3:{}, infra4:{}", JSON.toJSONString(discreteInputs), isInfrared1(), isInfrared2(), isInfrared3(), isInfrared4());
         }
 
+        @Override
+        public String toString() {
+            return String.format("device status: %s, infra1:%s, infra2:%s, infra3:%s, infra4:%s", JSON.toJSONString(discreteInputs), isInfrared1(), isInfrared2(), isInfrared3(), isInfrared4());
+        }
 
         // 红外1和红外4 遮挡为true，红外2和红外3遮挡为false
         public boolean isInfrared1() {

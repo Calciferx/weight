@@ -140,7 +140,7 @@
                 <version>3.2.2</version>
                 <configuration>
                     <excludes>
-                        <exclude>config/application*.yaml</exclude>
+                        <exclude>config/application-*.yaml</exclude>
                         <exclude>config/application*.properties</exclude>
                         <exclude>config/logback*.xml</exclude>
                     </excludes>

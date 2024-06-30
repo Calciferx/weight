@@ -21,10 +21,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -123,7 +123,7 @@ public class SlaveController {
         if (flag < 1) {
             return new RespWrapper<>(false, RespCodeEnum.ERROR);
         }
-        if (StringUtils.isNotEmpty(jsonStr)) {
+        if (!StringUtils.isEmpty(jsonStr)) {
             List<SlaveDetailInfo> slaveDetailInfos = JSONObject.parseArray(jsonStr, SlaveDetailInfo.class);
             Integer delete = slaveDetailService.delete(id);
             if (slaveDetailInfos != null && !slaveDetailInfos.isEmpty()) {
