@@ -52,7 +52,7 @@
             0,
             '',
             CONVERT(varchar,GETDATE(),120),
-            #{RecordFinish}
+            #{recordFinish}
             )
         </if>
     </insert>
@@ -229,7 +229,7 @@
             RecordFinish = 1,
         </set>
         <where>
-            <if test="serialNo != null and serialNo != ''">
+            <if test="serialNum != null and serialNum != ''">
                 and 流水号 = #{serialNum}
             </if>
         </where>

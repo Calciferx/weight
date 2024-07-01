@@ -14,6 +14,9 @@ calcifer:
     enable-auto-scan: true
     enable-modbus-device-init: true
     enable-serial-device-init: true
+    sampled-time: 30
+    min-weight: 1000
+    max-weight: 100000
 
 logging:
   config: file:config/logback-spring.xml

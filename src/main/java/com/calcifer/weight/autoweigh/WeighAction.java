@@ -42,9 +42,9 @@ public class WeighAction {
     /**
      * source = "WAIT", target = "WAIT_CARD"
      */
-    public Action<WeighStatusEnum, WeighEventEnum> readCard() {
+    public Action<WeighStatusEnum, WeighEventEnum> foundTruck() {
         return context -> {
-            log.info("========readCard action========");
+            log.info("========foundTruck action========");
             // 确定进车方向，红绿灯置为红
             Boolean isReverse = (Boolean) context.getMessageHeader("reverse");
             if (isReverse == null) {
@@ -67,6 +67,8 @@ public class WeighAction {
             truckInfo = (TruckInfo) context.getMessageHeader("truckInfo");
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, true);
+            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, true);
+            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
         };
     }
@@ -102,8 +104,8 @@ public class WeighAction {
             log.info("========truckEntered action========");
             // 道闸关闭，红绿灯置为红，开始称重
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, true);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
+//            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
+//            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
         };
     }
 
@@ -115,6 +117,7 @@ public class WeighAction {
             log.info("========weigh action========");
             // 称重完毕，记录重量，道闸打开，车辆驶离
             Double weight = (Double) context.getMessageHeader("weight");
+            log.info("***** weight is: {} *****", weight);
             List<RecordPO> recordList = recordService.getRecordList(truckInfo.getCarNum(), CompleteStatusEnum.UNCOMPLETED);
             if (!recordList.isEmpty()) {
 //            if(DateUtil.dateMinDiff(weightMap.get("更新时间")+"",DateUtil.getTime(),"yyyy-MM-dd HH:mm:ss")<10){
@@ -199,6 +202,8 @@ public class WeighAction {
                 }
             }
             deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_ON, true);
+            deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_ON, true);
+            deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_ON, false);
             deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_ON, false);
         };
     }
@@ -242,10 +247,17 @@ public class WeighAction {
         return context -> {
             log.info("========truckLeft action========");
             // 车辆已驶离，道闸关闭，红绿灯置为绿
+            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
+            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
+            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
+            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
             deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, true);
+            deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, true);
+            deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, false);
             deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, false);
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
             deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, false);
+            voiceService.voice("称重结束，车辆已驶离");
         };
     }
 

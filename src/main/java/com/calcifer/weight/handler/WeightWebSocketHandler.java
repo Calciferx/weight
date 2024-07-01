@@ -97,11 +97,11 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
     }
 
     public void sendJsonToAllUser(Object o) {
-        log.info("send json to all user...");
+        log.debug("send json to all user...");
         for (WebSocketSession session : sessionMap.values()) {
             try {
                 if (session.isOpen()) {
-                    log.info("sendMessageTo: {}", session.getId());
+                    log.debug("sendMessageTo: {}", session.getId());
                     session.sendMessage(new TextMessage(JSON.toJSONString(o)));
                 }
             } catch (IOException e) {

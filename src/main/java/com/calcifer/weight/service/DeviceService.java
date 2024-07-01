@@ -20,15 +20,20 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -39,7 +44,7 @@ import static com.calcifer.weight.entity.enums.WSMessageTypeEnum.*;
  */
 @Service
 @Slf4j
-public class DeviceService {
+public class DeviceService implements ApplicationListener<ContextRefreshedEvent> {
     public static int INFRA1 = 0;
     public static int INFRA2 = 1;
     public static int BARRIER1_ON = 2;
@@ -99,9 +104,18 @@ public class DeviceService {
     @Value("${calcifer.weight.enable-serial-device-init: true}")
     private boolean enableSerialDeviceInit;
 
-    private boolean[] deviceStatusArray;
+    private ModBusDeviceStatus lastModBusDeviceStatus;
 
-    @PostConstruct
+    @Getter
+    private boolean init;
+
+
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+//        init();
+    }
+
+//    @PostConstruct
     public void init() {
         log.info("init devices...");
         if (enableModbusDeviceInit) {
@@ -114,6 +128,7 @@ public class DeviceService {
         } else {
             log.info("initSerialDevice is false, init end.");
         }
+        init = true;
     }
 
     private void initSerialDevice() {
@@ -212,7 +227,7 @@ public class DeviceService {
 
     public void controlModBusDevice(ModBusDeviceEnum modBusDeviceEnum, boolean status) {
 //        if (true) return;
-        log.info("control modbus device: {}, status: {}",modBusDeviceEnum.getMsg(), status);
+        log.info("control modbus device: {}, status: {}", modBusDeviceEnum.getMsg(), status);
         SlaveDetailInfo slaveDetailInfo = slaveDetailInfos[modBusDeviceEnum.getCode()];
         try {
             modbusMaster.writeSingleCoil(1, slaveDetailInfo.getSerialSort(), status);
@@ -272,9 +287,10 @@ public class DeviceService {
             // 反转数组
             SlaveDetailInfo tmp;
             for (int i = slaveDetailInfos.length / 2 - 1; i > -1; i--) {
+                int j = slaveDetailInfos.length - 1 - i;
                 tmp = slaveDetailInfos[i];
-                slaveDetailInfos[i] = slaveDetailInfos[7 - i];
-                slaveDetailInfos[7 - i] = tmp;
+                slaveDetailInfos[i] = slaveDetailInfos[j];
+                slaveDetailInfos[j] = tmp;
             }
             for (int i = wsMessageTypeIndex.length - 1; i > -1; i--) {
                 wsMessageTypeIndex[i] = wsMessageTypeIndex.length - 1 - wsMessageTypeIndex[i];
@@ -307,7 +323,11 @@ public class DeviceService {
         int quantity = slaveInfo.getCoilNum();
         boolean[] discreteInputs = modbusMaster.readDiscreteInputs(slaveAddress, offset, quantity);
         ModBusDeviceStatus modBusDeviceStatus = new ModBusDeviceStatus(discreteInputs);
-        log.info(modBusDeviceStatus.toString());
+        String statusChangeStr = modBusDeviceStatus.getStatusChangeStr(lastModBusDeviceStatus);
+        if (!StringUtils.isEmpty(statusChangeStr)) {
+            log.info(statusChangeStr);
+        }
+        lastModBusDeviceStatus = modBusDeviceStatus;
         return modBusDeviceStatus;
     }
 
@@ -323,7 +343,27 @@ public class DeviceService {
             return String.format("device status: %s, infra1:%s, infra2:%s, infra3:%s, infra4:%s", JSON.toJSONString(discreteInputs), isInfrared1(), isInfrared2(), isInfrared3(), isInfrared4());
         }
 
-        // 红外1和红外4 遮挡为true，红外2和红外3遮挡为false
+        public String getStatusChangeStr(ModBusDeviceStatus lastStatus) {
+            if (lastStatus == null) {
+                return toString();
+            }
+            ArrayList<String> list = new ArrayList<>();
+            if (isInfrared1() != lastStatus.isInfrared1()) {
+                list.add(String.format("infra1 changed: from %S to %S", lastStatus.isInfrared1(), isInfrared1()));
+            }
+            if (isInfrared2() != lastStatus.isInfrared2()) {
+                list.add(String.format("infra2 changed: from %S to %S", lastStatus.isInfrared2(), isInfrared2()));
+            }
+            if (isInfrared3() != lastStatus.isInfrared3()) {
+                list.add(String.format("infra3 changed: from %S to %S", lastStatus.isInfrared3(), isInfrared3()));
+            }
+            if (isInfrared4() != lastStatus.isInfrared4()) {
+                list.add(String.format("infra4 changed: from %S to %S", lastStatus.isInfrared4(), isInfrared4()));
+            }
+            return String.join(";", list);
+        }
+
+        // 红外1和红外4 遮挡为true，红外2和红外3遮挡为false,返回值统一为遮挡为true
         public boolean isInfrared1() {
             return discreteInputs[slaveDetailInfos[INFRA1].getSerialSort()];
         }

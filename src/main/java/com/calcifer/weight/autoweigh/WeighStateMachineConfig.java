@@ -37,7 +37,7 @@ public class WeighStateMachineConfig extends StateMachineConfigurerAdapter<Weigh
      */
     public void configure(StateMachineTransitionConfigurer<WeighStatusEnum, WeighEventEnum> transitions) throws Exception {
         transitions
-                .withExternal().source(WeighStatusEnum.WAIT).target(WeighStatusEnum.WAIT_CARD).event(WeighEventEnum.TRUCK_FOUND).action(weighAction.readCard())
+                .withExternal().source(WeighStatusEnum.WAIT).target(WeighStatusEnum.WAIT_CARD).event(WeighEventEnum.TRUCK_FOUND).action(weighAction.foundTruck())
                 .and()
                 .withExternal().source(WeighStatusEnum.WAIT_CARD).target(WeighStatusEnum.WAIT_ENTER).event(WeighEventEnum.READ_CARD).action(weighAction.waitTruckEntering())
                 .and()
