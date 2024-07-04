@@ -11,11 +11,13 @@ import com.calcifer.weight.entity.enums.UserStatusEnum;
 import com.calcifer.weight.entity.po.UserPO;
 import com.calcifer.weight.entity.po.UserSlaveInfo;
 import com.calcifer.weight.entity.vo.RespWrapper;
+import com.calcifer.weight.handler.WeightWebSocketHandler;
 import com.calcifer.weight.repository.*;
 import com.calcifer.weight.service.DeviceService;
 import com.calcifer.weight.service.VoiceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
@@ -56,6 +58,16 @@ public class TestController {
 
     @Autowired
     private DeviceService deviceService;
+
+    @Autowired
+    private WeightWebSocketHandler webSocketHandler;
+
+
+    @RequestMapping(value = "wsTest", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object wsTest(@RequestBody String json) {
+        webSocketHandler.sendMessageToAllUser(json);
+        return json;
+    }
 
     @RequestMapping("closeBarrier")
     public Object closeBarrier() {

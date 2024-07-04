@@ -14,7 +14,7 @@ calcifer:
     enable-auto-scan: true
     enable-modbus-device-init: true
     enable-serial-device-init: true
-    sampled-time: 30
+    sampled-time: 10
     min-weight: 1000
     max-weight: 100000
 

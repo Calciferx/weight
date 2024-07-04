@@ -250,18 +250,13 @@
             <div class="panel">
                 <form class="layui-form">
                     <div class="divtext user">
-                        <input name="name" id="name" placeholder="用户名/手机号" lay-verify="required" autocomplete="off">
+                        <input name="username" id="username" placeholder="用户名/手机号" lay-verify="required" autocomplete="off">
                         <img src="_img/login/user.svg">
                     </div>
                     <div class="divtext pass">
-                        <input type="password" name="pwd" id="password" placeholder="密码" autocomplete="new-password"
+                        <input type="password" name="password" id="password" placeholder="密码" autocomplete="new-password"
                                lay-verify="required">
                         <img src="_img/login/pass.svg">
-                    </div>
-                    <div class="divtext code">
-                        <input name="codeword" id="codeword" placeholder="验证码" lay-verify="required">
-                        <img src="_img/login/code.svg">
-                        <div class="codeimg" id="verifyCode"></div>
                     </div>
                     <div class="remember">
                         <input type="checkbox" id="rememberMe" tabindex="-1" lay-ignore>
@@ -290,16 +285,11 @@
         sessionStorage.clear()
     }
 
-    //生成验证码
-    let verifyCode = new zVerify('verifyCode', {
-        background: '#eaecee', //背景颜色
-        colorArr: [50, 150],   //字体颜色随机区间
-    })
 
     //若上次有记住密码则自动填充用户名密码
-    if (localStorage.getItem('agricultureUsername') && localStorage.getItem('agriculturePassword')) {
-        $('#username').val(localStorage.getItem('agricultureUsername'))
-        $('#password').val(localStorage.getItem('agriculturePassword'))
+    if (localStorage.getItem('username') && localStorage.getItem('password')) {
+        $('#username').val(localStorage.getItem('username'))
+        $('#password').val(localStorage.getItem('password'))
         $('#rememberMe').prop('checked', true)
     }
 
@@ -313,11 +303,6 @@
     //监听提交
     layform.on('submit', function (data) {
         let field = data.field
-        if (!verifyCode.validate(field.codeword)) {
-            layer.msg('验证码错误!')
-            $('[name="codeword"]').val('').focus()
-            return false
-        }
         $.post(
             '../adminx/login/login.do',
             field,
@@ -338,11 +323,11 @@
                 sessionStorage.setItem('loginRole', roleList)
                 //是否记住密码
                 if ($('#rememberMe').prop('checked')) {
-                    localStorage.setItem('agricultureUsername', field.name)
-                    localStorage.setItem('agriculturePassword', field.pwd)
+                    localStorage.setItem('username', field.username)
+                    localStorage.setItem('password', field.password)
                 } else {
-                    localStorage.setItem('agricultureUsername', '')
-                    localStorage.setItem('agriculturePassword', '')
+                    localStorage.setItem('username', '')
+                    localStorage.setItem('password', '')
                 }
 
                 location.replace('index.html')

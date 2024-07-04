@@ -2,7 +2,7 @@ package com.calcifer.weight.autoweigh;
 
 import com.calcifer.weight.entity.enums.CompleteStatusEnum;
 import com.calcifer.weight.entity.enums.ModBusDeviceEnum;
-import com.calcifer.weight.entity.enums.WSMessageTypeEnum;
+import com.calcifer.weight.entity.enums.WSCodeEnum;
 import com.calcifer.weight.entity.po.RecordPO;
 import com.calcifer.weight.entity.po.TruckInfo;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
@@ -45,6 +45,7 @@ public class WeighAction {
     public Action<WeighStatusEnum, WeighEventEnum> foundTruck() {
         return context -> {
             log.info("========foundTruck action========");
+            webSocketHandler.sendWeightLogToAllUser("发现车辆，等待刷卡...");
             // 确定进车方向，红绿灯置为红
             Boolean isReverse = (Boolean) context.getMessageHeader("reverse");
             if (isReverse == null) {
@@ -63,13 +64,16 @@ public class WeighAction {
     public Action<WeighStatusEnum, WeighEventEnum> waitTruckEntering() {
         return context -> {
             log.info("========waitTruckEntering action========");
+            webSocketHandler.sendWeightLogToAllUser("读卡成功，等待车辆进入...");
             // 道闸打开，红绿灯置为绿
             truckInfo = (TruckInfo) context.getMessageHeader("truckInfo");
+            webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.TRUCK_INFO, truckInfo);
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, true);
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, true);
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
+            voiceService.voice("读卡成功，车辆请上称");
         };
     }
 
@@ -79,6 +83,7 @@ public class WeighAction {
     public Action<WeighStatusEnum, WeighEventEnum> truckLeave() {
         return context -> {
             log.info("========truckLeave action========");
+            webSocketHandler.sendWeightLogToAllUser("车辆未刷卡，离开...");
             // 红绿灯置为绿
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
             deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, false);
@@ -91,8 +96,8 @@ public class WeighAction {
     public Action<WeighStatusEnum, WeighEventEnum> truckEntering() {
         return context -> {
             log.info("========truckEntering action========");
+            webSocketHandler.sendWeightLogToAllUser("车辆正在上称...");
             // 无需动作，等待车辆上称完成
-            webSocketHandler.sendMessageToAllUser("读卡成功，允许车辆进入");
         };
     }
 
@@ -102,6 +107,7 @@ public class WeighAction {
     public Action<WeighStatusEnum, WeighEventEnum> truckEntered() {
         return context -> {
             log.info("========truckEntered action========");
+            webSocketHandler.sendWeightLogToAllUser("车辆已上称，开始称重...");
             // 道闸关闭，红绿灯置为红，开始称重
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, true);
 //            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
@@ -144,7 +150,7 @@ public class WeighAction {
                 newRecord.setBak1("2");
                 newRecord.setSerialNum(record.getSerialNum());
 
-                webSocketHandler.sendJsonToAllUser(WSMessageTypeEnum.weight, newRecord);
+                webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.WEIGH_INFO, newRecord);
                 int updateRowNum = recordService.updateRecord(newRecord);
                 log.info("update record num: {}", updateRowNum);
                 if (updateRowNum == 0) {
@@ -153,9 +159,9 @@ public class WeighAction {
                     voiceService.voice("毛重" + weight + "皮重" + record.getTareWeight() + "净重"
                             + newRecord.getNetWeight() + ",称重结束，车辆请下磅");
                     log.info("毛重: {}, 皮重: {}, 净重: {}。 称重结束，车辆请下磅", weight, record.getTareWeight(), newRecord.getNetWeight());
-                    webSocketHandler.sendJsonToAllUser(WSMessageTypeEnum.weigh_log, DateUtil.getTime() + "称重完成");
+                    webSocketHandler.sendWeightLogToAllUser("称重完成");
                 }
-                webSocketHandler.sendJsonToAllUser(WSMessageTypeEnum.weigh_log, DateUtil.getTime() + "#后道闸已打开，车辆请离场");
+                webSocketHandler.sendWeightLogToAllUser("#后道闸已打开，车辆请离场");
             } else {
                 RecordPO newRecord = new RecordPO();
                 //TODO randomService优化
@@ -196,9 +202,9 @@ public class WeighAction {
                     voiceService.voice("称重失败，请重新上磅计量");
                 } else {
                     voiceService.voice("重量" + weight + "称重结束，车辆请下磅");
-                    webSocketHandler.sendJsonToAllUser(WSMessageTypeEnum.weight, newRecord);
-                    webSocketHandler.sendJsonToAllUser(WSMessageTypeEnum.weigh_log, DateUtil.getTime() + "称重完成");
-                    webSocketHandler.sendJsonToAllUser(WSMessageTypeEnum.weigh_log, DateUtil.getTime() + "#后道闸已打开，车辆请下磅、离场");
+                    webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.WEIGH_INFO, newRecord);
+                    webSocketHandler.sendWeightLogToAllUser("称重完成");
+                    webSocketHandler.sendWeightLogToAllUser("#后道闸已打开，车辆请下磅、离场");
                 }
             }
             deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_ON, true);
@@ -214,6 +220,7 @@ public class WeighAction {
     public Action<WeighStatusEnum, WeighEventEnum> truckLeavingWeigh() {
         return context -> {
             log.info("========truckLeavingWeigh action========");
+            webSocketHandler.sendWeightLogToAllUser("车辆正在下称...");
             // 车辆正在下称
         };
     }
@@ -224,6 +231,7 @@ public class WeighAction {
     public Action<WeighStatusEnum, WeighEventEnum> truckLeftWeigh() {
         return context -> {
             log.info("========truckLeftWeigh action========");
+            webSocketHandler.sendWeightLogToAllUser("车辆已下称...");
             // 车辆已下称
         };
 
@@ -235,7 +243,14 @@ public class WeighAction {
     public Action<WeighStatusEnum, WeighEventEnum> truckLeaving() {
         return context -> {
             log.info("========truckLeaving action========");
+            webSocketHandler.sendWeightLogToAllUser("车辆正在驶离...");
             // 车辆正在驶离
+            // 驶离时暂停响应，避免将拖挂车中间缝误判为已经离场
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         };
 
     }
@@ -246,6 +261,8 @@ public class WeighAction {
     public Action<WeighStatusEnum, WeighEventEnum> truckLeft() {
         return context -> {
             log.info("========truckLeft action========");
+            webSocketHandler.sendWeightLogToAllUser("称重结束，车辆已驶离...");
+            webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.TRUCK_AND_WEIGHT, "清空页面数据显示");
             // 车辆已驶离，道闸关闭，红绿灯置为绿
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
@@ -264,6 +281,7 @@ public class WeighAction {
     public Action<WeighStatusEnum, WeighEventEnum> reset() {
         return context -> {
             log.info("========reset action========");
+            webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.TRUCK_AND_WEIGHT, "清空页面数据显示");
             synchronized (AutoScanJob.class) {
                 log.info("reset all devices...");
                 try {

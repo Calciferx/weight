@@ -5,28 +5,20 @@ import lombok.Data;
 
 @Data
 public class WSRespWrapper<T> {
+    private WSCodeEnum type;
     private T data;
-    private WSCodeEnum msgType;
     private String msg;
 
 
-    public WSRespWrapper(T data, WSCodeEnum msgType) {
+    public WSRespWrapper(T data, WSCodeEnum type) {
         this.data = data;
-        this.msgType = msgType;
-        this.msg = msgType.getMsg();
+        this.type = type;
+        this.msg = type.getMsg();
     }
 
-    public WSRespWrapper(T data) {
-        this(data, WSCodeEnum.MSGType_1);
-    }
-
-    public WSRespWrapper(WSCodeEnum msgType) {
-        this(null, msgType);
-    }
-
-    public WSRespWrapper(T data, WSCodeEnum msgType, String msg) {
+    public WSRespWrapper(T data, WSCodeEnum type, String msg) {
         this.data = data;
-        this.msgType = msgType;
+        this.type = type;
         this.msg = msg;
     }
 }

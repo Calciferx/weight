@@ -1,10 +1,9 @@
 package com.calcifer.weight.handler;
 
 import com.alibaba.fastjson.JSON;
-import com.calcifer.weight.entity.dto.WSMessage;
 import com.calcifer.weight.entity.enums.WSCodeEnum;
-import com.calcifer.weight.entity.enums.WSMessageTypeEnum;
 import com.calcifer.weight.entity.vo.WSRespWrapper;
+import com.calcifer.weight.utils.DateUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -98,21 +97,22 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
 
     public void sendJsonToAllUser(Object o) {
         log.debug("send json to all user...");
-        for (WebSocketSession session : sessionMap.values()) {
-            try {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            TextMessage message = new TextMessage(objectMapper.writeValueAsString(o));
+            for (WebSocketSession session : sessionMap.values()) {
                 if (session.isOpen()) {
                     log.debug("sendMessageTo: {}", session.getId());
-                    session.sendMessage(new TextMessage(JSON.toJSONString(o)));
+                    session.sendMessage(message);
                 }
-            } catch (IOException e) {
-                log.error("sendJsonToAllUser object exception", e);
             }
+        } catch (IOException e) {
+            log.error("sendJsonToAllUser object exception", e);
         }
     }
 
-    public void sendJsonToAllUser(WSMessageTypeEnum wsMessageType, Object o) {
-        WSMessage wsMessage = new WSMessage(wsMessageType, o);
-        sendJsonToAllUser(wsMessage);
+    public void sendWSJsonToAllUser(WSCodeEnum wsCodeEnum, Object o) {
+        sendJsonToAllUser(new WSRespWrapper<>(o, wsCodeEnum));
     }
 
     /**
@@ -132,5 +132,9 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
     public void sendMessageToUser(String sessionId, Object o) {
         TextMessage textMessage = new TextMessage(JSON.toJSONString(o));
         sendMessageToUser(sessionId, textMessage);
+    }
+
+    public void sendWeightLogToAllUser(String msg) {
+        sendJsonToAllUser(new WSRespWrapper<>(DateUtil.getTime() + ": " + msg, WSCodeEnum.WEIGH_LOG));
     }
 }

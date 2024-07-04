@@ -7,6 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class WeightInfo {
     private String status;
-    private String dataHex;
     private int weightNum;
 }

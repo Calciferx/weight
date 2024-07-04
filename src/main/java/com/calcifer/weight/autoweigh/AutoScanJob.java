@@ -2,8 +2,9 @@ package com.calcifer.weight.autoweigh;
 
 import com.alibaba.fastjson.JSON;
 import com.calcifer.weight.entity.dto.WeightInfo;
+import com.calcifer.weight.entity.enums.WSCodeEnum;
 import com.calcifer.weight.entity.po.TruckInfo;
-import com.calcifer.weight.entity.vo.WeightInfoVO;
+import com.calcifer.weight.entity.vo.WSRespWrapper;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
 import com.calcifer.weight.repository.CardMapper;
 import com.calcifer.weight.service.DeviceService;
@@ -160,26 +161,31 @@ public class AutoScanJob {
                     String status = dataHex.substring(4, 6);
                     if (numStr.matches("\\d+")) {
                         int num = Integer.parseInt(numStr);
-                        WeightInfo weightInfo = new WeightInfo(status, dataHex, num);
-                        WeightInfoVO weightInfoVO = new WeightInfoVO(num, "7", weightInfo);
-                        log.debug("weight map: {}", JSON.toJSONString(weightInfoVO));
-                        if (queue.size() < sampledTime) {
-                            queue.offer(weightInfo);
-                        } else {
-                            List<Integer> dataList = queue.stream().map(WeightInfo::getWeightNum).collect(Collectors.toList());
-                            if (Collections.max(dataList) - Collections.min(dataList) < 10) {
-                                Double average = dataList.stream().mapToInt(Integer::intValue).average().orElse(0D);
-                                log.debug("average weight: {}", average);
-                                if (average > minWeight && average < maxWeight) {
-                                    Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.WEIGHED).setHeader("weight", average).build();
-                                    weighStateMachine.sendEvent(message);
+                        WeightInfo weightInfo = new WeightInfo(status, num);
+                        WSRespWrapper<WeightInfo> rtWeightInfo = new WSRespWrapper<>(weightInfo, WSCodeEnum.RT_WEIGH_NUM);
+                        log.debug("weight map: {}", JSON.toJSONString(rtWeightInfo));
+                        // 如果称的状态为稳定则开始采样计算重量，否则清空重量数据队列
+                        if ("30".equals(status)) {
+                            if (queue.size() < sampledTime) {
+                                queue.offer(weightInfo);
+                            } else {
+                                List<Integer> dataList = queue.stream().map(WeightInfo::getWeightNum).collect(Collectors.toList());
+                                if (Collections.max(dataList) - Collections.min(dataList) < 10) {
+                                    Double average = dataList.stream().mapToInt(Integer::intValue).average().orElse(0D);
+                                    log.debug("average weight: {}", average);
+                                    if (average > minWeight && average < maxWeight) {
+                                        Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.WEIGHED).setHeader("weight", average).build();
+                                        weighStateMachine.sendEvent(message);
+                                    }
                                 }
+                                queue.poll();
+                                queue.offer(weightInfo);
                             }
-                            queue.poll();
-                            queue.offer(weightInfo);
+                        } else {
+                            queue.clear();
                         }
                         log.debug("queue size: {}", queue.size());
-                        webSocketHandler.sendJsonToAllUser(weightInfoVO);
+                        webSocketHandler.sendJsonToAllUser(rtWeightInfo);
                     }
                 }
             } catch (Exception e) {

@@ -193,19 +193,19 @@
             </div>
             <div class="beforeBrake">
                 <div>前道闸</div>
-                <button class="btn btn_beforePole" data-type="2">
+                <button class="btn btn_beforePole" data-type="FRONT_BARRIER_ON">
                     <i class="fa fa-arrow-up fa-lg"></i>起杆
                 </button>
-                <button class="btn btn_beforePole" data-type="9">
+                <button class="btn btn_beforePole" data-type="FRONT_BARRIER_OFF">
                     <i class="fa fa-arrow-down fa-lg"></i>落杆
                 </button>
             </div>
             <div class="AfterBrake">
                 <div>后道闸</div>
-                <button class="btn btn_afterPole" data-type="5">
+                <button class="btn btn_afterPole" data-type="BACK_BARRIER_ON">
                     <i class="fa fa-arrow-up fa-lg"></i>起杆
                 </button>
-                <button class="btn btn_afterPole" data-type="10">
+                <button class="btn btn_afterPole" data-type="BACK_BARRIER_OFF">
                     <i class="fa fa-arrow-down fa-lg"></i>落杆
                 </button>
             </div>
@@ -382,55 +382,55 @@
 
         let data = JSON.parse(e.data)
         //let result = JSON.parse(e.result)
-        if (data.msgType == '1111') {  //初始信息(首次返回的消息)
+        if (data.type == '1111') {  //初始信息(首次返回的消息)
             console.log('连接成功')
         } else if (data.type == '1') {  //前红外线1---北车检---状态显示
-            if (data.map == false) {
+            if (data.data == false) {
                 $('.WeighingStatus .beforeInfr1').css('background-color', '#A60000')
-            } else if (data.map == true) {
+            } else if (data.data == true) {
                 $('.WeighingStatus .beforeInfr1').css('background-color', '#00B83F')
             }
         } else if (data.type == '2') {  //前红外线2---北计量---状态显示
-            if (data.map == false) {
+            if (data.data == false) {
                 $('.WeighingStatus .beforeInfr2').css('background-color', '#A60000')
-            } else if (data.map == true) {
+            } else if (data.data == true) {
                 $('.WeighingStatus .beforeInfr2').css('background-color', '#00B83F')
             }
         } else if (data.type == '3') {  // 后红外1---南计量---状态显示
-            if (data.map == false) {
+            if (data.data == false) {
                 $('.WeighingStatus .afterInfr1').css('background-color', '#A60000')
-            } else if (data.map == true) {
+            } else if (data.data == true) {
                 $('.WeighingStatus .afterInfr1').css('background-color', '#00B83F')
             }
         } else if (data.type == '4') {  // 后红外2---南车检---状态显示
-            if (data.map == false) {
+            if (data.data == false) {
                 $('.WeighingStatus .afterInfr2').css('background-color', '#A60000')
-            } else if (data.map == true) {
+            } else if (data.data == true) {
                 $('.WeighingStatus .afterInfr2').css('background-color', '#00B83F')
             }
         } else if (data.type == '5') {  // 称重日志
             let div = `<div class="infoContent">
-				<span>${data.map}</span>
+				<span>${data.data}</span>
 				</div>`
             $('.messageBox').append(div)
             getScrool()
         } else if (data.type == '6') { // 车辆信息
-            $('.container [name="carCode"]').val(data.map.carNum)  // 车号
-            $('.container [name="address"]').val(data.map.faHuo)  //发货单位
-            $('.container [name="reAddress"]').val(data.map.shouHuo)  //收货单位
-            $('.container [name="huoming"]').val(data.map.goods) // 货名
-            $('.container [name="guige"]').val(data.map.spec)  // 规格
-            $('.container [name="remark"]').val(data.map.backup5)  // 备注
+            $('.container [name="carCode"]').val(data.data.carNum)  // 车号
+            $('.container [name="address"]').val(data.data.faHuo)  //发货单位
+            $('.container [name="reAddress"]').val(data.data.shouHuo)  //收货单位
+            $('.container [name="huoming"]').val(data.data.goods) // 货名
+            $('.container [name="guige"]').val(data.data.spec)  // 规格
+            $('.container [name="remark"]').val(data.data.backup5)  // 备注
         } else if (data.type == '7') {  // 称重kg
-            start(data.map.dataHex)
-            if (data.map.status == '38') {  // 传输
+            start(data.data.weightNum)
+            if (data.data.status == '38') {  // 传输
                 $('.container .transBox span').css('background', 'linear-gradient(white, green)')
             } else {
                 $('.container .transBox span').css('background', 'linear-gradient(white, red)')
             }
-            if (data.map.status == '30') {  // 稳定
+            if (data.data.status == '30') {  // 稳定
                 $('.container .stableBox span').css('background', 'linear-gradient(white, green)')
-                if ($('#type7').prop('checked') == false && data.map.dataHex != '') {  //保存按钮
+                if ($('#type7').prop('checked') == false && data.data.weightNum != '') {  //保存按钮
                     $('.btn_cancel,.btn_insert1,.btn_dataCof').prop('disabled', false)
                 }
             } else {
@@ -440,9 +440,9 @@
                 }
             }
         } else if (data.type == '8') {  // 毛重、淨重、皮重
-            $('.container [name="maoZ"]').val(data.map.毛重)  //毛重
-            $('.container [name="piZ"]').val(data.map.皮重)  // 皮重
-            $('.container [name="jingZ"]').val(data.map.净重)  // 净重
+            $('.container [name="maoZ"]').val(data.data.roughWeight)  //毛重
+            $('.container [name="piZ"]').val(data.data.tareWeight)  // 皮重
+            $('.container [name="jingZ"]').val(data.data.netWeight)  // 净重
         } else if (data.type == '9') {
             $('.container [name="carCode"]').val('')  // 车号
             $('.container [name="address"]').val('')  //发货单位
@@ -454,7 +454,7 @@
             $('.container [name="piZ"]').val('')  // 皮重
             $('.container [name="jingZ"]').val('')  // 净重
             getTables()
-        } else if (data.msgType == '0') { //导出成功
+        } else if (data.type == '0') { //导出成功
 
         }
     }
@@ -709,54 +709,18 @@
     $('.btn_submit').click(function () {
         layer.closeAll('page');
     })
-    //前道闸 起杆、落杆
-    $('.btn_beforePole').click(function () {
-        let poleType = $(this).attr('data-type')
-        let slaveIp = ''
-        let serialSort = ''
-        loginSlaveList.forEach(function (item, i) {
-            if (poleType == item.type) {
-                serialSort = item.serialSort
-                slaveIp = item.slaveIp
-            }
-        })
+    //道闸 起杆、落杆
+    $('.btn_beforePole,.btn_afterPole').click(function () {
+        let device = $(this).attr('data-type')
         $.post(
-            '../adminx/slave/updateSlave.do',
+            '../device/barrier',
             {
                 token,
-                slaveIp: slaveIp,
-                sort: serialSort,
+                device,
                 status: true,
-                type: poleType
             },
             res => {
-                done(res)   //常规操作后的处理
-            }
-        )
-    })
-
-    //后道闸 起杆、落杆
-    $('.btn_afterPole').click(function () {
-        let poleType = $(this).attr('data-type')
-        let slaveIp = ''
-        let serialSort = ''
-        loginSlaveList.forEach(function (item, i) {
-            if (poleType == item.type) {
-                serialSort = item.serialSort
-                slaveIp = item.slaveIp
-            }
-        })
-        $.post(
-            '../adminx/slave/updateSlave.do',
-            {
-                token,
-                slaveIp: slaveIp,
-                sort: serialSort,
-                status: true,
-                type: poleType
-            },
-            res => {
-                done(res)   //常规操作后的处理
+                layer.msg(res)
             }
         )
     })

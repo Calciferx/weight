@@ -1,17 +1,17 @@
 package com.calcifer.weight.entity.dto;
 
-import com.calcifer.weight.entity.enums.WSMessageTypeEnum;
+import com.calcifer.weight.entity.enums.WSCodeEnum;
 import lombok.Data;
 
 @Data
 public class WSMessage {
-    private WSMessageTypeEnum type;
+    private WSCodeEnum type;
     private Object map;
 
     public WSMessage() {
     }
 
-    public WSMessage(WSMessageTypeEnum type, Object map) {
+    public WSMessage(WSCodeEnum type, Object map) {
         this.type = type;
         this.map = map;
     }

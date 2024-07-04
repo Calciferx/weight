@@ -44,8 +44,8 @@ public class LoginController {
 
 
     @PostMapping("login.do")
-    public RespWrapper<LoginVO> login(String name, String pwd) {
-        User user = userService.queryUser(name, pwd);
+    public RespWrapper<LoginVO> login(String username, String password) {
+        User user = userService.queryUser(username, password);
         if (user == null) {
             return new RespWrapper<>(RespCodeEnum.IS_NOT_USERNAME_ERROR);
         }
@@ -53,15 +53,15 @@ public class LoginController {
             return new RespWrapper<>(RespCodeEnum.USER_LOCK_ERROR);
         }
         // 如果已登录则移除之前的登录信息
-        if (NAME_TOKEN_MAP.containsKey(name)) {
-            String token = NAME_TOKEN_MAP.get(name);
-            NAME_TOKEN_MAP.remove(name);
+        if (NAME_TOKEN_MAP.containsKey(username)) {
+            String token = NAME_TOKEN_MAP.get(username);
+            NAME_TOKEN_MAP.remove(username);
             TOKEN_USER_MAP.remove(token);
         }
         // 重新设置新的登录信息
         String token = UUID.randomUUID().toString();
-        log.info("user: {}, token: {}", name, token);
-        NAME_TOKEN_MAP.put(name, token);
+        log.info("user: {}, token: {}", username, token);
+        NAME_TOKEN_MAP.put(username, token);
         TOKEN_USER_MAP.put(token, user);
 
         UserSlaveInfo userSlaveInfo = userSlaveService.queryUserSlaveInfo(user.getId());

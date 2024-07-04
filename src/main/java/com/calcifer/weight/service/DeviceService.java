@@ -3,7 +3,7 @@ package com.calcifer.weight.service;
 import com.alibaba.fastjson.JSON;
 import com.calcifer.weight.entity.dto.SlaveDetailInfo;
 import com.calcifer.weight.entity.enums.ModBusDeviceEnum;
-import com.calcifer.weight.entity.enums.WSMessageTypeEnum;
+import com.calcifer.weight.entity.enums.WSCodeEnum;
 import com.calcifer.weight.entity.po.SlaveInfo;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
 import com.calcifer.weight.repository.CardMapper;
@@ -25,7 +25,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import java.net.InetAddress;
@@ -33,11 +32,10 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.calcifer.weight.entity.enums.WSMessageTypeEnum.*;
+import static com.calcifer.weight.entity.enums.WSCodeEnum.*;
 
 /**
  * 串口和ModBus设备控制
@@ -58,7 +56,7 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
 
     private SlaveInfo slaveInfo;
     private SlaveDetailInfo[] slaveDetailInfos;
-    private WSMessageTypeEnum[] wsMessageType;
+    private WSCodeEnum[] wsMessageType;
     private int[] wsMessageTypeIndex;
     private ModbusMaster modbusMaster;
 
@@ -161,7 +159,7 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
         List<SlaveDetailInfo> slaveDetailInfoList = slaveDetailService.querySlaveDetailInfoBySlaveId(slaveInfo.getId());
         Map<String, SlaveDetailInfo> typeMap = slaveDetailInfoList.stream().collect(Collectors.toMap(SlaveDetailInfo::getType, Function.identity()));
 
-        wsMessageType = new WSMessageTypeEnum[]{INFR_NORTH_OUT, INFR_NORTH_IN, INFR_SOUTH_IN, INFR_SOUTH_OUT};
+        wsMessageType = new WSCodeEnum[]{INFR_NORTH_OUT, INFR_NORTH_IN, INFR_SOUTH_IN, INFR_SOUTH_OUT};
         wsMessageTypeIndex = new int[]{0, 1, 2, 3};
 
         slaveDetailInfos = new SlaveDetailInfo[10];
@@ -298,19 +296,19 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
         }
     }
 
-    public WSMessageTypeEnum getInfr1MessageTypeEnum() {
+    public WSCodeEnum getInfr1MessageTypeEnum() {
         return wsMessageType[wsMessageTypeIndex[0]];
     }
 
-    public WSMessageTypeEnum getInfr2MessageTypeEnum() {
+    public WSCodeEnum getInfr2MessageTypeEnum() {
         return wsMessageType[wsMessageTypeIndex[1]];
     }
 
-    public WSMessageTypeEnum getInfr3MessageTypeEnum() {
+    public WSCodeEnum getInfr3MessageTypeEnum() {
         return wsMessageType[wsMessageTypeIndex[2]];
     }
 
-    public WSMessageTypeEnum getInfr4MessageTypeEnum() {
+    public WSCodeEnum getInfr4MessageTypeEnum() {
         return wsMessageType[wsMessageTypeIndex[3]];
     }
 
