@@ -57,6 +57,8 @@ public class WeighStateMachineConfig extends StateMachineConfigurerAdapter<Weigh
                 .and()
                 .withExternal().source(WeighStatusEnum.LEAVING).target(WeighStatusEnum.WAIT).event(WeighEventEnum.LEFT).action(weighAction.truckLeft())
                 .and()
+                .withExternal().source(WeighStatusEnum.WEIGHED).target(WeighStatusEnum.LEAVING).event(WeighEventEnum.LEAVING).action(weighAction.truckLeaving())
+                .and()
 
                 .withExternal().source(WeighStatusEnum.WAIT).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
                 .and().withExternal().source(WeighStatusEnum.WAIT_CARD).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())

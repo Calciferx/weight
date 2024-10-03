@@ -22,6 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -102,6 +105,7 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
     @Value("${calcifer.weight.enable-serial-device-init: true}")
     private boolean enableSerialDeviceInit;
 
+    @Getter
     private ModBusDeviceStatus lastModBusDeviceStatus;
 
     @Getter
@@ -223,6 +227,7 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
         }
     }
 
+    @Retryable(value = Exception.class,maxAttempts = 10,backoff = @Backoff(delay = 100,multiplier = 2))
     public void controlModBusDevice(ModBusDeviceEnum modBusDeviceEnum, boolean status) {
 //        if (true) return;
         log.info("control modbus device: {}, status: {}", modBusDeviceEnum.getMsg(), status);
@@ -239,6 +244,11 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
             log.info("ModbusIOException: {}", e.getMessage());
             throw new RuntimeException("ModbusIOException: " + e.getMessage());
         }
+    }
+
+    @Recover
+    public void recover(Exception e) {
+        log.error("RETRY FAILED！");
     }
 
     public void controlModBusDevice(Integer sort, boolean status) {
