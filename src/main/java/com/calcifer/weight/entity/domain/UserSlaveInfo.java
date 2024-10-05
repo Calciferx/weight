@@ -1,4 +1,4 @@
-package com.calcifer.weight.entity.po;
+package com.calcifer.weight.entity.domain;
 
 import lombok.Data;
 

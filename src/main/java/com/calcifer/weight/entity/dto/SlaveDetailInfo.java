@@ -18,21 +18,4 @@ public class SlaveDetailInfo {
     private String coilNum;
     private String discreteNum;
 
-    public SlaveDetailInfo(String slaveId, String status) {
-        this.slaveId = slaveId;
-        this.status = status;
-    }
-
-    public SlaveDetailInfo(String slaveId, String status, String slaveIp) {
-        this.slaveId = slaveId;
-        this.status = status;
-        this.slaveIp = slaveIp;
-    }
-
-    public SlaveDetailInfo(String createTime, String updateTime, String slaveId, String status) {
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-        this.slaveId = slaveId;
-        this.status = status;
-    }
 }

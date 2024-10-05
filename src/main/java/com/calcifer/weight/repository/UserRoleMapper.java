@@ -1,6 +1,6 @@
 package com.calcifer.weight.repository;
 
-import com.calcifer.weight.entity.po.UserRolePO;
+import com.calcifer.weight.entity.domain.UserRolePO;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

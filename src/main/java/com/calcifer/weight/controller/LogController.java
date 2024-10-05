@@ -4,7 +4,7 @@ package com.calcifer.weight.controller;
 import com.calcifer.weight.entity.enums.ActionEnum;
 import com.calcifer.weight.entity.enums.RespCodeEnum;
 import com.calcifer.weight.entity.enums.WSCodeEnum;
-import com.calcifer.weight.entity.po.LogInfo;
+import com.calcifer.weight.entity.domain.LogInfo;
 import com.calcifer.weight.entity.vo.RespWrapper;
 import com.calcifer.weight.entity.vo.WSRespWrapper;
 import com.calcifer.weight.handler.WeightWebSocketHandler;

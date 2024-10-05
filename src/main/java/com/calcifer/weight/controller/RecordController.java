@@ -2,7 +2,7 @@ package com.calcifer.weight.controller;
 
 import com.calcifer.weight.entity.dto.RecordDto;
 import com.calcifer.weight.entity.enums.*;
-import com.calcifer.weight.entity.po.RecordPO;
+import com.calcifer.weight.entity.domain.RecordPO;
 import com.calcifer.weight.entity.vo.RecordVO;
 import com.calcifer.weight.entity.vo.RespWrapper;
 import com.calcifer.weight.entity.vo.WSRespWrapper;

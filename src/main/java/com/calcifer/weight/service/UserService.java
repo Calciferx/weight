@@ -1,7 +1,11 @@
 package com.calcifer.weight.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.calcifer.weight.entity.domain.UsersDO;
 import com.calcifer.weight.entity.dto.User;
-import com.calcifer.weight.entity.po.UserPO;
+import com.calcifer.weight.entity.domain.UserPO;
 import com.calcifer.weight.repository.UserMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,41 +15,16 @@ import org.springframework.util.DigestUtils;
 import java.util.List;
 
 @Service
-public class UserService {
-
-    @Autowired
-    private UserMapper userMapper;
+public class UserService extends ServiceImpl<UserMapper, UsersDO> implements IService<UsersDO> {
 
     public User queryUser(String name, String pwd) {
-        UserPO userPO = new UserPO(name);
-        userPO = userMapper.queryUser(userPO);
-        if (userPO != null && userPO.getPwd().equalsIgnoreCase(DigestUtils.md5DigestAsHex(pwd.getBytes()))) {
+        UsersDO usersDO = lambdaQuery().eq(UsersDO::getUsername, name).one();
+        if (usersDO != null && usersDO.getPassword().trim().equals(pwd)) {
             User user = new User();
-            BeanUtils.copyProperties(userPO, user);
+            BeanUtils.copyProperties(usersDO, user);
             return user;
         }
         return null;
     }
 
-    public Integer addUser(UserPO userPO) {
-        return userMapper.addUser(userPO);
-    }
-
-    public List<UserPO> queryUserByIds(List<String> userIds) {
-        return userMapper.queryUserByIds(userIds);
-    }
-
-    public UserPO queryUserById(String userId) {
-        UserPO userPO = new UserPO();
-        userPO.setId(userId);
-        return userMapper.queryUser(userPO);
-    }
-
-    public Integer update(UserPO userPO) {
-        return userMapper.update(userPO);
-    }
-
-    public Integer delete(String id) {
-        return userMapper.delete(id);
-    }
 }

@@ -1,6 +1,6 @@
 package com.calcifer.weight.service;
 
-import com.calcifer.weight.entity.po.UserRolePO;
+import com.calcifer.weight.entity.domain.UserRolePO;
 import com.calcifer.weight.repository.UserRoleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -316,11 +316,11 @@
                 //保存个人信息
                 sessionStorage.setItem('token', data.token)
                 sessionStorage.setItem('loginData', JSON.stringify(data.info))
-                sessionStorage.setItem('loginSlaveList', JSON.stringify(data.slaveList))
+                // sessionStorage.setItem('loginSlaveList', JSON.stringify(data.slaveList))
 
-                //保存权限及权限菜单
-                let roleList = data.roleList ? data.roleList.map(item => item.roleId).join(',') : ''
-                sessionStorage.setItem('loginRole', roleList)
+                // //保存权限及权限菜单
+                // let roleList = data.roleList ? data.roleList.map(item => item.roleId).join(',') : ''
+                // sessionStorage.setItem('loginRole', roleList)
                 //是否记住密码
                 if ($('#rememberMe').prop('checked')) {
                     localStorage.setItem('username', field.username)

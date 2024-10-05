@@ -8,13 +8,14 @@ import com.calcifer.weight.entity.dto.SlaveDetailInfo;
 import com.calcifer.weight.entity.enums.ModBusDeviceEnum;
 import com.calcifer.weight.entity.enums.RespCodeEnum;
 import com.calcifer.weight.entity.enums.UserStatusEnum;
-import com.calcifer.weight.entity.po.UserPO;
-import com.calcifer.weight.entity.po.UserSlaveInfo;
+import com.calcifer.weight.entity.domain.UserPO;
+import com.calcifer.weight.entity.domain.UserSlaveInfo;
 import com.calcifer.weight.entity.vo.RespWrapper;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
 import com.calcifer.weight.repository.*;
 import com.calcifer.weight.service.DeviceService;
 import com.calcifer.weight.service.VoiceService;
+import com.calcifer.weight.service.WeightRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -27,7 +28,6 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 
@@ -62,9 +62,20 @@ public class TestController {
     @Autowired
     private WeightWebSocketHandler webSocketHandler;
 
+    @Autowired
+    private WeightRecordService weightRecordService;
+
+    @RequestMapping("mptest")
+    public Object mpTest() {
+        long count = weightRecordService.count();
+        System.out.println(count);
+        return count;
+    }
+
 
     @RequestMapping(value = "wsTest", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object wsTest(@RequestBody String json) {
+
         webSocketHandler.sendMessageToAllUser(json);
         return json;
     }
@@ -167,11 +178,6 @@ public class TestController {
 //        return JSON.toJSONString(hashMaps);
     }
 
-    @RequestMapping(value = "/world/{name}")
-    public Object queryUserTest(@PathVariable("name") String name) {
-        UserPO admin = userMapper.queryUser(new UserPO(name));
-        return new RespWrapper<>(admin, RespCodeEnum.SUCCESS, (admin.getStatus() == UserStatusEnum.FORBIDDEN) + "");
-    }
 
     @RequestMapping(value = "/userSlaveInfo/{slaveId}")
     public Object queryUserSlaveInfoTest(@PathVariable("slaveId") String slaveId) {
@@ -181,8 +187,7 @@ public class TestController {
 
     @RequestMapping(value = "/slaveDetail/{slaveId}")
     public Object querySlaveDetailTest(@PathVariable("slaveId") String slaveId) {
-        SlaveDetailInfo slaveDetailInfo = new SlaveDetailInfo(slaveId, null, null);
-        List<SlaveDetailInfo> slaveDetailInfos = slaveDetailMapper.querySlaveDetailInfo(slaveDetailInfo);
+        List<SlaveDetailInfo> slaveDetailInfos = null;
         return new RespWrapper<>(slaveDetailInfos);
     }
 

@@ -2,7 +2,7 @@ package com.calcifer.weight.service;
 
 import com.calcifer.weight.entity.dto.RecordDto;
 import com.calcifer.weight.entity.enums.CompleteStatusEnum;
-import com.calcifer.weight.entity.po.RecordPO;
+import com.calcifer.weight.entity.domain.RecordPO;
 import com.calcifer.weight.entity.vo.RecordVO;
 import com.calcifer.weight.repository.RecordMapper;
 import org.springframework.beans.BeanUtils;

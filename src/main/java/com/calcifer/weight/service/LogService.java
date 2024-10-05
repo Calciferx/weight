@@ -1,6 +1,6 @@
 package com.calcifer.weight.service;
 
-import com.calcifer.weight.entity.po.LogInfo;
+import com.calcifer.weight.entity.domain.LogInfo;
 import com.calcifer.weight.repository.LogInfoMapper;
 import com.calcifer.weight.utils.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;

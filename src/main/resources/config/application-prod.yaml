@@ -7,18 +7,20 @@ spring:
 calcifer:
   weight:
     slave-ip: 10.206.4.243
-    scale-port: COM3
-    front-card-reader-port: COM2
-    back-card-reader-port: COM4
+    coil-num: 6
     enable-auth: true
     enable-auto-scan: true
     enable-modbus-device-init: true
     enable-serial-device-init: true
+    enable-voice: true
+    # 称重时的采样次数
     sampled-time: 10
     min-weight: 1000
     max-weight: 100000
     # 等待时间，单位毫秒，超过该时间没有状态变化将重置系统
     wait-time: 60000
+    modbus-device-info-path: classpath:config/modbus_device_info.json
+    serial-device-info-path: classpath:config/serial_device_info.json
 
 logging:
   config: file:config/logback-spring.xml

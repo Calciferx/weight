@@ -1,0 +1,20 @@
+[
+  {
+    "type": "scale",
+    "port": "COM3",
+    "baudRate": 4800,
+    "dataBit": 7
+  },
+  {
+    "type": "card",
+    "port": "COM2",
+    "baudRate": 57600,
+    "dataBit": 8
+  },
+  {
+    "type": "card",
+    "port": "COM4",
+    "baudRate": 57600,
+    "dataBit": 8
+  }
+]

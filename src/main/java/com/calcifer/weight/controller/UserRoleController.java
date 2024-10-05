@@ -1,7 +1,7 @@
 package com.calcifer.weight.controller;
 
 import com.calcifer.weight.entity.enums.RespCodeEnum;
-import com.calcifer.weight.entity.po.UserRolePO;
+import com.calcifer.weight.entity.domain.UserRolePO;
 import com.calcifer.weight.entity.vo.RespWrapper;
 import com.calcifer.weight.service.UserRoleService;
 import io.swagger.annotations.Api;

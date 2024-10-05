@@ -1,6 +1,6 @@
 package com.calcifer.weight.repository;
 
-import com.calcifer.weight.entity.po.UserSlaveInfo;
+import com.calcifer.weight.entity.domain.UserSlaveInfo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

@@ -5,6 +5,7 @@ import com.jacob.com.Dispatch;
 import com.jacob.com.LibraryLoader;
 import com.jacob.com.Variant;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,9 @@ public class VoiceService {
 
     private ActiveXComponent sapi;
 
+    @Value("${calcifer.weight.enable-voice:true}")
+    private boolean enableVoice;
+
     static {
         log.info("JACOB lib path: {}", LIB_FILE);
         System.setProperty("com.jacob.debug", "true");
@@ -30,6 +34,7 @@ public class VoiceService {
 
     @PostConstruct
     public void init() throws IOException {
+        if (!enableVoice) return;
         ClassPathResource classPathResource = new ClassPathResource(LIB_FILE);
         InputStream inputStream = classPathResource.getInputStream();
         temporaryDll = File.createTempFile("jacob", ".dll");
@@ -48,6 +53,7 @@ public class VoiceService {
 
     @PreDestroy
     public void clean() {
+        if (!enableVoice) return;
         sapi.safeRelease();
         temporaryDll.deleteOnExit();
         log.info("Temporary DLL API library is cleaned on exit");
@@ -55,6 +61,7 @@ public class VoiceService {
 
 
     public void voice(String content) {
+        if (!enableVoice) return;
         try {
             // 调节语速 音量大小
             sapi.setProperty("Volume", new Variant(100));

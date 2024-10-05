@@ -1,6 +1,6 @@
 package com.calcifer.weight.service;
 
-import com.calcifer.weight.entity.po.UserSlaveInfo;
+import com.calcifer.weight.entity.domain.UserSlaveInfo;
 import com.calcifer.weight.repository.UserSlaveMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

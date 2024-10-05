@@ -1,12 +1,11 @@
 package com.calcifer.weight.service;
 
 import com.alibaba.fastjson.JSON;
+import com.calcifer.weight.entity.domain.SerialDeviceInfo;
 import com.calcifer.weight.entity.dto.SlaveDetailInfo;
 import com.calcifer.weight.entity.enums.ModBusDeviceEnum;
 import com.calcifer.weight.entity.enums.WSCodeEnum;
-import com.calcifer.weight.entity.po.SlaveInfo;
-import com.calcifer.weight.handler.WeightWebSocketHandler;
-import com.calcifer.weight.repository.CardMapper;
+import com.calcifer.weight.entity.domain.SlaveInfo;
 import com.calcifer.weight.utils.SerialPortUtil;
 import com.fazecast.jSerialComm.SerialPort;
 import com.intelligt.modbus.jlibmodbus.Modbus;
@@ -16,12 +15,11 @@ import com.intelligt.modbus.jlibmodbus.exception.ModbusProtocolException;
 import com.intelligt.modbus.jlibmodbus.master.ModbusMaster;
 import com.intelligt.modbus.jlibmodbus.master.ModbusMasterFactory;
 import com.intelligt.modbus.jlibmodbus.tcp.TcpParameters;
+import com.xiaoleilu.hutool.io.FileUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -45,7 +43,7 @@ import static com.calcifer.weight.entity.enums.WSCodeEnum.*;
  */
 @Service
 @Slf4j
-public class DeviceService implements ApplicationListener<ContextRefreshedEvent> {
+public class DeviceService {
     public static int INFRA1 = 0;
     public static int INFRA2 = 1;
     public static int BARRIER1_ON = 2;
@@ -78,26 +76,8 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
     @Value("${calcifer.weight.slave-ip}")
     private String slaveIp;
 
-    @Value("${calcifer.weight.scale-port}")
-    private String scalePort;
-
-    @Value("${calcifer.weight.front-card-reader-port}")
-    private String frontCardReaderPort;
-
-    @Value("${calcifer.weight.back-card-reader-port}")
-    private String backCardReaderPort;
-
-    @Autowired
-    private SlaveInfoService slaveInfoService;
-
-    @Autowired
-    private SlaveDetailService slaveDetailService;
-
-    @Autowired
-    private CardMapper cardMapper;
-
-    @Autowired
-    private WeightWebSocketHandler webSocketHandler;
+    @Value("${calcifer.weight.coil-num}")
+    private Integer coilNum;
 
     @Value("${calcifer.weight.enable-modbus-device-init: true}")
     private boolean enableModbusDeviceInit;
@@ -111,13 +91,13 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
     @Getter
     private boolean init;
 
+    @Value("${calcifer.weight.modbus-device-info-path}")
+    private String modbusDeviceInfoPath;
 
-    @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
-//        init();
-    }
+    @Value("${calcifer.weight.serial-device-info-path}")
+    private String serialDeviceInfoPath;
 
-//    @PostConstruct
+
     public void init() {
         log.info("init devices...");
         if (enableModbusDeviceInit) {
@@ -134,49 +114,45 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
     }
 
     private void initSerialDevice() {
+        String serialDeviceInfoJson = FileUtil.readUtf8String(serialDeviceInfoPath);
+        List<SerialDeviceInfo> serialDeviceInfos = JSON.parseArray(serialDeviceInfoJson, SerialDeviceInfo.class);
         // 打开串口-称
-        log.info("find and open weight's serial ports");
+        log.info("find and open serial ports");
         List<String> ports = SerialPortUtil.findPorts();
-        if (!ports.contains(scalePort)) {
-            throw new RuntimeException("scale port: " + scalePort + " not exist!");
+        for (SerialDeviceInfo info : serialDeviceInfos) {
+            String port = info.getPort();
+            if (!ports.contains(port)) {
+                throw new RuntimeException("scale port: " + port + " not exist!");
+            }
+            SerialPort serialPort = SerialPortUtil.openPort(port, info.getBaudRate(), info.getDataBit());
+            if (info.getType().equals("scale")) {
+                SerialPortUtil.addListener(serialPort, scaleListener);
+            } else {
+                SerialPortUtil.addListener(serialPort, cardListener);
+            }
         }
-        scaleSerialPort = SerialPortUtil.openPort(scalePort, 4800, 7);
-        SerialPortUtil.addListener(scaleSerialPort, scaleListener);
-        // 打开串口-前读卡器
-        log.info("find and open front card's serial ports");
-        if (!ports.contains(frontCardReaderPort)) {
-            throw new RuntimeException("front card reader port: " + frontCardReaderPort + " not exist!");
-        }
-        frontSerialPort = SerialPortUtil.openPort(frontCardReaderPort, 57600, 8);
-        SerialPortUtil.addListener(frontSerialPort, cardListener);
-        // 打开串口-后读卡器
-        log.info("find and open back card's serial ports");
-        if (!ports.contains(backCardReaderPort)) {
-            throw new RuntimeException("front card reader port: " + backCardReaderPort + " not exist!");
-        }
-        backSerialPort = SerialPortUtil.openPort(backCardReaderPort, 57600, 8);
-        SerialPortUtil.addListener(backSerialPort, cardListener);
+
     }
 
     private void initModbusDevice() {
-        slaveInfo = slaveInfoService.querySlaveInfoBySlaveIp(slaveIp);
-        List<SlaveDetailInfo> slaveDetailInfoList = slaveDetailService.querySlaveDetailInfoBySlaveId(slaveInfo.getId());
+        String modbusDeviceInfoJson = FileUtil.readUtf8String(modbusDeviceInfoPath);
+        List<SlaveDetailInfo> slaveDetailInfoList = JSON.parseArray(modbusDeviceInfoJson, SlaveDetailInfo.class);
         Map<String, SlaveDetailInfo> typeMap = slaveDetailInfoList.stream().collect(Collectors.toMap(SlaveDetailInfo::getType, Function.identity()));
 
         wsMessageType = new WSCodeEnum[]{INFR_NORTH_OUT, INFR_NORTH_IN, INFR_SOUTH_IN, INFR_SOUTH_OUT};
         wsMessageTypeIndex = new int[]{0, 1, 2, 3};
 
         slaveDetailInfos = new SlaveDetailInfo[10];
-        slaveDetailInfos[INFRA1] = typeMap.get("1"); // infrared1
-        slaveDetailInfos[INFRA2] = typeMap.get("7"); // infrared2
-        slaveDetailInfos[BARRIER1_ON] = typeMap.get("2"); // barrierGate1On
-        slaveDetailInfos[BARRIER1_OFF] = typeMap.get("9"); // barrierGate1Off
-        slaveDetailInfos[LIGHT1] = typeMap.get("3"); // trafficLight1
-        slaveDetailInfos[LIGHT2] = typeMap.get("6"); // trafficLight2
-        slaveDetailInfos[BARRIER2_OFF] = typeMap.get("10"); // barrierGate2Off
-        slaveDetailInfos[BARRIER2_ON] = typeMap.get("5"); // barrierGate2On
-        slaveDetailInfos[INFRA3] = typeMap.get("4"); // infrared3
-        slaveDetailInfos[INFRA4] = typeMap.get("8"); // infrared4
+        slaveDetailInfos[INFRA1] = typeMap.get("infrared1"); // infrared1
+        slaveDetailInfos[INFRA2] = typeMap.get("infrared2"); // infrared2
+        slaveDetailInfos[BARRIER1_ON] = typeMap.get("barrierGate1On"); // barrierGate1On
+        slaveDetailInfos[BARRIER1_OFF] = typeMap.get("barrierGate1Off"); // barrierGate1Off
+        slaveDetailInfos[LIGHT1] = typeMap.get("trafficLight1"); // trafficLight1
+        slaveDetailInfos[LIGHT2] = typeMap.get("trafficLight2"); // trafficLight2
+        slaveDetailInfos[BARRIER2_OFF] = typeMap.get("barrierGate2Off"); // barrierGate2Off
+        slaveDetailInfos[BARRIER2_ON] = typeMap.get("barrierGate2On"); // barrierGate2On
+        slaveDetailInfos[INFRA3] = typeMap.get("infrared3"); // infrared3
+        slaveDetailInfos[INFRA4] = typeMap.get("infrared4"); // infrared4
 
 
         initModbusMaster();
@@ -227,9 +203,8 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
         }
     }
 
-    @Retryable(value = Exception.class,maxAttempts = 10,backoff = @Backoff(delay = 100,multiplier = 2))
+    @Retryable(value = Exception.class, maxAttempts = 10, backoff = @Backoff(delay = 100, multiplier = 2))
     public void controlModBusDevice(ModBusDeviceEnum modBusDeviceEnum, boolean status) {
-//        if (true) return;
         log.info("control modbus device: {}, status: {}", modBusDeviceEnum.getMsg(), status);
         SlaveDetailInfo slaveDetailInfo = slaveDetailInfos[modBusDeviceEnum.getCode()];
         try {
@@ -252,7 +227,6 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
     }
 
     public void controlModBusDevice(Integer sort, boolean status) {
-//        if (true) return;
         if (sort == null) return;
         try {
             log.info("write single coil sort: {}, status: {}", sort, status);
@@ -328,7 +302,7 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
     public ModBusDeviceStatus readModBusDeviceStatus() throws ModbusProtocolException, ModbusNumberException, ModbusIOException {
         int slaveAddress = 1;
         int offset = 0;
-        int quantity = slaveInfo.getCoilNum();
+        int quantity = coilNum;
         boolean[] discreteInputs = modbusMaster.readDiscreteInputs(slaveAddress, offset, quantity);
         ModBusDeviceStatus modBusDeviceStatus = new ModBusDeviceStatus(discreteInputs);
         String statusChangeStr = modBusDeviceStatus.getStatusChangeStr(lastModBusDeviceStatus);

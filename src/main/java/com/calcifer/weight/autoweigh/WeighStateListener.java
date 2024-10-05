@@ -1,6 +1,6 @@
 package com.calcifer.weight.autoweigh;
 
-import com.calcifer.weight.entity.po.TruckInfo;
+import com.calcifer.weight.entity.domain.TruckInfo;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
 import com.calcifer.weight.service.DeviceService;
 import com.calcifer.weight.service.RandomService;

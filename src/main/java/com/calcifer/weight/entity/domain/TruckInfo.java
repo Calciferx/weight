@@ -1,4 +1,4 @@
-package com.calcifer.weight.entity.po;
+package com.calcifer.weight.entity.domain;
 
 import com.xiaoleilu.hutool.date.DateTime;
 import lombok.Data;
