@@ -19,6 +19,7 @@ calcifer:
     max-weight: 100000
     # 等待时间，单位毫秒，超过该时间没有状态变化将重置系统
     wait-time: 60000
+    ignore-stable-flag: true
 
 logging:
   config: file:config/logback-spring.xml
