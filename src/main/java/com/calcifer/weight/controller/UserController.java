@@ -1,32 +1,13 @@
 package com.calcifer.weight.controller;
 
-import com.calcifer.weight.entity.domain.UsersDO;
-import com.calcifer.weight.entity.dto.User;
 import com.calcifer.weight.entity.enums.RespCodeEnum;
-import com.calcifer.weight.entity.enums.UserStatusEnum;
-import com.calcifer.weight.entity.domain.UserPO;
-import com.calcifer.weight.entity.domain.UserRolePO;
 import com.calcifer.weight.entity.vo.RespWrapper;
-import com.calcifer.weight.service.UserRoleService;
-import com.calcifer.weight.service.UserService;
-import com.calcifer.weight.utils.DateUtil;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static com.calcifer.weight.WeightApplication.TOKEN_USER_MAP;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 描述: 用户

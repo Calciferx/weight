@@ -1,7 +1,7 @@
 package com.calcifer.weight.controller;
 
 import com.calcifer.weight.entity.enums.ModBusDeviceEnum;
-import com.calcifer.weight.service.DeviceService;
+import com.calcifer.weight.service.ModbusDeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,19 +10,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("device")
 public class DeviceController {
     @Autowired
-    private DeviceService deviceService;
+    private ModbusDeviceService modbusDeviceService;
 
     @RequestMapping("barrier")
     public String barrier(ModBusDeviceEnum device) throws InterruptedException {
-        deviceService.controlModBusDevice(device, true);
+        modbusDeviceService.controlModBusDevice(device, true);
         Thread.sleep(200);
-        deviceService.controlModBusDevice(device, false);
+        modbusDeviceService.controlModBusDevice(device, false);
         return device.getMsg();
     }
 
     @RequestMapping("light")
     public String light(ModBusDeviceEnum device, boolean status) {
-        deviceService.controlModBusDevice(device, status);
+        modbusDeviceService.controlModBusDevice(device, status);
         return device.getMsg() + ":" + (status ? "红" : "绿");
     }
 }

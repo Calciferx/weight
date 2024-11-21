@@ -4,7 +4,7 @@ import com.calcifer.weight.autoweigh.WeighEventEnum;
 import com.calcifer.weight.autoweigh.WeighStatusEnum;
 import com.calcifer.weight.entity.enums.RespCodeEnum;
 import com.calcifer.weight.entity.vo.RespWrapper;
-import com.calcifer.weight.service.DeviceService;
+import com.calcifer.weight.service.ModbusDeviceService;
 import com.intelligt.modbus.jlibmodbus.exception.ModbusIOException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 public class SlaveController {
 
     @Autowired
-    private DeviceService deviceService;
+    private ModbusDeviceService modbusDeviceService;
     @Resource
     private StateMachine<WeighStatusEnum, WeighEventEnum> weighStateMachine;
 

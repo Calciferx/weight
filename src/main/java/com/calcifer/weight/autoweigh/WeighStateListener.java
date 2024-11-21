@@ -2,8 +2,7 @@ package com.calcifer.weight.autoweigh;
 
 import com.calcifer.weight.entity.domain.TruckInfo;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
-import com.calcifer.weight.service.DeviceService;
-import com.calcifer.weight.service.RandomService;
+import com.calcifer.weight.service.ModbusDeviceService;
 import com.calcifer.weight.service.RecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +16,10 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class WeighStateListener {
     @Autowired
-    private DeviceService deviceService;
+    private ModbusDeviceService modbusDeviceService;
 
     @Autowired
     private RecordService recordService;
-
-    @Autowired
-    private RandomService randomService;
 
     @Autowired
     private WeightWebSocketHandler webSocketHandler;

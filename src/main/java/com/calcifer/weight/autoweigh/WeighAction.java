@@ -1,16 +1,15 @@
 package com.calcifer.weight.autoweigh;
 
-import com.calcifer.weight.entity.enums.CompleteStatusEnum;
+import com.calcifer.weight.entity.domain.CarInfoDO;
+import com.calcifer.weight.entity.domain.TruckInfo;
+import com.calcifer.weight.entity.domain.WeightInfoDO;
+import com.calcifer.weight.entity.domain.WeightRecordDO;
 import com.calcifer.weight.entity.enums.ModBusDeviceEnum;
 import com.calcifer.weight.entity.enums.WSCodeEnum;
-import com.calcifer.weight.entity.domain.RecordPO;
-import com.calcifer.weight.entity.domain.TruckInfo;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
-import com.calcifer.weight.service.DeviceService;
-import com.calcifer.weight.service.RandomService;
-import com.calcifer.weight.service.RecordService;
+import com.calcifer.weight.service.ModbusDeviceService;
 import com.calcifer.weight.service.VoiceService;
-import com.calcifer.weight.utils.DateUtil;
+import com.calcifer.weight.service.WeightRecordService;
 import com.intelligt.modbus.jlibmodbus.exception.ModbusIOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,19 +18,13 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Date;
 
 @Slf4j
 @Component
 public class WeighAction {
     @Autowired
-    private DeviceService deviceService;
-
-    @Autowired
-    private RecordService recordService;
-
-    @Autowired
-    private RandomService randomService;
+    private ModbusDeviceService modbusDeviceService;
 
     @Autowired
     private VoiceService voiceService;
@@ -39,60 +32,65 @@ public class WeighAction {
     @Autowired
     private WeightWebSocketHandler webSocketHandler;
 
-    private TruckInfo truckInfo;
+    private CarInfoDO carInfoDO;
+
+    private WeightInfoDO weightInfoDO;
+
+    @Autowired
+    private WeightRecordService weightRecordService;
 
     /**
-     * source = "WAIT", target = "WAIT_CARD"
+     * source = "WAIT", target = "READ_PLATE_NUM"
      */
     public Action<WeighStatusEnum, WeighEventEnum> foundTruck() {
         return context -> {
             log.info("========foundTruck action========");
-            webSocketHandler.sendWeightLogToAllUser("发现车辆，等待刷卡...");
+            webSocketHandler.sendWeightLogToAllUser("发现车辆，读取车牌号...");
             // 确定进车方向，红绿灯置为红
             Boolean isReverse = (Boolean) context.getMessageHeader("reverse");
             if (isReverse == null) {
                 log.error("isReverse is null!");
                 throw new RuntimeException("isReverse is null!");
             }
-            deviceService.reverseDirection(isReverse);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, true);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, true);
+            modbusDeviceService.reverseDirection(isReverse);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, true);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, true);
         };
     }
 
     /**
-     * source = "WAIT_CARD", target = "WAIT_ENTER"
+     * source = "READING_PLATE_NUM", target = "WAIT_ENTER"
      */
     public Action<WeighStatusEnum, WeighEventEnum> waitTruckEntering() {
         return context -> {
             log.info("========waitTruckEntering action========");
-            if (!deviceService.getLastModBusDeviceStatus().isInfrared1() || deviceService.getLastModBusDeviceStatus().isInfrared4()) {
+            if (!modbusDeviceService.getLastModBusDeviceStatus().isInfrared1() || modbusDeviceService.getLastModBusDeviceStatus().isInfrared4()) {
                 voiceService.voice("系统状态错误，请车辆完全退出后重新进入");
-                throw new RuntimeException("status incorrect. " + deviceService.getLastModBusDeviceStatus());
+                throw new RuntimeException("status incorrect. " + modbusDeviceService.getLastModBusDeviceStatus());
             }
-            webSocketHandler.sendWeightLogToAllUser("读卡成功，等待车辆进入...");
+            webSocketHandler.sendWeightLogToAllUser("车牌号读取成功，等待车辆进入...");
             // 道闸打开，红绿灯置为绿
-            truckInfo = (TruckInfo) context.getMessageHeader("truckInfo");
+            TruckInfo truckInfo = (TruckInfo) context.getMessageHeader("truckInfo");
             webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.TRUCK_INFO, truckInfo);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, true);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, true);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, true);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, true);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
             voiceService.voice("读卡成功，车辆请上称");
         };
     }
 
     /**
-     * source = "WAIT_CARD", target = "WAIT"
+     * source = "READING_PLATE_NUM", target = "WAIT"
      */
     public Action<WeighStatusEnum, WeighEventEnum> truckLeave() {
         return context -> {
             log.info("========truckLeave action========");
-            webSocketHandler.sendWeightLogToAllUser("车辆未刷卡，离开...");
+            webSocketHandler.sendWeightLogToAllUser("车辆驶离，停止识别车牌号...");
             // 红绿灯置为绿
-            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, false);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, false);
         };
     }
 
@@ -108,14 +106,28 @@ public class WeighAction {
     }
 
     /**
-     * source = "ENTERING", target = "ON_WEIGH"
+     * source = "ENTERING", target = "WAIT_CARD"
      */
     public Action<WeighStatusEnum, WeighEventEnum> truckEntered() {
         return context -> {
             log.info("========truckEntered action========");
-            webSocketHandler.sendWeightLogToAllUser("车辆已上称，开始称重...");
+            webSocketHandler.sendWeightLogToAllUser("车辆已上称，等待司机刷卡...");
             // 道闸关闭，红绿灯置为红，开始称重
-            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, true);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, true);
+//            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
+//            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
+        };
+    }
+
+    /**
+     * source = "WAIT_CARD", target = "ON_WEIGH"
+     */
+    public Action<WeighStatusEnum, WeighEventEnum> readWeightInfo() {
+        return context -> {
+            log.info("========readWeightInfo action========");
+            webSocketHandler.sendWeightLogToAllUser("刷卡成功，读取预置称重信息...");
+            // 道闸关闭，红绿灯置为红，开始称重
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, true);
 //            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
 //            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
         };
@@ -133,97 +145,62 @@ public class WeighAction {
                 // 称重完毕，记录重量，道闸打开，车辆驶离
                 Double weight = (Double) context.getMessageHeader("weight");
                 log.info("***** weight is: {} *****", weight);
-                List<RecordPO> recordList = recordService.getRecordList(truckInfo.getCarNum(), CompleteStatusEnum.UNCOMPLETED);
-                String voice = null;
-                if (!recordList.isEmpty()) {
-//            if(DateUtil.dateMinDiff(weightMap.get("更新时间")+"",DateUtil.getTime(),"yyyy-MM-dd HH:mm:ss")<10){
-//                this.weightStatus = "3";////丢弃意外的二次数据
-//                isRedoErr=true;////丢弃意外的二次数据
-//                break ;
-//            }
-                    RecordPO record = recordList.get(0);
-                    Double tareWeight = record.getTareWeight() == null ? 0 : record.getTareWeight();
-                    RecordPO newRecord = new RecordPO();
-                    if (weight > tareWeight) {
-                        newRecord.setRoughWeight(weight);
-                        newRecord.setTareWeight(tareWeight);
-                        newRecord.setNetWeight(weight - tareWeight);
-                        newRecord.setRoughWeightTime(DateUtil.getTime());
-                    } else {
-                        newRecord.setRoughWeight(tareWeight);
-                        newRecord.setTareWeight(weight);
-                        newRecord.setNetWeight(tareWeight - weight);
-                        newRecord.setRoughWeightTime(DateUtil.getTime());
-                    }
-                    newRecord.setSecondWeighTime(DateUtil.getTime());
-                    newRecord.setSecondWeight(weight);
-                    newRecord.setBak1("2");
-                    newRecord.setSerialNum(record.getSerialNum());
+                WeightRecordDO recordDO = weightRecordService.lambdaQuery().eq(WeightRecordDO::getPlateNumber, carInfoDO.getPlateNumber())
+                        .eq(WeightRecordDO::getWeighStatus, "毛重已检").one();
+                if (recordDO != null) {
+                    Double firstWeight = recordDO.getTareWeight();
+                    Double roughWeight = firstWeight > weight ? firstWeight : weight;
+                    Double tareWeight = firstWeight < weight ? firstWeight : weight;
+                    Double netWeight = roughWeight - tareWeight;
+                    recordDO.setRoughWeight(roughWeight);
+                    recordDO.setTareWeight(tareWeight);
+                    recordDO.setNetWeight(netWeight);
 
-                    webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.WEIGH_INFO, newRecord);
-                    int updateRowNum = recordService.updateRecord(newRecord);
-                    log.info("update record num: {}", updateRowNum);
-                    if (updateRowNum == 0) {
-                        voice = "称重失败，请重新上磅计量";
+                    webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.WEIGH_INFO, recordDO);
+                    boolean isUpdate = weightRecordService.updateById(recordDO);
+                    log.info("update record result: {}", isUpdate);
+                    if (!isUpdate) {
+                        voiceService.voice("称重失败，请重新上磅计量");
                         webSocketHandler.sendWeightLogToAllUser("称重失败，请重新上磅计量");
                     } else {
-                        voice = "毛重" + weight + "皮重" + record.getTareWeight() + "净重"
-                                + newRecord.getNetWeight() + ",称重结束，车辆请下磅";
-                        log.info("毛重: {}, 皮重: {}, 净重: {}。 称重结束，车辆请下磅", weight, record.getTareWeight(), newRecord.getNetWeight());
+                        voiceService.voice("毛重" + weight + "皮重" + tareWeight + "净重"
+                                + netWeight + ",称重结束，车辆请下磅");
+                        log.info("毛重: {}, 皮重: {}, 净重: {}。 称重结束，车辆请下磅", weight, tareWeight, netWeight);
                         webSocketHandler.sendWeightLogToAllUser("称重完成");
                     }
-                    webSocketHandler.sendWeightLogToAllUser("#后道闸已打开，车辆请离场");
                 } else {
-                    RecordPO newRecord = new RecordPO();
-                    //TODO randomService优化
-                    newRecord.setSerialNum(randomService.randomUtils("A1001", DateUtil.getDays()));
-                    newRecord.setCarNum(truckInfo.getCarNum());
-                    newRecord.setWeighType(String.valueOf(truckInfo.getType()));
-                    newRecord.setGoodSender(truckInfo.getFaHuo());
-                    newRecord.setGoodReceiver(truckInfo.getShouHuo());
-                    newRecord.setGoodName(truckInfo.getGoods());
-                    newRecord.setSpecification(truckInfo.getSpec());
-                    newRecord.setRoughWeight(0D);
-                    newRecord.setRoughWeight(0D);
-                    newRecord.setTareWeight(weight);
-                    String time = DateUtil.getTime();
-                    newRecord.setRoughWeightTime(time);
-                    newRecord.setTareWeightTime(time);
-                    newRecord.setFirstWeighTime(time);
-                    newRecord.setSecondWeighTime(time);
-                    if ("一次过磅".equals(truckInfo.getBackup13())) {
-                        newRecord.setBak1("2");
-                        newRecord.setRecordFinish("1");
-                        newRecord.setRoughWeight(weight);
-                        newRecord.setTareWeight(0D);
-                        newRecord.setNetWeight(weight);
-                        newRecord.setBak13("一次过磅");
-                    } else {
-                        newRecord.setBak1("1");
-                        newRecord.setRecordFinish("0");
-                        newRecord.setBak13("标准过磅");
-                    }
-                    newRecord.setBak14("IC卡启用");
-                    newRecord.setCustomerType("");
-                    newRecord.setFirstWeight(weight);
-                    newRecord.setSecondWeight(0D);
-                    int addRowNum = recordService.addRecord(newRecord);
-                    if (addRowNum != 1) {
+                    recordDO = new WeightRecordDO();
+                    recordDO.setWeighId(weightRecordService.generateWeighId(weightInfoDO.getMaterialCode()));
+                    recordDO.setSupplierName(weightInfoDO.getSupplierName());
+                    recordDO.setMaterialName(weightInfoDO.getMaterialName());
+                    recordDO.setPlateNumber(carInfoDO.getPlateNumber());
+                    recordDO.setRoughWeight(weight);
+                    recordDO.setWeighDate(new Date());
+                    recordDO.setWeighStatus("毛重已检");
+                    recordDO.setIsPrint("是");
+                    recordDO.setControlId(weightInfoDO.getControlId());
+                    recordDO.setComment(weightInfoDO.getComment());
+                    recordDO.setWeighMan(weightInfoDO.getWeighMan());
+                    recordDO.setAuditor(weightInfoDO.getAuditor());
+                    recordDO.setIsTest(weightInfoDO.getIsTest());
+                    recordDO.setCarType(carInfoDO.getCarType());
+
+                    boolean isSave = weightRecordService.save(recordDO);
+                    if (!isSave) {
                         log.info("add record failed");
-                        voice = "称重失败，请重新上磅计量";
+                        voiceService.voice("称重失败，请重新上磅计量");
                         webSocketHandler.sendWeightLogToAllUser("称重失败，请重新上磅计量");
                     } else {
-                        voice = "重量" + weight + "称重结束，车辆请下磅";
-                        webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.WEIGH_INFO, newRecord);
+                        voiceService.voice("重量" + weight + "称重结束，车辆请下磅");
+                        webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.WEIGH_INFO, recordDO);
                         webSocketHandler.sendWeightLogToAllUser("称重完成");
-                        webSocketHandler.sendWeightLogToAllUser("#后道闸已打开，车辆请下磅、离场");
                     }
                 }
-                deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_ON, true);
-                deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_ON, true);
-                deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_ON, false);
-                deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_ON, false);
-                voiceService.voice(voice);
+                modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_ON, true);
+                modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_ON, true);
+                modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_ON, false);
+                modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_ON, false);
+                webSocketHandler.sendWeightLogToAllUser("#后道闸已打开，车辆请离场");
             }
         };
     }
@@ -278,16 +255,16 @@ public class WeighAction {
             webSocketHandler.sendWeightLogToAllUser("称重结束，车辆已驶离...");
             webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.TRUCK_AND_WEIGHT, "清空页面数据显示");
             // 车辆已驶离，道闸关闭，红绿灯置为绿
-            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, true);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, true);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, false);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, false);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
-            deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, false);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, true);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, true);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, false);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, false);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
+            modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, false);
             voiceService.voice("称重结束，车辆已驶离");
         };
     }
@@ -299,11 +276,11 @@ public class WeighAction {
             synchronized (AutoScanJob.class) {
                 log.info("reset all devices...");
                 try {
-                    deviceService.destroy();
+                    modbusDeviceService.destroy();
                 } catch (ModbusIOException e) {
                     throw new RuntimeException(e);
                 }
-                deviceService.init();
+                modbusDeviceService.init();
             }
         };
     }

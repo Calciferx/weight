@@ -6,7 +6,8 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static com.calcifer.weight.WeightApplication.TOKEN_USER_MAP;
+import static com.calcifer.weight.common.WeightContext.TOKEN_USER_MAP;
+
 
 public class AuthInterceptor implements HandlerInterceptor {
     @Value("${calcifer.weight.enable-auth:true}")

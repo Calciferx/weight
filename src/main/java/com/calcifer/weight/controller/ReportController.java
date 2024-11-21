@@ -9,7 +9,6 @@ import com.calcifer.weight.entity.vo.WSRespWrapper;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
 import com.calcifer.weight.service.ReportService;
 import com.calcifer.weight.utils.DateUtil;
-import com.calcifer.weight.utils.ExportExcelUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -67,7 +66,6 @@ public class ReportController {
                 columnWidth = new String[]{"14", "25", "16", "17", "15"};
             }
             List<Map<Object, Object>> mapList = reportInfos.stream().map(BeanMap::new).collect(Collectors.toList());
-            int exportResult = ExportExcelUtil.exportExcel("称重统计信息", folderPath, columnNames, columnWidth, mapList, fileName);
 //            result.put("api", "/adminx/report/findList.do");
             webSocketHandler.sendMessageToUser(webSocketName, new WSRespWrapper<>(url + fileName, WSCodeEnum.exportMsg));
             return new RespWrapper<>(url + fileName, RespCodeEnum.SUCCESS);

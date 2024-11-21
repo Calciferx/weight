@@ -1,15 +1,14 @@
 package com.calcifer.weight.controller;
 
+import com.calcifer.weight.entity.domain.RecordPO;
 import com.calcifer.weight.entity.dto.RecordDto;
 import com.calcifer.weight.entity.enums.*;
-import com.calcifer.weight.entity.domain.RecordPO;
 import com.calcifer.weight.entity.vo.RecordVO;
 import com.calcifer.weight.entity.vo.RespWrapper;
 import com.calcifer.weight.entity.vo.WSRespWrapper;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
 import com.calcifer.weight.service.RecordService;
 import com.calcifer.weight.utils.DateUtil;
-import com.calcifer.weight.utils.ExportExcelUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.calcifer.weight.WeightApplication.TOKEN_USER_MAP;
+import static com.calcifer.weight.common.WeightContext.TOKEN_USER_MAP;
 
 @Slf4j
 @RestController
@@ -119,7 +118,6 @@ public class RecordController {
             };
             String[] columnWidth = {"20", "20", "25", "20", "15", "15", "15", "15", "15", "15", "15", "15", "15", "15", "15", "15", "15", "15", "25", "25", "20"};
             List<Map<Object, Object>> mapList = resultList.stream().map(BeanMap::new).collect(Collectors.toList());
-            int exportResult = ExportExcelUtil.exportExcel("称重信息", folderPath, columnNames, columnWidth, mapList, fileName);
 //            result.put("api", "/adminx/record/findList.do");
             webSocketHandler.sendMessageToUser(webSocketName, new WSRespWrapper<>(url + fileName, WSCodeEnum.exportMsg));
 

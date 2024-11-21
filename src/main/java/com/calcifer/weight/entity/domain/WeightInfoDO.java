@@ -1,18 +1,16 @@
 package com.calcifer.weight.entity.domain;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-import javax.validation.constraints.NotNull;
-
-import java.util.Date;
-
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.Date;
 
 /**
 * 
@@ -89,5 +87,9 @@ public class WeightInfoDO extends Model<WeightInfoDO> {
     @Length(max= 100,message="编码长度不能超过100")
     @TableField("备注")
     private String comment;
+
+    @Length(max = 20, message = "编码长度不能超过20")
+    @TableField("物料名称简码")
+    private String materialCode;
 
 }

@@ -4,16 +4,16 @@ import com.alibaba.fastjson.JSON;
 import com.calcifer.weight.WeightApplication;
 import com.calcifer.weight.autoweigh.WeighEventEnum;
 import com.calcifer.weight.autoweigh.WeighStatusEnum;
+import com.calcifer.weight.entity.domain.UserSlaveInfo;
 import com.calcifer.weight.entity.dto.SlaveDetailInfo;
 import com.calcifer.weight.entity.enums.ModBusDeviceEnum;
 import com.calcifer.weight.entity.enums.RespCodeEnum;
-import com.calcifer.weight.entity.enums.UserStatusEnum;
-import com.calcifer.weight.entity.domain.UserPO;
-import com.calcifer.weight.entity.domain.UserSlaveInfo;
 import com.calcifer.weight.entity.vo.RespWrapper;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
-import com.calcifer.weight.repository.*;
-import com.calcifer.weight.service.DeviceService;
+import com.calcifer.weight.repository.TestMapper;
+import com.calcifer.weight.repository.UserMapper;
+import com.calcifer.weight.repository.UserSlaveMapper;
+import com.calcifer.weight.service.ModbusDeviceService;
 import com.calcifer.weight.service.VoiceService;
 import com.calcifer.weight.service.WeightRecordService;
 import lombok.extern.slf4j.Slf4j;
@@ -44,12 +44,6 @@ public class TestController {
     @Autowired
     private UserSlaveMapper userSlaveMapper;
 
-    @Autowired
-    private SlaveDetailMapper slaveDetailMapper;
-
-    @Autowired
-    private CardMapper cardMapper;
-
     @Resource
     private StateMachine<WeighStatusEnum, WeighEventEnum> weighStateMachine;
 
@@ -57,7 +51,7 @@ public class TestController {
     private VoiceService voiceService;
 
     @Autowired
-    private DeviceService deviceService;
+    private ModbusDeviceService modbusDeviceService;
 
     @Autowired
     private WeightWebSocketHandler webSocketHandler;
@@ -67,9 +61,8 @@ public class TestController {
 
     @RequestMapping("mptest")
     public Object mpTest() {
-        long count = weightRecordService.count();
-        System.out.println(count);
-        return count;
+        String dhj = weightRecordService.generateWeighId("DHJ");
+        return dhj;
     }
 
 
@@ -82,61 +75,61 @@ public class TestController {
 
     @RequestMapping("closeBarrier")
     public Object closeBarrier() {
-        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
-        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
-        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
-        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
-        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
-        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
+        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
+        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
+        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
+        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
+        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
+        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
         return "closeBarrier";
     }
 
     @RequestMapping("frontOnFalse")
     public Object frontOnFalse() {
-        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
+        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
         return "frontOnFalse";
     }
 
     @RequestMapping("frontOffTrue")
     public Object frontOffTrue() {
-        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
+        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
         return "frontOffTrue";
     }
 
     @RequestMapping("frontOffFalse")
     public Object frontOffFalse() {
-        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
+        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
         return "frontOffFalse";
     }
 
     @RequestMapping("frontLightFalse")
     public Object frontLightFalse() {
-        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
+        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
         return "frontLightFalse";
     }
 
     @RequestMapping("frontLightTrue")
     public Object frontLightTrue() {
-        deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, true);
+        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, true);
         return "frontLightTrue";
     }
 
     @RequestMapping("backLightFalse")
     public Object backLightFalse() {
-        deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, false);
+        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, false);
         return "backLightFalse";
     }
 
     @RequestMapping("backLightTrue")
     public Object backLightTrue() {
-        deviceService.controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, true);
+        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, true);
         return "backLightTrue";
     }
 
-    @RequestMapping("listenerTest")
-    public Object listenerTest() {
-        return deviceService.getCardListener() == null;
-    }
+//    @RequestMapping("listenerTest")
+//    public Object listenerTest() {
+//        return deviceService.getCardListener() == null;
+//    }
 
     @RequestMapping("jarPathTest")
     public Object jarPathTest() throws URISyntaxException {
@@ -158,11 +151,6 @@ public class TestController {
         Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.TRUCK_FOUND).build();
         weighStateMachine.sendEvent(message);
         return "OK";
-    }
-
-    @RequestMapping("cardMapperTest/{cardNum}")
-    public Object getTruckInfo(@PathVariable("cardNum") String cardNum) {
-        return cardMapper.getTruckInfo(cardNum);
     }
 
     @RequestMapping(value = "/hello")

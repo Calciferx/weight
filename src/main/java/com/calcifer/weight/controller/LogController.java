@@ -1,16 +1,15 @@
 package com.calcifer.weight.controller;
 
 
+import com.calcifer.weight.entity.domain.LogInfo;
 import com.calcifer.weight.entity.enums.ActionEnum;
 import com.calcifer.weight.entity.enums.RespCodeEnum;
 import com.calcifer.weight.entity.enums.WSCodeEnum;
-import com.calcifer.weight.entity.domain.LogInfo;
 import com.calcifer.weight.entity.vo.RespWrapper;
 import com.calcifer.weight.entity.vo.WSRespWrapper;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
 import com.calcifer.weight.service.LogService;
 import com.calcifer.weight.utils.DateUtil;
-import com.calcifer.weight.utils.ExportExcelUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -72,7 +71,6 @@ public class LogController {
             String[][] columnNames = {{"用户", "ip", "模块", "功能", "操作时间", "操作内容"},
                     {"name", "ip", "modular", "function", "createTime", "operation"}};
             String[] columnWidth = {"14", "25", "16", "17", "15", "17"};
-            ExportExcelUtil.exportExcel("操作日志", folderPath, columnNames, columnWidth, logInfoMap, fileName);
             webSocketHandler.sendMessageToUser(webSocketName, new WSRespWrapper<>("/upload/user/" + fileName, WSCodeEnum.exportMsg));
             return new RespWrapper<>(url + fileName, RespCodeEnum.SUCCESS);
         } else {
