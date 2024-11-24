@@ -1,6 +1,6 @@
 package com.calcifer.weight.entity.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -17,18 +17,18 @@ import javax.validation.constraints.Size;
  */
 @Data
 @TableName("kpxx")
-public class CardInfoDO extends Model<CardInfoDO> {
+public class CardDO extends Model<CardDO> {
 
     private static final long serialVersionUID = -8397338802830187921L;
 
     @NotNull(message = "[]不能为空")
-    @TableId(value = "序号", type = IdType.AUTO)
+    @TableField(value = "序号", insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
     private Integer id;
 
     @NotBlank(message = "[]不能为空")
     @Size(max = 100, message = "编码长度不能超过100")
     @Length(max = 100, message = "编码长度不能超过100")
-    @TableField("卡号")
+    @TableId("卡号")
     private String cardNum;
 
     @NotBlank(message = "[]不能为空")

@@ -1,6 +1,6 @@
 package com.calcifer.weight.autoweigh;
 
-import com.calcifer.weight.entity.domain.CarInfoDO;
+import com.calcifer.weight.entity.domain.CarDO;
 import com.calcifer.weight.entity.domain.TruckInfo;
 import com.calcifer.weight.entity.domain.WeightInfoDO;
 import com.calcifer.weight.entity.domain.WeightRecordDO;
@@ -32,7 +32,7 @@ public class WeighAction {
     @Autowired
     private WeightWebSocketHandler webSocketHandler;
 
-    private CarInfoDO carInfoDO;
+    private CarDO carDO;
 
     private WeightInfoDO weightInfoDO;
 
@@ -145,7 +145,7 @@ public class WeighAction {
                 // 称重完毕，记录重量，道闸打开，车辆驶离
                 Double weight = (Double) context.getMessageHeader("weight");
                 log.info("***** weight is: {} *****", weight);
-                WeightRecordDO recordDO = weightRecordService.lambdaQuery().eq(WeightRecordDO::getPlateNumber, carInfoDO.getPlateNumber())
+                WeightRecordDO recordDO = weightRecordService.lambdaQuery().eq(WeightRecordDO::getPlateNumber, carDO.getPlateNumber())
                         .eq(WeightRecordDO::getWeighStatus, "毛重已检").one();
                 if (recordDO != null) {
                     Double firstWeight = recordDO.getTareWeight();
@@ -173,7 +173,7 @@ public class WeighAction {
                     recordDO.setWeighId(weightRecordService.generateWeighId(weightInfoDO.getMaterialCode()));
                     recordDO.setSupplierName(weightInfoDO.getSupplierName());
                     recordDO.setMaterialName(weightInfoDO.getMaterialName());
-                    recordDO.setPlateNumber(carInfoDO.getPlateNumber());
+                    recordDO.setPlateNumber(carDO.getPlateNumber());
                     recordDO.setRoughWeight(weight);
                     recordDO.setWeighDate(new Date());
                     recordDO.setWeighStatus("毛重已检");
@@ -183,7 +183,7 @@ public class WeighAction {
                     recordDO.setWeighMan(weightInfoDO.getWeighMan());
                     recordDO.setAuditor(weightInfoDO.getAuditor());
                     recordDO.setIsTest(weightInfoDO.getIsTest());
-                    recordDO.setCarType(carInfoDO.getCarType());
+                    recordDO.setCarType(carDO.getCarType());
 
                     boolean isSave = weightRecordService.save(recordDO);
                     if (!isSave) {

@@ -31,5 +31,5 @@ public class SupplierExtInfoDO extends Model<SupplierExtInfoDO> {
 
     @NotNull(message = "[]不能为空")
     @TableField("是否化验")
-    private Boolean isTest;
+    private String isTest;
 }

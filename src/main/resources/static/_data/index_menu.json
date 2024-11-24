@@ -28,16 +28,16 @@
     },
     {
       "sortno": 4,
-      "name": "系统设置",
-      "icon": "fal fa-cog",
+      "name": "称重记录",
+      "icon": "fal fa-database",
       "pid": "",
-      "id": "zhujida",
-      "url": "zhujida.html"
+      "id": "weight_record",
+      "url": "weight_record.html"
     },
     {
       "sortno": 5,
       "name": "预置信息",
-      "icon": "fal fa-cog",
+      "icon": "fal fa-server",
       "pid": "",
       "id": "weight_info",
       "url": "weight_info.html"
@@ -45,10 +45,18 @@
     {
       "sortno": 6,
       "name": "化验配置",
-      "icon": "fal fa-cog",
+      "icon": "fal fa-bong",
       "pid": "",
       "id": "supplier_info",
       "url": "supplier_info.html"
+    },
+    {
+      "sortno": 7,
+      "name": "卡片配置",
+      "icon": "fal fa-credit-card-blank",
+      "pid": "",
+      "id": "card_info",
+      "url": "card_info.html"
     },
     {
       "sortno": 100,

@@ -1,30 +1,24 @@
 package com.calcifer.weight.controller;
 
-import com.calcifer.weight.entity.domain.UserDO;
+import com.calcifer.weight.entity.domain.SupplierDO;
 import com.calcifer.weight.entity.enums.RespCodeEnum;
 import com.calcifer.weight.entity.vo.RespWrapper;
-import com.calcifer.weight.service.UserService;
-import lombok.extern.slf4j.Slf4j;
+import com.calcifer.weight.service.SupplierInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * 描述: 用户
- */
-
-@Slf4j
-@RequestMapping("/admin/user")
 @RestController
-public class UserController {
+@RequestMapping("admin/supplierInfo")
+public class SupplierInfoController {
     @Autowired
-    private UserService userService;
+    private SupplierInfoService supplierInfoService;
 
     @RequestMapping("queryAll")
-    public RespWrapper<List<UserDO>> getSupplierInfoList() {
-        List<UserDO> list = userService.list();
+    public RespWrapper<List<SupplierDO>> getSupplierInfoList() {
+        List<SupplierDO> list = supplierInfoService.list();
         return new RespWrapper<>(list, RespCodeEnum.SUCCESS);
     }
 }

@@ -89,21 +89,30 @@
             </div>
             <div class="col-6">
                 <div class="form-group form-row">
-                    <label class="col-4 col-form-label">供应商名称</label>
+                    <label class="col-4 col-form-label">卡号</label>
                     <div class="col-8">
-                        <!--                        <input class="form-control" name="supplierName" lay-verify="required">-->
-                        <select class="form-control" name="supplierName" lay-verify="required"></select>
+                        <input class="form-control" name="cardNum" lay-verify="required">
+                        <!--                        <select class="form-control" name="cardNum" lay-verify="required">-->
+                        <!--                        </select>-->
                     </div>
                 </div>
             </div>
             <div class="col-6">
                 <div class="form-group form-row">
-                    <label class="col-4 col-form-label">是否化验</label>
+                    <label class="col-4 col-form-label">数据</label>
                     <div class="col-8">
-                        <!--                        <input class="form-control" name="isTest" lay-verify="required">-->
-                        <select class="form-control" name="isTest" lay-verify="required">
-                            <option value="是">是</option>
-                            <option value="否">否</option>
+                        <input class="form-control" name="data" lay-verify="required">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">数据类型</label>
+                    <div class="col-8">
+                        <!--                        <input class="form-control" name="dataType" lay-verify="required|dataType">-->
+                        <select class="form-control" name="dataType" lay-verify="required">
+                            <option value="供应商">供应商</option>
+                            <option value="物料">物料</option>
                         </select>
                     </div>
                 </div>
@@ -125,16 +134,56 @@
 <!--自定义js-->
 <script src="_js/main.js"></script>
 <script>
-    let queryUrl = 'admin/supplierExtInfo/queryAll'
-    let deleteUrl = 'admin/supplierExtInfo/delete'
-    let saveOrUpdateUrl = 'admin/supplierExtInfo/saveOrUpdate'
+    let queryUrl = 'admin/cardInfo/queryAll'
+    let deleteUrl = 'admin/cardInfo/delete'
+    let saveOrUpdateUrl = 'admin/cardInfo/saveOrUpdate'
 
-    let supplierList = []
+    let cardList = []
 
     $('.btn_select1').click(function () {
         getTable()
     })
-    getItemList()
+
+    /*websocket*/
+    let ws_url = location.origin.replace('http', 'ws') + '/weightproject/websocket/socketServer.do?' + loginId
+    // let ws_url = 'http://192.168.1.217:8080/weightproject/websocket/socketServer.do?userId=' + loginId
+    let ws = null           //ws实例
+
+    ws_init()
+    setInterval(() => {   //20秒轮询
+        if (ws.readyState == 1) {
+            ws.send('heartCheck')   //正常则发送心跳
+        } else {
+            ws_init()   //断开则初始化
+        }
+    }, 20000)
+
+
+    function ws_init() {    //初始化
+        ws = new WebSocket(ws_url)
+        ws.onopen = ws_onopen         //连接
+        ws.onmessage = ws_onmessage   //接收
+        // ws.onclose = ws_onclose       //断开
+        // ws.onerror = ws_onerror       //错误
+    }
+
+    function ws_onopen() {
+        console.log('ws连接成功')
+    }
+
+    function ws_onmessage(e) {
+        console.log(e)
+
+        let data = JSON.parse(e.data)
+        //let result = JSON.parse(e.result)
+        if (data.type == '1111') {  //初始信息(首次返回的消息)
+            console.log('连接成功')
+        } else if (data.type == 10) {
+            $('.form-control[name="cardNum"]').text(data.data)
+        }
+    }
+
+
     //获取表格
     function getTable() {
         datasl.token = token
@@ -151,8 +200,9 @@
                     minWidth: 120, title: '序号',
                     templet: `<div><a href="##" class="btn_xiangqing">{{d.id}}</a></div>`
                 },
-                {minWidth: 100, title: '供应商名称', field: 'supplierName'},
-                {minWidth: 120, title: '是否化验', field: 'isTest'},
+                {minWidth: 100, title: '卡号', field: 'cardNum'},
+                {minWidth: 120, title: '数据', field: 'data'},
+                {minWidth: 120, title: '数据类型', field: 'dataType'},
             ]],
             page: {
                 layout: ['prev', 'page', 'next', 'skip', 'count', 'limit'], //组件
@@ -190,15 +240,15 @@
     }
 
     function getItemList() {
-        if (supplierList.length === 0) {
+        if (cardList.length === 0) {
             $.post(
-                "admin/supplierInfo/queryAll",
+                "admin/cardInfo/queryAll",
                 {},
                 res => {
-                    supplierList = res.data
-                    supplierList.forEach(supplier => {
-                        $('.form-control[name="supplierName"]').append(
-                            $('<option>').val(supplier.supplierName).text(supplier.supplierName)
+                    cardList = res.data
+                    cardList.forEach(card => {
+                        $('.form-control[name="cardNum"]').append(
+                            $('<option>').val(card.cardNum).text(card.cardNum)
                         )
                     })
                 }

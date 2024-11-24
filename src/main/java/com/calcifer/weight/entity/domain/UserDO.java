@@ -18,7 +18,7 @@ import javax.validation.constraints.Size;
 */
 @Data
 @TableName("users")
-public class UsersDO extends Model<UsersDO> {
+public class UserDO extends Model<UserDO> {
 
     private static final long serialVersionUID = 5414908831016737745L;
 

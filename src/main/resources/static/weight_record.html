@@ -54,6 +54,13 @@
                 <button class="btn btn-info btn_update">修改</button>
                 <button class="btn btn-info btn_delete">删除</button>
             </div>
+            <div class="btn-group searchBox">
+                <input class="form-control" data-id="startTime" id="startTime" placeholder="请选择开始时间" readonly>
+            </div>
+            <div class="btn-group">至</div>
+            <div class="btn-group searchBox">
+                <input class="form-control" data-id="endTime" id="endTime" placeholder="请选择结束时间" readonly>
+            </div>
             <div class="btn-group">
                 <button class="btn btn-outline-info btn_select1">查询</button>
             </div>
@@ -72,6 +79,9 @@
             <div class="btn-group btn-group-sm">
                 <button class="btn_submit" lay-submit lay-filter="btn_submit">保存</button>
             </div>
+            <!--            <div class="btn-group btn-group-sm">-->
+            <!--                <button class="btn_submit_new" lay-submit lay-filter="btn_submit_new">保存新增</button>-->
+            <!--            </div>-->
             <div class="btn-group btn-group-sm">
                 <button class="btn_return">返回</button>
             </div>
@@ -89,10 +99,99 @@
             </div>
             <div class="col-6">
                 <div class="form-group form-row">
+                    <label class="col-4 col-form-label">检斤编号</label>
+                    <div class="col-8">
+                        <input class="form-control" name="weighId" lay-verify="required">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
                     <label class="col-4 col-form-label">供应商名称</label>
                     <div class="col-8">
                         <!--                        <input class="form-control" name="supplierName" lay-verify="required">-->
-                        <select class="form-control" name="supplierName" lay-verify="required"></select>
+                        <select class="form-control" name="supplierName" lay-verify="required">
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">物料名称</label>
+                    <div class="col-8">
+                        <!--                        <input class="form-control" name="materialName" lay-verify="required">-->
+                        <select class="form-control" name="materialName" lay-verify="required"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">车牌号</label>
+                    <div class="col-8">
+                        <!--                        <input class="form-control" name="plateNumber" lay-verify="required">-->
+                        <select class="form-control" name="plateNumber" lay-verify="required"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">毛重(KG)</label>
+                    <div class="col-8">
+                        <input class="form-control" name="roughWeight" lay-verify="required">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">皮重(KG)</label>
+                    <div class="col-8">
+                        <input class="form-control" name="tareWeight" lay-verify="required">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">净重(KG)</label>
+                    <div class="col-8">
+                        <input class="form-control" name="netWeight" lay-verify="required">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">检斤员</label>
+                    <div class="col-8">
+                        <!--                        <input class="form-control" name="weighMan" lay-verify="required">-->
+                        <select class="form-control" name="weighMan" lay-verify="required"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">检斤状态</label>
+                    <div class="col-8">
+                        <input class="form-control" name="weighStatus" lay-verify="required">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">检斤日期</label>
+                    <div class="col-8">
+                        <input class="form-control" name="weighDate" lay-verify="required">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">受控编号</label>
+                    <div class="col-8">
+                        <!--                        <input class="form-control" name="controlId" lay-verify="required">-->
+                        <select class="form-control" name="controlId" lay-verify="required">
+                            <option value="Q/CHALCO-GS-910351-JL057-2019 ">Q/CHALCO-GS-910351-JL057-2019</option>
+                            <option value="Q/CHALCO-GS-910351-JL017-2019 ">Q/CHALCO-GS-910351-JL017-2019</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -102,13 +201,20 @@
                     <div class="col-8">
                         <!--                        <input class="form-control" name="isTest" lay-verify="required">-->
                         <select class="form-control" name="isTest" lay-verify="required">
-                            <option value="是">是</option>
-                            <option value="否">否</option>
+                            <option value="是         ">是</option>
+                            <option value="否         ">否</option>
                         </select>
                     </div>
                 </div>
             </div>
-
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">备注</label>
+                    <div class="col-8">
+                        <input class="form-control" name="comment">
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 </form>
@@ -125,16 +231,50 @@
 <!--自定义js-->
 <script src="_js/main.js"></script>
 <script>
-    let queryUrl = 'admin/supplierExtInfo/queryAll'
-    let deleteUrl = 'admin/supplierExtInfo/delete'
-    let saveOrUpdateUrl = 'admin/supplierExtInfo/saveOrUpdate'
+    let queryUrl = 'admin/weightRecord/query'
+    let deleteUrl = 'admin/weightRecord/delete'
+    let saveOrUpdateUrl = 'admin/weightRecord/saveOrUpdate'
 
     let supplierList = []
+    let materialList = []
+    let carList = []
+    let userList = []
+
+
+    laydate.render({
+        elem: '#startTime', //指定元素
+        max: 0,
+        type: 'datetime',
+        trigger: 'click',
+        value: moment().format('YYYY-MM-DD 00:00:00')
+    })
+
+    laydate.render({
+        elem: '#endTime', //指定元素
+        max: 0,
+        type: 'datetime',
+        trigger: 'click',
+        value: new Date()
+    })
+
+    laydate.render({
+        elem: '.form-control[name="weighDate"]', //指定元素
+        max: 0,
+        type: 'datetime',
+        trigger: 'click'
+    })
+
+    datasl.startTime = "2024-09-07 00:00:00"
+    datasl.endTime = "2024-10-07 00:00:00"
+    // 填充表单中的下拉菜单
+    getItemList()
 
     $('.btn_select1').click(function () {
+        datasl.startTime = $('.searchBox [data-id="startTime"]').val()
+        datasl.endTime = $('.searchBox [data-id="endTime"]').val()
         getTable()
     })
-    getItemList()
+
     //获取表格
     function getTable() {
         datasl.token = token
@@ -148,11 +288,22 @@
             cols: [[
                 {width: 45, type: 'radio'},
                 {
-                    minWidth: 120, title: '序号',
+                    minWidth: 80, title: '序号',
                     templet: `<div><a href="##" class="btn_xiangqing">{{d.id}}</a></div>`
                 },
-                {minWidth: 100, title: '供应商名称', field: 'supplierName'},
+                {minWidth: 120, title: '检斤编号', field: 'weighId'},
+                {minWidth: 150, title: '供应商名称', field: 'supplierName'},
+                {minWidth: 120, title: '物料名称', field: 'materialName'},
+                {minWidth: 120, title: '车牌号', field: 'plateNumber'},
+                {minWidth: 120, title: '毛重(KG)', field: 'roughWeight'},
+                {minWidth: 120, title: '皮重(KG)', field: 'tareWeight'},
+                {minWidth: 120, title: '净重(KG)', field: 'netWeight'},
+                {minWidth: 120, title: '检斤员', field: 'weighMan'},
+                {minWidth: 120, title: '检斤状态', field: 'weighStatus'},
+                {minWidth: 120, title: '检斤日期', field: 'weighDate'},
+                {minWidth: 120, title: '受控编号', field: 'controlId'},
                 {minWidth: 120, title: '是否化验', field: 'isTest'},
+                {minWidth: 120, title: '备注', field: 'comment'},
             ]],
             page: {
                 layout: ['prev', 'page', 'next', 'skip', 'count', 'limit'], //组件
@@ -199,6 +350,48 @@
                     supplierList.forEach(supplier => {
                         $('.form-control[name="supplierName"]').append(
                             $('<option>').val(supplier.supplierName).text(supplier.supplierName)
+                        )
+                    })
+                }
+            )
+        }
+        if (materialList.length === 0) {
+            $.post(
+                "admin/material/queryAll",
+                {},
+                res => {
+                    materialList = res.data
+                    materialList.forEach(material => {
+                        $('.form-control[name="materialName"]').append(
+                            $('<option>').val(material.materialName).text(material.materialName)
+                        )
+                    })
+                }
+            )
+        }
+        if (carList.length === 0) {
+            $.post(
+                "admin/car/queryAll",
+                {},
+                res => {
+                    carList = res.data
+                    carList.forEach(car => {
+                        $('.form-control[name="plateNumber"]').append(
+                            $('<option>').val(car.plateNumber).text(car.plateNumber)
+                        )
+                    })
+                }
+            )
+        }
+        if (userList.length === 0) {
+            $.post(
+                "admin/user/queryAll",
+                {},
+                res => {
+                    userList = res.data
+                    userList.forEach(user => {
+                        $('.form-control[name="weighMan"]').append(
+                            $('<option>').val(user.realName).text(user.realName)
                         )
                     })
                 }
@@ -272,8 +465,9 @@
     //保存_执行 (表单内容, 按钮名称)
     function doSubmit(field, btn) {
         field.token = token
+        let url = saveOrUpdateUrl
         $.ajax({
-            url: saveOrUpdateUrl,
+            url: url,
             type: 'POST',
             data: JSON.stringify(field),
             contentType: 'application/json',
@@ -284,28 +478,6 @@
         })
     }
 
-    laydate.render({
-        elem: '#startTime', //指定元素
-        max: 0,
-        type: 'datetime',
-        trigger: 'click',
-        value: moment().format('YYYY-MM-DD 00:00:00')
-    })
-
-    laydate.render({
-        elem: '#endTime', //指定元素
-        max: 0,
-        type: 'datetime',
-        trigger: 'click',
-        value: new Date()
-    })
-
-    laydate.render({
-        elem: '.form-control[name="weighDate"]', //指定元素
-        max: 0,
-        type: 'datetime',
-        trigger: 'click'
-    })
 </script>
 </body>
 </html>

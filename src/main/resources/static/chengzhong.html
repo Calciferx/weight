@@ -527,7 +527,7 @@
 
     function getTables() {
         $.post(
-            '../adminx/record/pageList.do',
+            'admin/weightRecord/query',
             dataType,
             res => {
                 if (res.code != 1111) {

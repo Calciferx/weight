@@ -211,14 +211,24 @@
 <!--自定义js-->
 <script src="_js/main.js"></script>
 <script>
+    let queryUrl = 'admin/weightInfo/query'
+    let deleteUrl = 'admin/weightInfo/delete'
+    let saveOrUpdateUrl = 'admin/weightInfo/saveOrUpdate'
+
+    datasl.startTime = "2001-10-07 00:00:00"
+    datasl.endTime = "2024-10-07 00:00:00"
+
+    $('.btn_select1').click(function () {
+        datasl.startTime = $('.searchBox [data-id="startTime"]').val()
+        datasl.endTime = $('.searchBox [data-id="endTime"]').val()
+        getTable()
+    })
     //获取表格
     function getTable() {
         datasl.token = token
-        datasl.startTime = "2001-10-07 00:00:00"
-        datasl.endTime = "2024-10-07 00:00:00"
         laytable.render({
             elem: '#dataTable',
-            url: 'admin/weightInfo/query',
+            url: queryUrl,
             where: datasl,
             method: 'post',
             headers: {token: token},
@@ -299,7 +309,7 @@
         }, function () {
             $.ajax(
                 {
-                    url: 'admin/weightInfo/delete',
+                    url: deleteUrl,
                     type: 'POST',
                     data: JSON.stringify({
                         token: token,
@@ -342,7 +352,7 @@
     //保存_执行 (表单内容, 按钮名称)
     function doSubmit(field, btn) {
         field.token = token
-        let url = 'admin/weightInfo/saveOrUpdate'
+        let url = saveOrUpdateUrl
         $.ajax({
             url: url,
             type: 'POST',

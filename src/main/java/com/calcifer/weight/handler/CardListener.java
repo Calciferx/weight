@@ -2,7 +2,7 @@ package com.calcifer.weight.handler;
 
 import com.calcifer.weight.autoweigh.WeighEventEnum;
 import com.calcifer.weight.autoweigh.WeighStatusEnum;
-import com.calcifer.weight.entity.domain.CardInfoDO;
+import com.calcifer.weight.entity.domain.CardDO;
 import com.calcifer.weight.service.CardInfoService;
 import com.calcifer.weight.service.VoiceService;
 import com.calcifer.weight.utils.SerialPortUtil;
@@ -42,10 +42,10 @@ public class CardListener implements SerialPortUtil.DataAvailableListener {
                 String cardNum = matcher.group().substring(8, 32);
                 //                String cardNum = "E2000016660E015616306EDE";
                 log.info("read cardNum: {}", cardNum);
-                CardInfoDO cardInfoDO = cardInfoService.lambdaQuery().eq(CardInfoDO::getCardNum, cardNum).one();
-                if (cardInfoDO != null) {
+                CardDO cardDO = cardInfoService.lambdaQuery().eq(CardDO::getCardNum, cardNum).one();
+                if (cardDO != null) {
                     log.info("read truckInfo success");
-                    Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.READ_CARD).setHeader("cardInfoDO", cardInfoDO).build();
+                    Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.READ_CARD).setHeader("cardInfoDO", cardDO).build();
                     weighStateMachine.sendEvent(message);
                 } else {
                     log.error("card not register!!");

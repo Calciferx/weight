@@ -1,10 +1,6 @@
 package com.calcifer.weight.entity.domain;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-import javax.validation.constraints.NotNull;
-
-import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -12,25 +8,28 @@ import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 /**
 * 
 * @TableName gysxx
 */
 @TableName("gysxx")
 @Data
-public class SupplierInfoDO extends Model<SupplierInfoDO> {
+public class SupplierDO extends Model<SupplierDO> {
     private static final long serialVersionUID = 3219638680718443640L;
 
 
     @NotBlank(message="[]不能为空")
     @Size(max= 20,message="编码长度不能超过20")
     @Length(max= 20,message="编码长度不能超过20")
-    @TableField("供应商名称")
+    @TableId("供应商名称")
     private String supplierName;
 
     @NotNull(message="[]不能为空")
-    @TableField("序号")
-    @TableId(type = IdType.AUTO)
+    @TableField(value = "序号", insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
     private Integer id;
 
     @Size(max= 20,message="编码长度不能超过20")
