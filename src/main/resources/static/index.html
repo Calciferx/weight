@@ -233,9 +233,6 @@
     //获取菜单
     const loginRole = sessionStorage.getItem('loginRole')
     let url = '_data/index_menu.json'
-    if (loginRole == 2) {
-        url = '_data/index_menu_role.json'
-    }
     $.get(
         // '../sys/menu/listByRole.do',  //根据权限获取菜单
         url,   //菜单不设限
@@ -259,7 +256,7 @@
             let $menuTree = getChildMenu(dataTree, 0)
             $('.index_menu .menu').append($menuTree.html())
             //模拟点击称重
-            $('.index_menu .menu [data-url="chengzhong.html"]').click()
+            $('.index_menu .menu [data-id="chengzhong"]').click()
         }
     )
 

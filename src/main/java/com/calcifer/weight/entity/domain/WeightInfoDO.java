@@ -1,9 +1,11 @@
 package com.calcifer.weight.entity.domain;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
@@ -13,8 +15,8 @@ import javax.validation.constraints.Size;
 import java.util.Date;
 
 /**
-* 
-* @TableName jjxx
+*
+ * @TableName jjxx 检斤信息
 */
 @Data
 @TableName("jjxx")
@@ -29,7 +31,7 @@ public class WeightInfoDO extends Model<WeightInfoDO> {
     private String weighId;
 
     @NotNull(message="[]不能为空")
-    @TableField("序号")
+    @TableField(value = "序号", insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
     private Integer id;
 
     @NotBlank(message="[]不能为空")
@@ -68,6 +70,7 @@ public class WeightInfoDO extends Model<WeightInfoDO> {
     @TableField("检斤状态")
     private String weighStatus;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @TableField("检斤日期")
     private Date weighDate;
 

@@ -35,6 +35,22 @@
       "url": "zhujida.html"
     },
     {
+      "sortno": 5,
+      "name": "预置信息",
+      "icon": "fal fa-cog",
+      "pid": "",
+      "id": "weight_info",
+      "url": "weight_info.html"
+    },
+    {
+      "sortno": 6,
+      "name": "化验配置",
+      "icon": "fal fa-cog",
+      "pid": "",
+      "id": "supplier_info",
+      "url": "supplier_info.html"
+    },
+    {
       "sortno": 100,
       "name": "系统管理",
       "icon": "fal fa-book-spells fa-fw",

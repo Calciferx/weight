@@ -26,22 +26,22 @@ public class CardInfoDO extends Model<CardInfoDO> {
     private Integer id;
 
     @NotBlank(message = "[]不能为空")
-    @Size(max = 50, message = "编码长度不能超过50")
-    @Length(max = 50, message = "编码长度不能超过50")
+    @Size(max = 100, message = "编码长度不能超过100")
+    @Length(max = 100, message = "编码长度不能超过100")
     @TableField("卡号")
     private String cardNum;
 
     @NotBlank(message = "[]不能为空")
-    @Size(max = 20, message = "编码长度不能超过20")
-    @Length(max = 20, message = "编码长度不能超过20")
-    @TableField("物料名称")
-    private String materialName;
+    @Size(max = 100, message = "编码长度不能超过100")
+    @Length(max = 100, message = "编码长度不能超过100")
+    @TableField("数据")
+    private String data;
 
     @NotBlank(message = "[]不能为空")
-    @Size(max = 20, message = "编码长度不能超过20")
-    @Length(max = 20, message = "编码长度不能超过20")
-    @TableField("物料编码")
-    private String materialId;
+    @Size(max = 50, message = "编码长度不能超过50")
+    @Length(max = 50, message = "编码长度不能超过50")
+    @TableField("数据类型")
+    private String dataType;
 
 
 }
