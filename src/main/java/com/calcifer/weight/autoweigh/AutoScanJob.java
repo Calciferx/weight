@@ -15,6 +15,7 @@ import com.intelligt.modbus.jlibmodbus.exception.ModbusIOException;
 import com.intelligt.modbus.jlibmodbus.exception.ModbusNumberException;
 import com.intelligt.modbus.jlibmodbus.exception.ModbusProtocolException;
 import com.xiaoleilu.hutool.convert.Convert;
+import com.xiaoleilu.hutool.util.HexUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -206,7 +207,8 @@ public class AutoScanJob {
                                 queue.offer(weightInfo);
                             }
                         } else {
-                            if ("30".equals(status)) {
+                            // 第四位为动态/稳态标志位，0为稳态，1为动态
+                            if ((HexUtil.decodeHex(status.toCharArray())[0] & 0b00001000) == 0) {
                                 if (queue.size() < sampledTime) {
                                     queue.offer(weightInfo);
                                 } else {
