@@ -1,42 +1,16 @@
 [
   {
-    "type": "infrared1",
-    "serialSort": 0
+    "infrared1": 0,
+    "infrared2": 2,
+    "barrierGateOn": 2,
+    "barrierGateOff": 3,
+    "trafficLight": 0
   },
   {
-    "type": "infrared2",
-    "serialSort": 2
-  },
-  {
-    "type": "barrierGate1On",
-    "serialSort": 2
-  },
-  {
-    "type": "barrierGate1Off",
-    "serialSort": 3
-  },
-  {
-    "type": "trafficLight1",
-    "serialSort": 0
-  },
-  {
-    "type": "trafficLight2",
-    "serialSort": 1
-  },
-  {
-    "type": "barrierGate2Off",
-    "serialSort": 5
-  },
-  {
-    "type": "barrierGate2On",
-    "serialSort": 4
-  },
-  {
-    "type": "infrared3",
-    "serialSort": 3
-  },
-  {
-    "type": "infrared4",
-    "serialSort": 1
+    "infrared1": 1,
+    "infrared2": 3,
+    "barrierGateOn": 4,
+    "barrierGateOff": 5,
+    "trafficLight": 1
   }
 ]

@@ -4,9 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.calcifer.weight.WeightApplication;
 import com.calcifer.weight.autoweigh.WeighEventEnum;
 import com.calcifer.weight.autoweigh.WeighStatusEnum;
+import com.calcifer.weight.common.WeightContext;
 import com.calcifer.weight.entity.domain.UserSlaveInfo;
 import com.calcifer.weight.entity.dto.SlaveDetailInfo;
-import com.calcifer.weight.entity.enums.ModBusDeviceEnum;
 import com.calcifer.weight.entity.enums.RespCodeEnum;
 import com.calcifer.weight.entity.vo.RespWrapper;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
@@ -59,6 +59,12 @@ public class TestController {
     @Autowired
     private WeightRecordService weightRecordService;
 
+    @RequestMapping("stateMachineTest")
+    public Object stateMachineTest() {
+        weighStateMachine.sendEvent(WeighEventEnum.TRUCK_FOUND);
+        return "over";
+    }
+
     @RequestMapping("mptest")
     public Object mpTest() {
         String dhj = weightRecordService.generateWeighId("DHJ");
@@ -75,54 +81,54 @@ public class TestController {
 
     @RequestMapping("closeBarrier")
     public Object closeBarrier() {
-        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
-        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
-        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
-        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
-        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
-        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
+        modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOn(), false);
+        modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOn(), false);
+        modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOff(), true);
+        modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOff(), true);
+        modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOff(), false);
+        modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOff(), false);
         return "closeBarrier";
     }
 
     @RequestMapping("frontOnFalse")
     public Object frontOnFalse() {
-        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
+        modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOn(), false);
         return "frontOnFalse";
     }
 
     @RequestMapping("frontOffTrue")
     public Object frontOffTrue() {
-        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
+        modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOff(), true);
         return "frontOffTrue";
     }
 
     @RequestMapping("frontOffFalse")
     public Object frontOffFalse() {
-        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
+        modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOff(), false);
         return "frontOffFalse";
     }
 
     @RequestMapping("frontLightFalse")
     public Object frontLightFalse() {
-        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
+        modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), false);
         return "frontLightFalse";
     }
 
     @RequestMapping("frontLightTrue")
     public Object frontLightTrue() {
-        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, true);
+        modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), true);
         return "frontLightTrue";
     }
 
     @RequestMapping("backLightFalse")
     public Object backLightFalse() {
-        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, false);
+        modbusDeviceService.controlModBusDevice(WeightContext.back.getTrafficLight(), false);
         return "backLightFalse";
     }
 
     @RequestMapping("backLightTrue")
     public Object backLightTrue() {
-        modbusDeviceService.controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, true);
+        modbusDeviceService.controlModBusDevice(WeightContext.back.getTrafficLight(), true);
         return "backLightTrue";
     }
 

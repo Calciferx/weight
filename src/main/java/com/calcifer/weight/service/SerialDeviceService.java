@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -29,7 +30,7 @@ public class SerialDeviceService {
     @Getter
     @Resource(name = "scaleListener")
     private SerialPortUtil.DataAvailableListener scaleListener;
-    private List<SerialPort> serialPortList;
+    private List<SerialPort> serialPortList = new ArrayList<>();
 
     @Getter
     private boolean init;
@@ -51,6 +52,7 @@ public class SerialDeviceService {
         log.info("find and open serial ports");
         List<String> ports = SerialPortUtil.findPorts();
         for (SerialDeviceInfo info : serialDeviceInfos) {
+            log.info("Port: {}", info.toString());
             String port = info.getPort();
             if (!ports.contains(port)) {
                 throw new RuntimeException("scale port: " + port + " not exist!");

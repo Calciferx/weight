@@ -47,15 +47,15 @@ public class ScaleListener implements SerialPortUtil.DataAvailableListener {
             byte[] data = SerialPortUtil.readFromPort(serialPortEvent.getSerialPort());
             String dataHex = Convert.toHex(data).toUpperCase();
             log.debug("read scale data: {}", dataHex);
-            Pattern pattern = Pattern.compile("02.{30}0D");
+            Pattern pattern = Pattern.compile(".{32}0D0A");
             Matcher matcher = pattern.matcher(dataHex);
             while (matcher.find()) {
                 // 截取有效输出
                 String validHex = matcher.group();
                 // 提取重量信息
-                String numHex = validHex.substring(8, 20);
+                String numHex = validHex.substring(16, 28);
                 String numStr = Convert.hexStrToStr(numHex, StandardCharsets.US_ASCII).trim();
-                String status = dataHex.substring(4, 6);
+                String status = dataHex.substring(0, 4);
                 if (numStr.matches("\\d+")) {
                     int num = Integer.parseInt(numStr);
                     // 如果称上有东西则不开始计时，小于100的不算
@@ -66,7 +66,7 @@ public class ScaleListener implements SerialPortUtil.DataAvailableListener {
                     WSRespWrapper<WeightInfo> rtWeightInfo = new WSRespWrapper<>(weightInfo, WSCodeEnum.RT_WEIGH_NUM);
                     log.debug("weight map: {}", JSON.toJSONString(rtWeightInfo));
                     // 如果称的状态为稳定则开始采样计算重量，否则清空重量数据队列
-                    if ("30".equals(status)) {
+                    if ("5354".equals(status)) {
                         if (queue.size() < sampledTime) {
                             queue.offer(weightInfo);
                         } else {

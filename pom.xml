@@ -58,9 +58,8 @@
             <version>3.5.7</version>
         </dependency>
         <dependency>
-            <groupId>com.microsoft</groupId>
-            <artifactId>sqljdbc4</artifactId>
-            <version>3.0</version>
+            <groupId>net.sourceforge.jtds</groupId>
+            <artifactId>jtds</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
@@ -73,6 +72,10 @@
             <version>6.1.5.Final</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
         <!--1.5.20存在数字参数不设置example异常的bug，先引入1.5.21,maven会自动排除后面的版本-->
         <dependency>
             <groupId>io.swagger</groupId>
@@ -121,6 +124,11 @@
             <groupId>com.intelligt.modbus</groupId>
             <artifactId>jlibmodbus</artifactId>
             <version>1.2.9.7</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>5.4.0</version>
         </dependency>
 
     </dependencies>

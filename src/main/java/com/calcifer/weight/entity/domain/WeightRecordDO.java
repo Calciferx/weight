@@ -21,14 +21,15 @@ import java.util.Date;
 @TableName("qchjj")
 public class WeightRecordDO extends Model<WeightRecordDO> {
     private static final long serialVersionUID = 4958187847174470709L;
+
+    @TableField(value = "序号", insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
+    @NotNull(message = "[]不能为空")
+    private Integer id;
+
     @TableId("检斤编号")
     @NotBlank(message="[]不能为空")
     @Length(max= 30,message="编码长度不能超过30")
     private String weighId;
-
-    @TableField(value = "序号", insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
-    @NotNull(message="[]不能为空")
-    private Integer id;
 
     @TableField("物料编码")
     @Length(max= 20,message="编码长度不能超过20")

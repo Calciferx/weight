@@ -45,17 +45,9 @@
                 <div class="form-row">
                     <div class="col-6">
                         <div class="form-group form-row">
-                            <label class="col-4 col-form-label">车号</label>
+                            <label class="col-4 col-form-label">车牌号</label>
                             <div class="col-8">
-                                <input class="form-control" name="carCode">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="form-group form-row">
-                            <label class="col-4 col-form-label">规格</label>
-                            <div class="col-8">
-                                <input class="form-control" name="guige">
+                                <input class="form-control" name="plateNumber">
                             </div>
                         </div>
                     </div>
@@ -63,15 +55,15 @@
                         <div class="form-group form-row">
                             <label class="col-4 col-form-label">毛重</label>
                             <div class="col-8">
-                                <input class="form-control" name="maoZ">
+                                <input class="form-control" name="roughWeight">
                             </div>
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="form-group form-row">
-                            <label class="col-4 col-form-label">发货单位</label>
+                            <label class="col-4 col-form-label">供应商名称</label>
                             <div class="col-8">
-                                <input class="form-control" name="address">
+                                <input class="form-control" name="supplierName">
                             </div>
                         </div>
                     </div>
@@ -79,15 +71,15 @@
                         <div class="form-group form-row">
                             <label class="col-4 col-form-label">皮重</label>
                             <div class="col-8">
-                                <input class="form-control" name="piZ">
+                                <input class="form-control" name="tareWeight">
                             </div>
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="form-group form-row">
-                            <label class="col-4 col-form-label">收货单位</label>
+                            <label class="col-4 col-form-label">物料名称</label>
                             <div class="col-8">
-                                <input class="form-control" name="reAddress">
+                                <input class="form-control" name="materialName">
                             </div>
                         </div>
                     </div>
@@ -95,15 +87,7 @@
                         <div class="form-group form-row">
                             <label class="col-4 col-form-label">净重</label>
                             <div class="col-8">
-                                <input class="form-control" name="jingZ">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="form-group form-row">
-                            <label class="col-4 col-form-label">货名</label>
-                            <div class="col-8">
-                                <input class="form-control" name="huoming">
+                                <input class="form-control" name="netWeight">
                             </div>
                         </div>
                     </div>
@@ -111,7 +95,7 @@
                         <div class="form-group form-row">
                             <label class="col-2 col-form-label">备注</label>
                             <div class="col-10">
-                                <input class="form-control" name="remark">
+                                <input class="form-control" name="comment">
                             </div>
                         </div>
                     </div>
@@ -140,15 +124,14 @@
             <div class="WeighingType">
                 <form>
                     <div>过磅类型:</div>
-                    <input class="typeBtn" type="radio" value="1" id="type1"> <label
-                        for="type1">采购</label><br> <input class="typeBtn"
-                                                          type="radio" value="2" id="type2"><label
-                        for="type2">销售</label>
-                    <br> <input class="typeBtn" type="radio" value="3" id="type3"><label
-                        for="type3">内部</label> <br> <input class="typeBtn"
-                                                           type="radio" value="4" id="type4"><label
-                        for="type4">其他</label>
-                    <br>
+                    <input class="typeBtn" type="radio" value="1" id="type1">
+                    <label for="type1">采购</label><br>
+                    <input class="typeBtn" type="radio" value="2" id="type2">
+                    <label for="type2">销售</label><br>
+                    <input class="typeBtn" type="radio" value="3" id="type3">
+                    <label for="type3">内部</label><br>
+                    <input class="typeBtn" type="radio" value="4" id="type4">
+                    <label for="type4">其他</label><br>
                 </form>
             </div>
 
@@ -157,7 +140,7 @@
                     <div>过磅模式:</div>
                     <input class="typeBtn" type="radio" value="5" id="type5"> <label
                         for="type5">标准过磅</label><br> <input class="typeBtn"
-                                                            type="radio" value="6" id="type6"><label
+                                                                type="radio" value="6" id="type6"><label
                         for="type6">一次过磅</label>
                     <br>
                     <!--					<input class="typeBtn" type="radio" value="3" id="type3"><label for="type3">内部过磅</label> <br>-->
@@ -210,6 +193,12 @@
                 </button>
             </div>
         </div>
+        <div class="video-container">
+            <div class="flv-container"></div>
+        </div>
+        <div class="video-container">
+            <div class="flv-container"></div>
+        </div>
         <div class="AutoWeighing">
             <div>
                 <input class="typeBtn" type="checkbox" value="7" id="type7">
@@ -237,21 +226,23 @@
                    id="tableInsert">
                 <thead class="thead-light">
                 <tr>
-                    <th>流水号</th>
-                    <th>车号</th>
-                    <th>过磅类型</th>
-                    <th>发货单位</th>
-                    <th>收货单位</th>
-                    <th>货名</th>
-                    <th>规格</th>
+                    <th>序号</th>
+                    <th>检斤编号</th>
+                    <th>供应商名称</th>
+                    <th>物料名称</th>
+                    <th>车牌号</th>
                     <th>毛重</th>
                     <th>皮重</th>
                     <th>净重</th>
-                    <th>毛重司磅员</th>
-                    <th>皮重司磅员</th>
-                    <th>毛重时间</th>
-                    <th>皮重时间</th>
+                    <th>检斤日期</th>
+                    <th>检斤状态</th>
+                    <th>是否打印</th>
+                    <th>受控编号</th>
                     <th>备注</th>
+                    <th>检斤员</th>
+                    <th>审核员</th>
+                    <th>是否化验</th>
+                    <th>车辆类型</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -259,8 +250,6 @@
                 </tbody>
                 <tfoot>
                 <tr>
-                    <td></td>
-                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -274,21 +263,29 @@
                     <td></td>
                     <td></td>
                     <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                 </tr>
                 <tr>
-                    <td colspan="2"><select class="form-control custom-select" data-id="recordType" lay-ignore>
-                        <!--						<option value="">所有</option>-->
-                        <option value="1">本日记录</option>
-                        <!--						<option value="2">本周记录</option>-->
-                        <!--						<option value="3">本月记录</option>-->
-                        <!--						<option value="4">本季记录</option>-->
-                        <!--						<option value="5">本年记录</option>-->
-                    </select></td>
-                    <td colspan="2"><select class="form-control custom-select" data-id="logType" lay-ignore>
-                        <option value="">全部记录</option>
-                        <option value="1">未完成记录</option>
-                        <option value="2">已完成记录</option>
-                    </select></td>
+                    <td colspan="2">
+                        <select class="form-control custom-select" data-id="recordType" lay-ignore>
+                            <!--						<option value="">所有</option>-->
+                            <option value="1">本日记录</option>
+                            <!--						<option value="2">本周记录</option>-->
+                            <!--						<option value="3">本月记录</option>-->
+                            <!--						<option value="4">本季记录</option>-->
+                            <!--						<option value="5">本年记录</option>-->
+                        </select>
+                    </td>
+                    <td colspan="2">
+                        <select class="form-control custom-select" data-id="logType" lay-ignore>
+                            <option value="">全部记录</option>
+                            <option value="1">未完成记录</option>
+                            <option value="2">已完成记录</option>
+                        </select>
+                    </td>
                     <!--&lt;!&ndash;<td></td>
                     <td></td>&ndash;&gt;
                     <td></td>
@@ -334,6 +331,7 @@
 <script src="_plugin/moment/moment.min.js"></script>
 <script src="_plugin/echarts/echarts.min.js"></script>
 <script src="_plugin/zj/zMath.js"></script>
+<script src="_plugin/jessibuca/jessibuca.js"></script>
 <!--自定义js-->
 <script src="_js/main.js"></script>
 
@@ -415,20 +413,21 @@
             $('.messageBox').append(div)
             getScrool()
         } else if (data.type == '6') { // 车辆信息
-            $('.container [name="carCode"]').val(data.data.carNum)  // 车号
-            $('.container [name="address"]').val(data.data.faHuo)  //发货单位
-            $('.container [name="reAddress"]').val(data.data.shouHuo)  //收货单位
-            $('.container [name="huoming"]').val(data.data.goods) // 货名
-            $('.container [name="guige"]').val(data.data.spec)  // 规格
-            $('.container [name="remark"]').val(data.data.backup5)  // 备注
+            data.data.plateNumber && $('.container [name="plateNumber"]').val(data.data.plateNumber)  // 车牌号
+            data.data.roughWeight && $('.container [name="roughWeight"]').val(data.data.roughWeight)  //毛重
+            data.data.supplierName && $('.container [name="supplierName"]').val(data.data.supplierName)  //供应商名称
+            data.data.tareWeight && $('.container [name="tareWeight"]').val(data.data.tareWeight) // 皮重
+            data.data.materialName && $('.container [name="materialName"]').val(data.data.materialName)  // 物料名称
+            data.data.netWeight && $('.container [name="netWeight"]').val(data.data.netWeight)  // 净重
+            data.data.comment && $('.container [name="comment"]').val(data.data.comment)  // 备注
         } else if (data.type == '7') {  // 称重kg
             start(data.data.weightNum)
-            if (data.data.status == '38') {  // 传输
+            if (data.data.status == '5553') {  // 传输
                 $('.container .transBox span').css('background', 'linear-gradient(white, green)')
             } else {
                 $('.container .transBox span').css('background', 'linear-gradient(white, red)')
             }
-            if (data.data.status == '30') {  // 稳定
+            if (data.data.status == '5354') {  // 稳定
                 $('.container .stableBox span').css('background', 'linear-gradient(white, green)')
                 if ($('#type7').prop('checked') == false && data.data.weightNum != '') {  //保存按钮
                     $('.btn_cancel,.btn_insert1,.btn_dataCof').prop('disabled', false)
@@ -440,23 +439,25 @@
                 }
             }
         } else if (data.type == '8') {  // 毛重、淨重、皮重
-            $('.container [name="maoZ"]').val(data.data.roughWeight)  //毛重
-            $('.container [name="piZ"]').val(data.data.tareWeight)  // 皮重
-            $('.container [name="jingZ"]').val(data.data.netWeight)  // 净重
+            $('.container [name="roughWeight"]').val(data.data.roughWeight)  //毛重
+            $('.container [name="tareWeight"]').val(data.data.tareWeight)  // 皮重
+            $('.container [name="netWeight"]').val(data.data.netWeight)  // 净重
         } else if (data.type == '9') {
-            $('.container [name="carCode"]').val('')  // 车号
-            $('.container [name="address"]').val('')  //发货单位
-            $('.container [name="reAddress"]').val('')  //收货单位
-            $('.container [name="huoming"]').val('') // 货名
-            $('.container [name="guige"]').val('')  // 规格
-            $('.container [name="remark"]').val('')  // 备注
-            $('.container [name="maoZ"]').val('') //毛重
-            $('.container [name="piZ"]').val('')  // 皮重
-            $('.container [name="jingZ"]').val('')  // 净重
+            clearDashboard();
             getTables()
         } else if (data.type == '0') { //导出成功
 
         }
+    }
+
+    function clearDashboard() {
+        $('.container [name="plateNumber"]').val('')  // 车牌号
+        $('.container [name="roughWeight"]').val('')  //毛重
+        $('.container [name="supplierName"]').val('')  //供应商名称
+        $('.container [name="tareWeight"]').val('') // 皮重
+        $('.container [name="materialName"]').val('')  // 物料名称
+        $('.container [name="netWeight"]').val('')  // 净重
+        $('.container [name="comment"]').val('') // 备注
     }
 
     //页面关闭前
@@ -520,9 +521,14 @@
     })
 
     $('#bodyInsert [data-id="logType"]').change(function () { // 记录查询
-        dataType.logType = $(this).find('option:checked').val()
+        dataType.completeStatus = $(this).find('option:checked').val()
         getTables()
     })
+    dataType.startTime = moment().format('YYYY-MM-DD 00:00:00')
+    dataType.endTime = moment().format('YYYY-MM-DD HH:mm:ss')
+
+    dataType.startTime = "2024-10-01 00:00:00"
+    dataType.endTime = "2024-10-07 00:00:00"
     getTables()
 
     function getTables() {
@@ -538,21 +544,23 @@
                 $('#tableInsert tbody').empty()
                 data.forEach(function (item, i) {
                     addRow()
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl1"]').val(item.流水号)  //流水号
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl2"]').val(item.车号)  //车号
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl3"]').val(item.过磅类型)  //过磅类型
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl4"]').val(item.发货单位)  //发货单位
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl5"]').val(item.收货单位)  //收货单位
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl6"]').val(item.货名)  //货名
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl7"]').val(item.规格)  //规格
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl8"]').val(item.毛重)  //毛重
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl9"]').val(item.皮重)  //皮重
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl10"]').val(item.净重)  //净重
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl11"]').val(item.毛重司磅员)  //毛重司磅员
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl12"]').val(item.皮重司磅员)  //皮重司磅员
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl13"]').val(item.毛重时间)  //毛重时间
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl14"]').val(item.皮重时间)  //皮重时间
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl15"]').val(item.备注)  //备注
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl1"]').val(item.id)  //序号
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl2"]').val(item.weighId)  //检斤编号
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl3"]').val(item.supplierName)  //供应商名称
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl4"]').val(item.materialName)  //物料名称
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl5"]').val(item.plateNumber)  //车牌号
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl6"]').val(item.roughWeight)  //毛重
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl7"]').val(item.tareWeight)  //皮重
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl8"]').val(item.netWeight)  //净重
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl9"]').val(item.weighDate)  //检斤日期
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl10"]').val(item.weighStatus)  //检斤状态
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl11"]').val(item.isPrint)  //是否打印
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl12"]').val(item.controlId)  //受控编号
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl13"]').val(item.comment)  //备注
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl14"]').val(item.weighMan)  //检斤员
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl15"]').val(item.auditor)  //审核员
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl16"]').val(item.isTest)  //是否化验
+                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl17"]').val(item.carType)  //车辆类型
                 })
                 totalAmount()
             }
@@ -561,21 +569,23 @@
 
     function addRow(i) {
         let row = `<tr>
-				<td><input class="form-control disabled" disabled data-id="jl1" title="流水号"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl2" title="车号"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl3" title="过磅类型"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl4" title="发货单位"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl5" title="收货单位"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl6" title="货名"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl7" title="规格"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl8" title="毛重"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl9" title="皮重"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl10" title="净重"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl11" title="毛重司磅员"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl12" title="皮重司磅员"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl13" title="毛重时间"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl14" title="皮重时间"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl15" title="备注"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl1" title="序号"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl2" title="检斤编号"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl3" title="供应商名称"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl4" title="物料名称"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl5" title="车牌号"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl6" title="毛重"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl7" title="皮重"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl8" title="净重"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl9" title="检斤日期"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl10" title="检斤状态"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl11" title="是否打印"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl12" title="受控编号"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl13" title="备注"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl14" title="检斤员"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl15" title="审核员"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl16" title="是否化验"/></td>
+				<td><input class="form-control disabled" disabled data-id="jl17" title="车辆类型"/></td>
 				</tr>`
         if (i == null) {
             $('#tableInsert tbody').append(row)
@@ -591,15 +601,15 @@
     function totalAmount() {
         let roughWeight = 0, tareWeight = 0, netWeight = 0
         //合计毛重
-        $('#tableInsert tbody [data-id="jl8"]').each(function () {
+        $('#tableInsert tbody [data-id="jl6"]').each(function () {
             roughWeight = zMath.plus(roughWeight, $(this).val() * 1)
         })
         //合计皮重
-        $('#tableInsert tbody [data-id="jl9"]').each(function () {
+        $('#tableInsert tbody [data-id="jl7"]').each(function () {
             tareWeight = zMath.plus(tareWeight, $(this).val() * 1)
         })
         //合计净重
-        $('#tableInsert tbody [data-id="jl10"]').each(function () {
+        $('#tableInsert tbody [data-id="jl8"]').each(function () {
             netWeight = zMath.plus(netWeight, $(this).val() * 1)
         })
         $('#tableInsert tfoot .roughWeight').text(roughWeight.toFixed(toDecimal))  //毛重
@@ -654,15 +664,7 @@
 
     // 清空按钮
     $('.btn_cancel').click(function () {
-        $('.container [name="carCode"]').val('')  // 车号
-        $('.container [name="address"]').val('')  //发货单位
-        $('.container [name="reAddress"]').val('')  //收货单位
-        $('.container [name="huoming"]').val('') // 货名
-        $('.container [name="guige"]').val('')  // 规格
-        $('.container [name="remark"]').val('')  // 备注
-        $('.container [name="maoZ"]').val('') //毛重
-        $('.container [name="piZ"]').val('')  // 皮重
-        $('.container [name="jingZ"]').val('')  // 净重
+        clearDashboard()
     })
 
     // 保存按钮
@@ -724,6 +726,51 @@
             }
         )
     })
+    // $.post(
+    //     'device/wsURL',
+    //     function (data) {
+    //         createLive(data)
+    //     }
+    // )
+
+    function createLive(addresses) {
+        addresses.forEach((address, index) => {
+            let player = create($('.flv-container')[index])
+            player.play(address)
+        })
+    }
+
+    // let player1 = create($('#container1')[0])
+    // player1.play("ws://192.168.1.100:9080/ws.flv?token=d2805fca-d5c3-bf4b-2b0d-d49ce64f4f41&channel=0");
+    function create(containerDom) {
+        let jessibuca = new Jessibuca({
+            decoder: '/_plugin/jessibuca/decoder.js',
+            container: containerDom,
+            videoBuffer: 0.2, // 缓存时长
+            isResize: false,
+            text: "",
+            loadingText: "加载中",
+            debug: true,
+            showBandwidth: true, // 显示网速
+            operateBtns: {
+                fullscreen: true,
+                screenshot: true,
+                play: true,
+                audio: true,
+            },
+            forceNoOffscreen: true,
+            isNotMute: false,
+        });
+
+        jessibuca.onLog = msg => console.error(msg);
+        jessibuca.onRecord = (status) => console.log('onRecord', status);
+        jessibuca.onPause = () => console.log('onPause');
+        jessibuca.onPlay = () => console.log('onPlay');
+        jessibuca.onFullscreen = msg => console.log('onFullscreen', msg);
+        jessibuca.onMute = msg => console.log('onMute', msg);
+
+        return jessibuca
+    }
 </script>
 </body>
 </html>

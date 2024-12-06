@@ -16,7 +16,7 @@ import java.util.Date;
 
 /**
 *
- * @TableName jjxx 检斤信息
+ * @TableName jjxx 预置检斤信息
 */
 @Data
 @TableName("jjxx")

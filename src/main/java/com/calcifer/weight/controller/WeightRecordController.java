@@ -2,6 +2,7 @@ package com.calcifer.weight.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.calcifer.weight.entity.domain.WeightRecordDO;
+import com.calcifer.weight.entity.enums.CompleteStatusEnum;
 import com.calcifer.weight.entity.enums.RespCodeEnum;
 import com.calcifer.weight.entity.vo.RespWrapper;
 import com.calcifer.weight.service.WeightRecordService;
@@ -22,11 +23,13 @@ public class WeightRecordController {
     private WeightRecordService weightRecordService;
 
     @RequestMapping("query")
-    public RespWrapper<List<WeightRecordDO>> getWeightInfo(@RequestParam("startTime") String startTimeStr, @RequestParam("endTime") String endTimeStr) {
+    public RespWrapper<List<WeightRecordDO>> getWeightInfo(@RequestParam("startTime") String startTimeStr, @RequestParam("endTime") String endTimeStr, CompleteStatusEnum completeStatus) {
         DateTime startTime = DateUtil.parse(startTimeStr);
         DateTime endTime = DateUtil.parse(endTimeStr);
         List<WeightRecordDO> list = weightRecordService.lambdaQuery()
                 .between(WeightRecordDO::getWeighDate, startTime, endTime)
+                .isNull(completeStatus == CompleteStatusEnum.UNCOMPLETED, WeightRecordDO::getNetWeight)
+                .isNotNull(completeStatus == CompleteStatusEnum.COMPLETED, WeightRecordDO::getNetWeight)
                 .list();
         return new RespWrapper<>(list, RespCodeEnum.SUCCESS);
     }

@@ -1,10 +1,8 @@
 package com.calcifer.weight.service;
 
 import com.alibaba.fastjson.JSON;
-import com.calcifer.weight.common.Constant;
-import com.calcifer.weight.entity.dto.SlaveDetailInfo;
-import com.calcifer.weight.entity.enums.ModBusDeviceEnum;
-import com.calcifer.weight.entity.enums.WSCodeEnum;
+import com.calcifer.weight.common.WeightContext;
+import com.calcifer.weight.entity.dto.ModBusDeviceSerialSort;
 import com.intelligt.modbus.jlibmodbus.Modbus;
 import com.intelligt.modbus.jlibmodbus.exception.ModbusIOException;
 import com.intelligt.modbus.jlibmodbus.exception.ModbusNumberException;
@@ -27,11 +25,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static com.calcifer.weight.entity.enums.WSCodeEnum.*;
 
 /**
  * 串口和ModBus设备控制
@@ -39,9 +32,6 @@ import static com.calcifer.weight.entity.enums.WSCodeEnum.*;
 @Service
 @Slf4j
 public class ModbusDeviceService {
-    private SlaveDetailInfo[] slaveDetailInfos;
-    private WSCodeEnum[] wsMessageType;
-    private int[] wsMessageTypeIndex;
     private ModbusMaster modbusMaster;
 
     @Value("${calcifer.weight.slave-ip}")
@@ -76,48 +66,33 @@ public class ModbusDeviceService {
 
     private void initModbusDevice() {
         String modbusDeviceInfoJson = FileUtil.readUtf8String(modbusDeviceInfoPath);
-        List<SlaveDetailInfo> slaveDetailInfoList = JSON.parseArray(modbusDeviceInfoJson, SlaveDetailInfo.class);
-        Map<String, SlaveDetailInfo> typeMap = slaveDetailInfoList.stream().collect(Collectors.toMap(SlaveDetailInfo::getType, Function.identity()));
-
-        wsMessageType = new WSCodeEnum[]{INFR_NORTH_OUT, INFR_NORTH_IN, INFR_SOUTH_IN, INFR_SOUTH_OUT};
-        wsMessageTypeIndex = new int[]{0, 1, 2, 3};
-
-        slaveDetailInfos = new SlaveDetailInfo[10];
-        slaveDetailInfos[Constant.INFRA1] = typeMap.get("infrared1"); // infrared1
-        slaveDetailInfos[Constant.INFRA2] = typeMap.get("infrared2"); // infrared2
-        slaveDetailInfos[Constant.BARRIER1_ON] = typeMap.get("barrierGate1On"); // barrierGate1On
-        slaveDetailInfos[Constant.BARRIER1_OFF] = typeMap.get("barrierGate1Off"); // barrierGate1Off
-        slaveDetailInfos[Constant.LIGHT1] = typeMap.get("trafficLight1"); // trafficLight1
-        slaveDetailInfos[Constant.LIGHT2] = typeMap.get("trafficLight2"); // trafficLight2
-        slaveDetailInfos[Constant.BARRIER2_OFF] = typeMap.get("barrierGate2Off"); // barrierGate2Off
-        slaveDetailInfos[Constant.BARRIER2_ON] = typeMap.get("barrierGate2On"); // barrierGate2On
-        slaveDetailInfos[Constant.INFRA3] = typeMap.get("infrared3"); // infrared3
-        slaveDetailInfos[Constant.INFRA4] = typeMap.get("infrared4"); // infrared4
-
+        List<ModBusDeviceSerialSort> deviceSerialSortList = JSON.parseArray(modbusDeviceInfoJson, ModBusDeviceSerialSort.class);
+        if (!deviceSerialSortList.isEmpty()) WeightContext.front = deviceSerialSortList.get(0);
+        if (deviceSerialSortList.size() > 1) WeightContext.back = deviceSerialSortList.get(1);
 
         initModbusMaster();
         // 关闭道闸 ON先置为false解控，OFF置为true受控，再OFF置为false解除控制
         log.info("closing barriers...");
-        controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
-        controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, false);
-        controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
-        controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
-        controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
-        controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, false);
+        controlModBusDevice(WeightContext.front.getBarrierGateOn(), false);
+        controlModBusDevice(WeightContext.front.getBarrierGateOn(), false);
+        controlModBusDevice(WeightContext.front.getBarrierGateOff(), true);
+        controlModBusDevice(WeightContext.front.getBarrierGateOff(), true);
+        controlModBusDevice(WeightContext.front.getBarrierGateOff(), false);
+        controlModBusDevice(WeightContext.front.getBarrierGateOff(), false);
 
-        controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_ON, false);
-        controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_ON, false);
-        controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, true);
-        controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, true);
-        controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, false);
-        controlModBusDevice(ModBusDeviceEnum.BACK_BARRIER_OFF, false);
+        controlModBusDevice(WeightContext.back.getBarrierGateOn(), false);
+        controlModBusDevice(WeightContext.back.getBarrierGateOn(), false);
+        controlModBusDevice(WeightContext.back.getBarrierGateOff(), true);
+        controlModBusDevice(WeightContext.back.getBarrierGateOff(), true);
+        controlModBusDevice(WeightContext.back.getBarrierGateOff(), false);
+        controlModBusDevice(WeightContext.back.getBarrierGateOff(), false);
 
         // 红绿灯置为绿
         log.info("set all light green...");
-        controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
-        controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
-        controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, false);
-        controlModBusDevice(ModBusDeviceEnum.BACK_LIGHT, false);
+        controlModBusDevice(WeightContext.front.getTrafficLight(), false);
+        controlModBusDevice(WeightContext.front.getTrafficLight(), false);
+        controlModBusDevice(WeightContext.back.getTrafficLight(), false);
+        controlModBusDevice(WeightContext.back.getTrafficLight(), false);
     }
 
     @PreDestroy
@@ -131,11 +106,10 @@ public class ModbusDeviceService {
     }
 
     @Retryable(value = Exception.class, maxAttempts = 10, backoff = @Backoff(delay = 100, multiplier = 2))
-    public void controlModBusDevice(ModBusDeviceEnum modBusDeviceEnum, boolean status) {
-        log.info("control modbus device: {}, status: {}", modBusDeviceEnum.getMsg(), status);
-        SlaveDetailInfo slaveDetailInfo = slaveDetailInfos[modBusDeviceEnum.getCode()];
+    public void controlModBusDevice(int serialPort, boolean status) {
+        log.info("control modbus device: {}, status: {}", serialPort, status);
         try {
-            modbusMaster.writeSingleCoil(1, slaveDetailInfo.getSerialSort(), status);
+            modbusMaster.writeSingleCoil(1, serialPort, status);
         } catch (ModbusProtocolException e) {
             log.info("ModbusProtocolException: {}", e.getMessage());
             throw new RuntimeException("ModbusProtocolException: " + e.getMessage());
@@ -151,23 +125,6 @@ public class ModbusDeviceService {
     @Recover
     public void recover(Exception e) {
         log.error("RETRY FAILED！");
-    }
-
-    public void controlModBusDevice(Integer sort, boolean status) {
-        if (sort == null) return;
-        try {
-            log.info("write single coil sort: {}, status: {}", sort, status);
-            modbusMaster.writeSingleCoil(1, sort, status);
-        } catch (ModbusProtocolException e) {
-            log.info("ModbusProtocolException: {}", e.getMessage());
-            throw new RuntimeException("ModbusProtocolException: " + e.getMessage());
-        } catch (ModbusNumberException e) {
-            log.info("ModbusNumberException: {}", e.getMessage());
-            throw new RuntimeException("ModbusNumberException: " + e.getMessage());
-        } catch (ModbusIOException e) {
-            log.info("ModbusIOException: {}", e.getMessage());
-            throw new RuntimeException("ModbusIOException: " + e.getMessage());
-        }
     }
 
     /**
@@ -188,42 +145,6 @@ public class ModbusDeviceService {
     }
 
     /**
-     * 设置进车方向
-     */
-    public void reverseDirection(boolean isReverse) {
-        if (isReverse) {
-            log.info("reverse direction...");
-            // 反转数组
-            SlaveDetailInfo tmp;
-            for (int i = slaveDetailInfos.length / 2 - 1; i > -1; i--) {
-                int j = slaveDetailInfos.length - 1 - i;
-                tmp = slaveDetailInfos[i];
-                slaveDetailInfos[i] = slaveDetailInfos[j];
-                slaveDetailInfos[j] = tmp;
-            }
-            for (int i = wsMessageTypeIndex.length - 1; i > -1; i--) {
-                wsMessageTypeIndex[i] = wsMessageTypeIndex.length - 1 - wsMessageTypeIndex[i];
-            }
-        }
-    }
-
-    public WSCodeEnum getInfr1MessageTypeEnum() {
-        return wsMessageType[wsMessageTypeIndex[0]];
-    }
-
-    public WSCodeEnum getInfr2MessageTypeEnum() {
-        return wsMessageType[wsMessageTypeIndex[1]];
-    }
-
-    public WSCodeEnum getInfr3MessageTypeEnum() {
-        return wsMessageType[wsMessageTypeIndex[2]];
-    }
-
-    public WSCodeEnum getInfr4MessageTypeEnum() {
-        return wsMessageType[wsMessageTypeIndex[3]];
-    }
-
-    /**
      * 读取ModBus设备状态（红外、红绿灯、道闸）
      */
     public ModBusDeviceStatus readModBusDeviceStatus() throws ModbusProtocolException, ModbusNumberException, ModbusIOException {
@@ -233,7 +154,7 @@ public class ModbusDeviceService {
         boolean[] discreteInputs = modbusMaster.readDiscreteInputs(slaveAddress, offset, quantity);
         ModBusDeviceStatus modBusDeviceStatus = new ModBusDeviceStatus(discreteInputs);
         String statusChangeStr = modBusDeviceStatus.getStatusChangeStr(lastModBusDeviceStatus);
-        if (!StringUtils.isEmpty(statusChangeStr)) {
+        if (StringUtils.hasText(statusChangeStr)) {
             log.info(statusChangeStr);
         }
         lastModBusDeviceStatus = modBusDeviceStatus;
@@ -249,7 +170,7 @@ public class ModbusDeviceService {
 
         @Override
         public String toString() {
-            return String.format("device status: %s, infra1:%s, infra2:%s, infra3:%s, infra4:%s", JSON.toJSONString(discreteInputs), isInfrared1(), isInfrared2(), isInfrared3(), isInfrared4());
+            return String.format("device status: %s, front infra1:%s, front infra2:%s, back infra2:%s, back infra1:%s", JSON.toJSONString(discreteInputs), isFrontInfrared1(), isFrontInfrared2(), isBackInfrared2(), isBackInfrared1());
         }
 
         public String getStatusChangeStr(ModBusDeviceStatus lastStatus) {
@@ -257,44 +178,36 @@ public class ModbusDeviceService {
                 return toString();
             }
             ArrayList<String> list = new ArrayList<>();
-            if (isInfrared1() != lastStatus.isInfrared1()) {
-                list.add(String.format("infra1 changed: from %S to %S", lastStatus.isInfrared1(), isInfrared1()));
+            if (isFrontInfrared1() != lastStatus.isFrontInfrared1()) {
+                list.add(String.format("front infra1 changed: from %S to %S", lastStatus.isFrontInfrared1(), isFrontInfrared1()));
             }
-            if (isInfrared2() != lastStatus.isInfrared2()) {
-                list.add(String.format("infra2 changed: from %S to %S", lastStatus.isInfrared2(), isInfrared2()));
+            if (isFrontInfrared2() != lastStatus.isFrontInfrared2()) {
+                list.add(String.format("front infra2 changed: from %S to %S", lastStatus.isFrontInfrared2(), isFrontInfrared2()));
             }
-            if (isInfrared3() != lastStatus.isInfrared3()) {
-                list.add(String.format("infra3 changed: from %S to %S", lastStatus.isInfrared3(), isInfrared3()));
+            if (isBackInfrared2() != lastStatus.isBackInfrared2()) {
+                list.add(String.format("back infra2 changed: from %S to %S", lastStatus.isBackInfrared2(), isBackInfrared2()));
             }
-            if (isInfrared4() != lastStatus.isInfrared4()) {
-                list.add(String.format("infra4 changed: from %S to %S", lastStatus.isInfrared4(), isInfrared4()));
+            if (isBackInfrared1() != lastStatus.isBackInfrared1()) {
+                list.add(String.format("back infra1 changed: from %S to %S", lastStatus.isBackInfrared1(), isBackInfrared1()));
             }
             return String.join(";", list);
         }
 
         // 红外1和红外4 遮挡为true，红外2和红外3遮挡为false,返回值统一为遮挡为true
-        public boolean isInfrared1() {
-            return discreteInputs[slaveDetailInfos[Constant.INFRA1].getSerialSort()];
+        public boolean isFrontInfrared1() {
+            return discreteInputs[WeightContext.front.getInfrared1()];
         }
 
-        public boolean isInfrared2() {
-            return !discreteInputs[slaveDetailInfos[Constant.INFRA2].getSerialSort()];
+        public boolean isFrontInfrared2() {
+            return !discreteInputs[WeightContext.front.getInfrared2()];
         }
 
-        public boolean isInfrared3() {
-            return !discreteInputs[slaveDetailInfos[Constant.INFRA3].getSerialSort()];
+        public boolean isBackInfrared2() {
+            return !discreteInputs[WeightContext.back.getInfrared2()];
         }
 
-        public boolean isInfrared4() {
-            return discreteInputs[slaveDetailInfos[Constant.INFRA4].getSerialSort()];
-        }
-
-        public boolean isTrafficLight1() {
-            return discreteInputs[slaveDetailInfos[Constant.LIGHT1].getSerialSort()];
-        }
-
-        public boolean isTrafficLight2() {
-            return discreteInputs[slaveDetailInfos[Constant.LIGHT2].getSerialSort()];
+        public boolean isBackInfrared1() {
+            return discreteInputs[WeightContext.back.getInfrared1()];
         }
     }
 }

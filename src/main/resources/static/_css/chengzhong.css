@@ -169,6 +169,13 @@ panel {
     margin: 0 20px 0 10px;
 }
 
+.video-container {
+    display: flex;
+    width: 95%;
+    aspect-ratio: 16/9;
+    margin: 10px 20px 0 10px;
+}
+
 .handBox .btn {
     display: block;
     border: 1px solid #DCDFE6;

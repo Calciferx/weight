@@ -22,15 +22,16 @@ import java.util.Date;
 public class CarDO extends Model<CarDO> {
     private static final long serialVersionUID = 7670123218847319545L;
 
+
+    @NotNull(message = "[]不能为空")
+    @TableField(value = "序号", insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
+    private Integer Id;
+
     @NotBlank(message="[]不能为空")
     @Size(max= 10,message="编码长度不能超过10")
     @Length(max= 10,message="编码长度不能超过10")
     @TableId("车牌号")
     private String plateNumber;
-
-    @NotNull(message="[]不能为空")
-    @TableField(value = "序号", insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
-    private Integer Id;
 
     @Size(max= 20,message="编码长度不能超过20")
     @Length(max= 20,message="编码长度不能超过20")

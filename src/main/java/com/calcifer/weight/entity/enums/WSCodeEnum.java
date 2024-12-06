@@ -14,7 +14,9 @@ public enum WSCodeEnum implements ICodeEnum {
     RT_WEIGH_NUM(7, "称重KG"),
     WEIGH_INFO(8, "毛重、净重、皮重"),
     TRUCK_AND_WEIGHT(9, "车辆及重量信息"),
-    READ_CARD_NUM(10, "读取卡片信息"),
+    READ_CARD_NUM(10, "读取卡号"),
+    READ_MATERIAL_NAME(11, "读取物料名称"),
+    READ_SUPPLIER_NAME(12, "读取供应商名称"),
     ;
     private final int code;
     private final String msg;

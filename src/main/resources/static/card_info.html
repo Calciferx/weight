@@ -179,6 +179,7 @@
         if (data.type == '1111') {  //初始信息(首次返回的消息)
             console.log('连接成功')
         } else if (data.type == 10) {
+            console.log(data.data)
             $('.form-control[name="cardNum"]').text(data.data)
         }
     }
