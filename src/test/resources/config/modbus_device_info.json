@@ -1,0 +1,20 @@
+[
+  {
+    "infrared1": 0,
+    "infrared2": 2,
+    "barrierGateOn": 2,
+    "barrierGateOff": 3,
+    "trafficLight": 0,
+    "printButton": 3,
+    "plateReaderIP": "192.168.1.100"
+  },
+  {
+    "infrared1": 1,
+    "infrared2": 3,
+    "barrierGateOn": 4,
+    "barrierGateOff": 5,
+    "trafficLight": 1,
+    "printButton": 3,
+    "plateReaderIP": "192.168.1.100"
+  }
+]

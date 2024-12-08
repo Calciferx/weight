@@ -2,14 +2,23 @@ package com.calcifer.weight.service;
 
 import com.xiaoleilu.hutool.date.DateUtil;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Date;
 
+@SpringBootTest
+@ExtendWith(SpringExtension.class)
 class WeightRecordServiceTest {
+    @Autowired
+    private WeightRecordService weightRecordService;
 
     @Test
     void generateWeighId() {
-
+        String syj = weightRecordService.generateWeighId("SYJ");
+        System.out.println(syj);
     }
 
     @Test

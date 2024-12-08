@@ -151,10 +151,10 @@
                 <form>
                     <div>状态:</div>
                     <ul>
-                        <li><span class="beforeInfr1"></span>1-北车检</li>
-                        <li><span class="beforeInfr2"></span>1-北计量</li>
-                        <li><span class="afterInfr1"></span>2-南计量</li>
-                        <li><span class="afterInfr2"></span>2-南车检</li>
+                        <li><span class="beforeInfr1"></span>1-前车检</li>
+                        <li><span class="beforeInfr2"></span>1-前计量</li>
+                        <li><span class="afterInfr1"></span>2-后计量</li>
+                        <li><span class="afterInfr2"></span>2-后车检</li>
 
                         <!--						<li><span></span>前地感</li>-->
                         <!--						<li><span></span>后地感</li>-->
@@ -167,38 +167,38 @@
         <div class="handBox">
             <div class="pilotLamp">
                 <div>红绿灯</div>
-                <button class="btn">
+                <button class="btn btn_device" data-type="TRAFFIC_LIGHT_RED">
                     <span style="background-color: #af0000"></span>红灯
                 </button>
-                <button class="btn">
+                <button class="btn btn_device" data-type="TRAFFIC_LIGHT_GREEN">
                     <span style="background-color: #00B83F"></span>绿灯
                 </button>
             </div>
             <div class="beforeBrake">
                 <div>前道闸</div>
-                <button class="btn btn_beforePole" data-type="FRONT_BARRIER_ON">
+                <button class="btn btn_beforePole btn_device" data-type="FRONT_BARRIER_ON">
                     <i class="fa fa-arrow-up fa-lg"></i>起杆
                 </button>
-                <button class="btn btn_beforePole" data-type="FRONT_BARRIER_OFF">
+                <button class="btn btn_beforePole btn_device" data-type="FRONT_BARRIER_OFF">
                     <i class="fa fa-arrow-down fa-lg"></i>落杆
                 </button>
             </div>
             <div class="AfterBrake">
                 <div>后道闸</div>
-                <button class="btn btn_afterPole" data-type="BACK_BARRIER_ON">
+                <button class="btn btn_afterPole btn_device" data-type="BACK_BARRIER_ON">
                     <i class="fa fa-arrow-up fa-lg"></i>起杆
                 </button>
-                <button class="btn btn_afterPole" data-type="BACK_BARRIER_OFF">
+                <button class="btn btn_afterPole btn_device" data-type="BACK_BARRIER_OFF">
                     <i class="fa fa-arrow-down fa-lg"></i>落杆
                 </button>
             </div>
         </div>
-        <div class="video-container">
-            <div class="flv-container"></div>
-        </div>
-        <div class="video-container">
-            <div class="flv-container"></div>
-        </div>
+        <!--        <div class="video-container">-->
+        <!--            <div class="flv-container"></div>-->
+        <!--        </div>-->
+        <!--        <div class="video-container">-->
+        <!--            <div class="flv-container"></div>-->
+        <!--        </div>-->
         <div class="AutoWeighing">
             <div>
                 <input class="typeBtn" type="checkbox" value="7" id="type7">
@@ -445,6 +445,10 @@
         } else if (data.type == '9') {
             clearDashboard();
             getTables()
+        } else if (data.type == '11') {  // 物料名称
+            $('.container [name="materialName"]').val(data.data)  //物料名称
+        } else if (data.type == '12') {  // 供应商名称
+            $('.container [name="supplierName"]').val(data.data)  //供应商名称
         } else if (data.type == '0') { //导出成功
 
         }
@@ -527,8 +531,8 @@
     dataType.startTime = moment().format('YYYY-MM-DD 00:00:00')
     dataType.endTime = moment().format('YYYY-MM-DD HH:mm:ss')
 
-    dataType.startTime = "2024-10-01 00:00:00"
-    dataType.endTime = "2024-10-07 00:00:00"
+    // dataType.startTime = "2024-10-01 00:00:00"
+    // dataType.endTime = "2024-10-07 00:00:00"
     getTables()
 
     function getTables() {
@@ -713,16 +717,15 @@
     })
     //道闸 起杆、落杆
     $('.btn_beforePole,.btn_afterPole').click(function () {
-        let device = $(this).attr('data-type')
+        let deviceName = $(this).attr('data-type')
         $.post(
-            '../device/barrier',
+            '/device/modbus/name',
             {
                 token,
-                device,
-                status: true,
+                deviceName
             },
             res => {
-                layer.msg(res)
+                layer.msg(res.msg)
             }
         )
     })

@@ -11,22 +11,6 @@
       "url": "chengzhong.html"
     },
     {
-      "sortno": 2,
-      "name": "数据查询",
-      "icon": "fal fa-filter",
-      "pid": "",
-      "id": "shujucx",
-      "url": "shujucx.html"
-    },
-    {
-      "sortno": 3,
-      "name": "统计报表",
-      "icon": "fal fa-table",
-      "pid": "",
-      "id": "tongjibb",
-      "url": "tongjibb.html"
-    },
-    {
       "sortno": 4,
       "name": "称重记录",
       "icon": "fal fa-database",
@@ -57,30 +41,6 @@
       "pid": "",
       "id": "card_info",
       "url": "card_info.html"
-    },
-    {
-      "sortno": 100,
-      "name": "系统管理",
-      "icon": "fal fa-book-spells fa-fw",
-      "pid": "",
-      "id": "gongnengqx",
-      "url": ""
-    },
-    {
-      "sortno": 1,
-      "name": "日志管理",
-      "icon": "",
-      "pid": "gongnengqx",
-      "id": "caozuorz",
-      "url": "caozuorz.html"
-    },
-    {
-      "sortno": 2,
-      "name": "用户管理",
-      "icon": "",
-      "pid": "gongnengqx",
-      "id": "power_user",
-      "url": "power_user.html"
     }
   ]
 }

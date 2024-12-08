@@ -103,6 +103,10 @@ public class AutoScanJob {
                 Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.LEFT).build();
                 weighStateMachine.sendEvent(message);
             }
+            if (modBusDeviceStatus.isButtonPressed()) {
+                Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.PRINT).build();
+                weighStateMachine.sendEvent(message);
+            }
         }
     }
 }

@@ -18,8 +18,14 @@ public class CardController {
     @Autowired
     private CardInfoService cardInfoService;
 
+    @RequestMapping("query")
+    public RespWrapper<CardDO> queryCardDOByCardNum(String cardNum) {
+        CardDO cardDO = cardInfoService.lambdaQuery().eq(CardDO::getCardNum, cardNum).one();
+        return new RespWrapper<>(cardDO, RespCodeEnum.SUCCESS);
+    }
+
     @RequestMapping("queryAll")
-    public RespWrapper<List<CardDO>> getWeightInfo() {
+    public RespWrapper<List<CardDO>> queryAllCardDO() {
         List<CardDO> list = cardInfoService.list();
         return new RespWrapper<>(list, RespCodeEnum.SUCCESS);
     }

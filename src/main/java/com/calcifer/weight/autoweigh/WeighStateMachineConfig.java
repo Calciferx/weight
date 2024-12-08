@@ -54,14 +54,22 @@ public class WeighStateMachineConfig extends StateMachineConfigurerAdapter<Weigh
                 .withExternal().source(WeighStatusEnum.ON_WEIGH).target(WeighStatusEnum.WEIGHED).event(WeighEventEnum.WEIGHED).action(weighAction.weigh())
                 .and()
                 .withExternal().source(WeighStatusEnum.WEIGHED).target(WeighStatusEnum.LEAVING_WEIGH).event(WeighEventEnum.LEAVING_WEIGH).action(weighAction.truckLeavingWeigh())
+                // 打印
                 .and()
-                .withExternal().source(WeighStatusEnum.LEAVING_WEIGH).target(WeighStatusEnum.LEFT_WEIGH).event(WeighEventEnum.LEFT_WEIGH).action(weighAction.truckLeftWeigh())
+                .withExternal().source(WeighStatusEnum.WEIGHED).target(WeighStatusEnum.WEIGHED).event(WeighEventEnum.PRINT).action(weighAction.truckLeavingWeigh())
+//                .and()
+//                .withExternal().source(WeighStatusEnum.LEAVING_WEIGH).target(WeighStatusEnum.LEFT_WEIGH).event(WeighEventEnum.LEFT_WEIGH).action(weighAction.truckLeftWeigh())
                 .and()
                 .withExternal().source(WeighStatusEnum.LEFT_WEIGH).target(WeighStatusEnum.LEAVING).event(WeighEventEnum.LEAVING).action(weighAction.truckLeaving())
                 .and()
                 .withExternal().source(WeighStatusEnum.LEAVING).target(WeighStatusEnum.WAIT).event(WeighEventEnum.LEFT).action(weighAction.truckLeft())
                 .and()
                 .withExternal().source(WeighStatusEnum.WEIGHED).target(WeighStatusEnum.LEAVING).event(WeighEventEnum.LEAVING).action(weighAction.truckLeaving())
+
+                // 没有车检红外，直接使用下称红外判断
+                .and()
+                .withExternal().source(WeighStatusEnum.LEAVING_WEIGH).target(WeighStatusEnum.WAIT).event(WeighEventEnum.LEFT_WEIGH).action(weighAction.truckLeft())
+
 
                 .and().withExternal().source(WeighStatusEnum.WAIT).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
                 .and().withExternal().source(WeighStatusEnum.READING_PLATE_NUM).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())

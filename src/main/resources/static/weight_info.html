@@ -214,15 +214,14 @@
     let queryUrl = 'admin/weightInfo/query'
     let deleteUrl = 'admin/weightInfo/delete'
     let saveOrUpdateUrl = 'admin/weightInfo/saveOrUpdate'
-
-    datasl.startTime = "2001-10-07 00:00:00"
-    datasl.endTime = "2024-10-07 00:00:00"
+    setDefaultTime()
 
     $('.btn_select1').click(function () {
         datasl.startTime = $('.searchBox [data-id="startTime"]').val()
         datasl.endTime = $('.searchBox [data-id="endTime"]').val()
         getTable()
     })
+
     //获取表格
     function getTable() {
         datasl.token = token
@@ -351,6 +350,7 @@
 
     //保存_执行 (表单内容, 按钮名称)
     function doSubmit(field, btn) {
+        ``
         field.token = token
         let url = saveOrUpdateUrl
         $.ajax({
@@ -365,21 +365,23 @@
         })
     }
 
-    laydate.render({
-        elem: '#startTime', //指定元素
-        max: 0,
-        type: 'datetime',
-        trigger: 'click',
-        value: moment().format('YYYY-MM-DD 00:00:00')
-    })
+    function setDefaultTime() {
+        laydate.render({
+            elem: '#startTime', //指定元素
+            max: 0,
+            type: 'datetime',
+            trigger: 'click',
+            value: moment().format('YYYY-MM-DD 00:00:00')
+        })
 
-    laydate.render({
-        elem: '#endTime', //指定元素
-        max: 0,
-        type: 'datetime',
-        trigger: 'click',
-        value: new Date()
-    })
+        laydate.render({
+            elem: '#endTime', //指定元素
+            max: 0,
+            type: 'datetime',
+            trigger: 'click',
+            value: new Date()
+        })
+    }
 
     laydate.render({
         elem: '.form-control[name="weighDate"]', //指定元素

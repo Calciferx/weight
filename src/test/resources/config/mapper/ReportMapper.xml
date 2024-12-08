@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?> <!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.calcifer.weight.repository.ReportMapper">
+    <select id="getReportInfoByGroup" resultType="reportInfo">
+        select
+        Convert(decimal(18,2),SUM(毛重)) roughWeight,
+        Convert(decimal(18,2),SUM(皮重)) tareWeight,
+        Convert(decimal(18,2),SUM(净重)) netWeight,
+        count(车号) carNum,
+        <if test="staticsType != null">
+            <if test="staticsType == 1">
+                货名 goodsName
+            </if>
+            <if test="staticsType == 2">
+                车号 carNo
+            </if>
+        </if>
+        from [称重信息]
+        <where>
+            <if test="startTime != null and startTime != ''">
+                and 更新时间 &gt;= CONVERT(varchar,#{startTime},120)
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and 更新时间 &lt;= CONVERT(varchar,#{endTime},120)
+            </if>
+            <if test="weighingMode != null and weighingMode != ''">
+                and 备用13 = #{weighingMode}
+            </if>
+            and RecordFinish = 1
+        </where>
+        <if test="staticsType != null">
+            group by
+            <if test="staticsType == 1">
+                货名
+            </if>
+            <if test="staticsType == 2">
+                车号
+            </if>
+        </if>
+    </select>
+
+    <select id="getReportInfo" resultType="reportInfo">
+        select
+        Convert(decimal(18,2),SUM(毛重)) roughWeight,
+        Convert(decimal(18,2),SUM(皮重)) tareWeight,
+        Convert(decimal(18,2),SUM(净重)) netWeight,
+        count(车号) carNum
+        from [称重信息]
+        <where>
+            <if test="startTime != null and startTime != ''">
+                and 更新时间 &gt;= CONVERT(varchar,#{startTime},120)
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and 更新时间 &lt;= CONVERT(varchar,#{endTime},120)
+            </if>
+            <if test="weighingMode != null and weighingMode != ''">
+                and 备用13 = #{weighingMode}
+            </if>
+            and RecordFinish = 1
+        </where>
+    </select>
+</mapper>

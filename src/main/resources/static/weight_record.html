@@ -185,6 +185,22 @@
             </div>
             <div class="col-6">
                 <div class="form-group form-row">
+                    <label class="col-4 col-form-label">毛重时间</label>
+                    <div class="col-8">
+                        <input class="form-control" name="roughWeightTime" lay-verify="required">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
+                    <label class="col-4 col-form-label">皮重时间</label>
+                    <div class="col-8">
+                        <input class="form-control" name="tareWeightTime" lay-verify="required">
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group form-row">
                     <label class="col-4 col-form-label">受控编号</label>
                     <div class="col-8">
                         <!--                        <input class="form-control" name="controlId" lay-verify="required">-->
@@ -264,14 +280,13 @@
         trigger: 'click'
     })
 
-    datasl.startTime = "2024-09-07 00:00:00"
-    datasl.endTime = "2024-10-07 00:00:00"
-    // 填充表单中的下拉菜单
-    getItemList()
+    datasl.startTime = $('#startTime').val()
+    datasl.endTime = $('#endTime').val()
+
 
     $('.btn_select1').click(function () {
-        datasl.startTime = $('.searchBox [data-id="startTime"]').val()
-        datasl.endTime = $('.searchBox [data-id="endTime"]').val()
+        datasl.startTime = $('#startTime').val()
+        datasl.endTime = $('#endTime').val()
         getTable()
     })
 
@@ -301,6 +316,8 @@
                 {minWidth: 120, title: '检斤员', field: 'weighMan'},
                 {minWidth: 120, title: '检斤状态', field: 'weighStatus'},
                 {minWidth: 120, title: '检斤日期', field: 'weighDate'},
+                {minWidth: 120, title: '毛重时间', field: 'roughWeightTime'},
+                {minWidth: 120, title: '皮重时间', field: 'tareWeightTime'},
                 {minWidth: 120, title: '受控编号', field: 'controlId'},
                 {minWidth: 120, title: '是否化验', field: 'isTest'},
                 {minWidth: 120, title: '备注', field: 'comment'},
@@ -402,6 +419,8 @@
 <script>
     //新增
     $('.btn_insert').click(function () {
+        // 填充表单中的下拉菜单
+        getItemList()
         $('.form-control[name="id"]').prop('disabled', true)
     })
 
@@ -441,6 +460,8 @@
     //----------------------------------
     //修改
     $(document).on('click', '.btn_update', function () {
+        // 填充表单中的下拉菜单
+        getItemList()
         if ($(this).attr('class').includes('btnTd')) { //行内按钮
             let i = $('.btn_update.btnTd').index($(this))
             thistr = thistable[i]

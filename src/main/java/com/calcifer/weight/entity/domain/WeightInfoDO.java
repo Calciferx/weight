@@ -70,7 +70,7 @@ public class WeightInfoDO extends Model<WeightInfoDO> {
     @TableField("检斤状态")
     private String weighStatus;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @TableField("检斤日期")
     private Date weighDate;
 

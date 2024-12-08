@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?> <!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.calcifer.weight.repository.RecordMapper">
+    <!--称重记录-->
+
+    <!--新增 wqw 20210811-->
+    <insert id="add" parameterType="map">
+        <if test="carNum != null and carNum != ''">
+            insert into [称重信息](
+            流水号,
+            车号,
+            过磅类型,
+            发货单位,
+            收货单位,
+            货名,
+            规格,
+            毛重,
+            皮重,
+            净重,
+            毛重时间,
+            皮重时间,
+            一次过磅时间,
+            二次过磅时间,
+            备用1,
+            备用13,
+            客户类型,
+            一次过磅重,
+            二次过磅重,
+            上传否,
+            更新时间,
+            RecordFinish
+            )values(
+            #{serialNum},
+            #{carNum},
+            #{weighType},
+            #{goodSender},
+            #{goodReceiver},
+            #{goodName},
+            #{specification},
+            #{roughWeight},
+            #{tareWeight},
+            #{netWeight},
+            #{roughWeightTime},
+            #{tareWeightTime},
+            #{firstWeighTime},
+            #{secondWeighTime},
+            #{bak1},
+            #{bak13},
+            #{customerType},
+            #{firstWeight},
+            0,
+            '',
+            CONVERT(varchar,GETDATE(),120),
+            #{recordFinish}
+            )
+        </if>
+    </insert>
+
+    <select id="getRecordList" parameterType="recordPO" resultType="recordPO">
+        select
+        流水号 as serialNum,
+        车号 as carNum,
+        过磅类型 weighType,
+        发货单位 goodSender,
+        收货单位 goodReceiver,
+        货名 goodName,
+        规格 specification,
+        毛重 roughWeight,
+        皮重 tareWeight,
+        净重 netWeight,
+        扣重 deductWeight,
+        实重 realWeight,
+        单价 unitPrice,
+        金额 amount,
+        折方系数 foldingCoefficient,
+        方量 cubeNum,
+        过磅费 weighFee,
+        毛重司磅员 roughWeighMan,
+        皮重司磅员 tareWeighMan,
+        毛重磅号 roughWeighterId,
+        皮重磅号 tareWeighterId,
+        CONVERT(varchar,毛重时间,120) roughWeightTime,
+        CONVERT(varchar,皮重时间,120) tareWeightTime,
+        CONVERT(varchar,一次过磅时间,120) firstWeighTime,
+        CONVERT(varchar,二次过磅时间,120) secondWeighTime,
+        备用1 bak1,
+        更新人 updateBy,
+        CONVERT(varchar,更新时间,120) updateTime,
+        备注 comment,
+        客户类型 customerType,
+        一次过磅重 firstWeight,
+        二次过磅重 secondWeight,
+        b0,
+        aguid,
+        PlanNumber plan_number,
+        RecordCreateMode record_create_mode,
+        RecordFinish record_finish,
+        LimitState limit_state,
+        ManyID many_id,
+        多次净重 multi_net_weight
+        from [称重信息]
+        <where>
+            <if test="carNum != null and carNum != ''">
+                and 车号 = #{carNum}
+            </if>
+            <if test="tareNull != null">
+                and 备用1 = #{tareNull}
+            </if>
+            <if test="tareNull1 != null">
+                and (备用1 IS NULL or 备用1 != '1')
+            </if>
+            <if test="createTime != null and createTime != ''">
+                and (一次过磅时间 LIKE '%' + #{createTime} + '%') or (二次过磅时间 LIKE '%' + #{createTime} + '%')
+            </if>
+            <if test="startTime != null">
+                and (一次过磅时间 &gt;= CONVERT(varchar,#{startTime},120) or 二次过磅时间 &gt;=
+                CONVERT(varchar,#{startTime},120))
+                and (一次过磅时间 &lt;= CONVERT(varchar,#{endTime},120) or 二次过磅时间 &lt;=
+                CONVERT(varchar,#{endTime},120))
+            </if>
+            <if test="startTime == null and (createTime ==null or createTime =='') and (tareNull1 == null) and (tareNull == null) and (carNum == null or carNum == '')">
+                and (CONVERT(varchar,一次过磅时间,23) LIKE '%' + CONVERT(varchar,GETDATE(),23) + '%' or
+                CONVERT(varchar,二次过磅时间,23) LIKE '%' + CONVERT(varchar,GETDATE(),23) + '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="findRecordList" resultType="recordDto">
+        select
+        流水号 serialNumber,
+        车号 carNum,
+        过磅类型 weightType,
+        发货单位 shipper,
+        收货单位 receivingUnit,
+        货名 goodsName,
+        规格 model,
+        毛重 grossWeight,
+        皮重 tareWeight,
+        净重 netWeight,
+        扣重 deductionWeight,
+        实重 realWeight,
+        单价 price,
+        金额 money,
+        折方系数 factor,
+        方量 squareAmount,
+        过磅费 weightFee,
+        毛重司磅员 grossWeightman,
+        皮重司磅员 tareWeightman,
+        毛重磅号 grossHeavyWeight,
+        皮重磅号 tareHeavyWeight,
+        CONVERT(varchar,毛重时间,120) grossWeightTime,
+        CONVERT(varchar,皮重时间,120) tareWeightTime,
+        CONVERT(varchar,一次过磅时间,120) firstWeightTime,
+        CONVERT(varchar,二次过磅时间,120) secondWeightTime,
+        备用1 backup1,
+        更新人 updateUser,
+        CONVERT(varchar,更新时间,120) updateTime,
+        备注 remark,
+        客户类型 clientType,
+        一次过磅重 oneWeight,
+        二次过磅重 twoWeight,
+        b0,
+        aguid,
+        PlanNumber,
+        RecordCreateMode,
+        RecordFinish,
+        LimitState,
+        ManyID,
+        多次净重 manyNetWeight
+        from [称重信息]
+        <where>
+            <if test="serialNo != null and serialNo != ''">
+                and 流水号 = #{serialNo}
+            </if>
+            <if test="carNum != null and carNum != ''">
+                and 车号 LIKE '%' + #{carNum} + '%'
+            </if>
+            <if test="carNo != null and carNo != ''">
+                and 车号 = #{carNo}
+            </if>
+            <if test="weighingMode != null and weighingMode != ''">
+                and 备用13 = #{weighingMode}
+            </if>
+            <if test="tareNull != null">
+                and 备用1 = #{tareNull}
+            </if>
+            <if test="tareNull1 != null">
+                and (备用1 != '1' or 备用1 IS NULL)
+            </if>
+            <if test="startTime != null and startTime != ''">
+                and 更新时间 &gt;= CONVERT(varchar,#{startTime},120)
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and 更新时间 &lt;= CONVERT(varchar,#{endTime},120)
+            </if>
+        </where>
+    </select>
+
+    <!--修改-->
+    <update id="updateRecord">
+        update [称重信息]
+        <set>
+            更新时间 = CONVERT(varchar,GETDATE(),120),
+            <if test="roughWeight != null and roughWeight != ''">
+                毛重 = #{roughWeight},
+            </if>
+            <if test="tareWeight != null and tareWeight != ''">
+                皮重 = #{tareWeight},
+            </if>
+            <if test="netWeight != null and netWeight != ''">
+                净重 = #{netWeight},
+            </if>
+            <if test="secondWeighTime != null and secondWeighTime != ''">
+                二次过磅时间 = #{secondWeighTime},
+            </if>
+            <if test="secondWeight != null and secondWeight != ''">
+                二次过磅重 = #{secondWeight},
+            </if>
+            <if test="bak1 != null and bak1 != ''">
+                备用1 = #{bak1},
+            </if>
+            <if test="tareWeightTime != null and tareWeightTime != ''">
+                皮重时间 = #{tareWeightTime},
+            </if>
+            <if test="roughWeightTime != null and roughWeightTime != ''">
+                毛重时间 = #{roughWeightTime},
+            </if>
+            RecordFinish = 1,
+        </set>
+        <where>
+            <if test="serialNum != null and serialNum != ''">
+                and 流水号 = #{serialNum}
+            </if>
+        </where>
+    </update>
+
+    <delete id="deleteRecordByIds">
+        DELETE FROM [称重信息] WHERE 流水号 IN
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

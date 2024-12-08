@@ -2,6 +2,9 @@ package com.calcifer.weight.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.calcifer.weight.common.WeightContext;
+import com.calcifer.weight.entity.enums.RespCodeEnum;
+import com.calcifer.weight.entity.vo.RespWrapper;
 import com.calcifer.weight.service.ModbusDeviceService;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -11,6 +14,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,18 +32,37 @@ public class DeviceController {
     @Value("${calcifer.weight.plate-reader-address}")
     private List<String> plateReaderAddressArray;
 
-    @RequestMapping("barrier")
-    public Integer barrier(Integer serialPort) throws InterruptedException {
-        modbusDeviceService.controlModBusDevice(serialPort, true);
-        Thread.sleep(200);
-        modbusDeviceService.controlModBusDevice(serialPort, false);
+    @RequestMapping("modbus/port")
+    public Integer controlModbusByPort(int serialPort, boolean status) {
+        modbusDeviceService.controlModBusDevice(serialPort, status);
         return serialPort;
     }
 
-    @RequestMapping("light")
-    public String light(Integer serialPort, boolean status) {
-        modbusDeviceService.controlModBusDevice(serialPort, status);
-        return serialPort + ":" + (status ? "红" : "绿");
+    @RequestMapping("modbus/name")
+    public RespWrapper<?> controlModbusByName(String deviceName) {
+        if (!StringUtils.hasText(deviceName)) return new RespWrapper<>(RespCodeEnum.ERROR);
+        switch (deviceName) {
+            case "FRONT_BARRIER_ON":
+                modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOn(), true);
+                modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOn(), false);
+                break;
+            case "FRONT_BARRIER_OFF":
+                modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOff(), true);
+                modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOff(), false);
+            case "BACK_BARRIER_ON":
+                modbusDeviceService.controlModBusDevice(WeightContext.back.getBarrierGateOn(), true);
+                modbusDeviceService.controlModBusDevice(WeightContext.back.getBarrierGateOn(), false);
+                break;
+            case "TRAFFIC_LIGHT_RED":
+                modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), true);
+                modbusDeviceService.controlModBusDevice(WeightContext.back.getTrafficLight(), true);
+                break;
+            case "TRAFFIC_LIGHT_GREEN":
+                modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), false);
+                modbusDeviceService.controlModBusDevice(WeightContext.back.getTrafficLight(), false);
+                break;
+        }
+        return new RespWrapper<>(RespCodeEnum.SUCCESS);
     }
 
     @RequestMapping("plateReaderAddress")

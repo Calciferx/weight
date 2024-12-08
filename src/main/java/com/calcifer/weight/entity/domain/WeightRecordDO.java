@@ -57,7 +57,7 @@ public class WeightRecordDO extends Model<WeightRecordDO> {
     private Double netWeight;
 
     @TableField("检斤日期")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date weighDate;
 
     @TableField("检斤状态")
@@ -142,5 +142,13 @@ public class WeightRecordDO extends Model<WeightRecordDO> {
 
     @TableField("块数")
     private Integer pieceNumber;
+
+    @TableField("毛重时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date roughWeightTime;
+
+    @TableField("皮重时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date tareWeightTime;
     
 }

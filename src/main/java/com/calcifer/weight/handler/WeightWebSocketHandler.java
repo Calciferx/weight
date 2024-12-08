@@ -103,11 +103,15 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
             for (WebSocketSession session : sessionMap.values()) {
                 if (session.isOpen()) {
                     log.debug("sendMessageTo: {}", session.getId());
-                    session.sendMessage(message);
+                    synchronized (session) {
+                        session.sendMessage(message);
+                    }
                 }
             }
         } catch (IOException e) {
             log.error("sendJsonToAllUser object exception", e);
+        } catch (Exception e) {
+            log.error("sendJsonToAllUser exception", e);
         }
     }
 
@@ -122,10 +126,14 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
         WebSocketSession user = sessionMap.get(sessionId);
         try {
             if (user.isOpen()) {
-                user.sendMessage(message);
+                synchronized (user) {
+                    user.sendMessage(message);
+                }
             }
         } catch (IOException e) {
             log.error("sendMessageToUser exception", e);
+        } catch (Exception e) {
+            log.error("WS exception", e);
         }
     }
 

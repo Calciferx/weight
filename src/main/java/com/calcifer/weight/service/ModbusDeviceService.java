@@ -43,6 +43,9 @@ public class ModbusDeviceService {
     @Value("${calcifer.weight.enable-modbus-device-init: true}")
     private boolean enableModbusDeviceInit;
 
+    @Value("${calcifer.weight.modbus-control-sleep-time: 100}")
+    private int modbusControlSleepTime;
+
 
     @Getter
     private ModBusDeviceStatus lastModBusDeviceStatus;
@@ -110,6 +113,7 @@ public class ModbusDeviceService {
         log.info("control modbus device: {}, status: {}", serialPort, status);
         try {
             modbusMaster.writeSingleCoil(1, serialPort, status);
+            Thread.sleep(modbusControlSleepTime);
         } catch (ModbusProtocolException e) {
             log.info("ModbusProtocolException: {}", e.getMessage());
             throw new RuntimeException("ModbusProtocolException: " + e.getMessage());
@@ -119,6 +123,8 @@ public class ModbusDeviceService {
         } catch (ModbusIOException e) {
             log.info("ModbusIOException: {}", e.getMessage());
             throw new RuntimeException("ModbusIOException: " + e.getMessage());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -190,6 +196,9 @@ public class ModbusDeviceService {
             if (isBackInfrared1() != lastStatus.isBackInfrared1()) {
                 list.add(String.format("back infra1 changed: from %S to %S", lastStatus.isBackInfrared1(), isBackInfrared1()));
             }
+            if (isButtonPressed() != lastStatus.isButtonPressed()) {
+                list.add(String.format("button changed: from %S to %S", lastStatus.isButtonPressed(), isButtonPressed()));
+            }
             return String.join(";", list);
         }
 
@@ -199,15 +208,19 @@ public class ModbusDeviceService {
         }
 
         public boolean isFrontInfrared2() {
-            return !discreteInputs[WeightContext.front.getInfrared2()];
+            return discreteInputs[WeightContext.front.getInfrared2()];
         }
 
         public boolean isBackInfrared2() {
-            return !discreteInputs[WeightContext.back.getInfrared2()];
+            return discreteInputs[WeightContext.back.getInfrared2()];
         }
 
         public boolean isBackInfrared1() {
             return discreteInputs[WeightContext.back.getInfrared1()];
+        }
+
+        public boolean isButtonPressed() {
+            return discreteInputs[WeightContext.front.getPrintButton()];
         }
     }
 }

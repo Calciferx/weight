@@ -1,17 +1,12 @@
 package com.calcifer.weight.autoweigh;
 
 import com.calcifer.weight.common.WeightContext;
-import com.calcifer.weight.entity.domain.CarDO;
-import com.calcifer.weight.entity.domain.TruckInfo;
-import com.calcifer.weight.entity.domain.WeightInfoDO;
-import com.calcifer.weight.entity.domain.WeightRecordDO;
+import com.calcifer.weight.entity.domain.*;
 import com.calcifer.weight.entity.dto.PlateDTO;
 import com.calcifer.weight.entity.enums.WSCodeEnum;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
-import com.calcifer.weight.service.CarService;
-import com.calcifer.weight.service.ModbusDeviceService;
-import com.calcifer.weight.service.VoiceService;
-import com.calcifer.weight.service.WeightRecordService;
+import com.calcifer.weight.service.*;
+import com.calcifer.weight.utils.PinyinUtil;
 import com.intelligt.modbus.jlibmodbus.exception.ModbusIOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,22 +22,22 @@ import java.util.Date;
 public class WeighAction {
     @Autowired
     private ModbusDeviceService modbusDeviceService;
-
     @Autowired
     private VoiceService voiceService;
-
     @Autowired
     private WeightWebSocketHandler webSocketHandler;
-
-    private CarDO carDO;
-
-    private WeightInfoDO weightInfoDO;
-
     @Autowired
     private WeightRecordService weightRecordService;
-
     @Autowired
     private CarService carService;
+    @Autowired
+    private SupplierExtInfoService supplierExtInfoService;
+    @Autowired
+    private WeightPrintService printService;
+
+    private CarDO carDO;
+    private WeightInfoDO weightInfoDO;
+    private WeightRecordDO weightRecordDO;
 
     /**
      * source = "WAIT", target = "READ_PLATE_NUM"
@@ -78,7 +73,6 @@ public class WeighAction {
             modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOn(), true);
             modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOn(), false);
             modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOn(), false);
-            voiceService.voice("读卡成功，车辆请上称");
         };
     }
 
@@ -97,7 +91,7 @@ public class WeighAction {
             }
             this.carDO = carDO;
             // 确定进车方向，红绿灯置为红
-            if (!plateDTO.getPlateReaderIP().equals(WeightContext.front.getPlateReaderIP())) {
+            if (!plateDTO.getPlateReaderIP().equals(WeightContext.front.getPlateReaderIP()) && plateDTO.getPlateReaderIP().equals(WeightContext.back.getPlateReaderIP())) {
                 WeightContext.reverseDirection();
             }
             modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), true);
@@ -111,7 +105,6 @@ public class WeighAction {
             modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOn(), true);
             modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOn(), false);
             modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOn(), false);
-            voiceService.voice("读卡成功，车辆请上称");
         };
     }
 
@@ -161,11 +154,23 @@ public class WeighAction {
         return context -> {
             log.info("========readWeightInfo action========");
             WeightInfoDO weightInfoDO = (WeightInfoDO) context.getMessageHeader("weightInfoDO");
+            weightInfoDO.setMaterialCode(PinyinUtil.getFirstLetters(weightInfoDO.getMaterialName()));
+            SupplierExtInfoDO supplierExtInfoDO = supplierExtInfoService.lambdaQuery().eq(SupplierExtInfoDO::getSupplierName, weightInfoDO.getSupplierName()).one();
+            if (supplierExtInfoDO != null) {
+                weightInfoDO.setIsTest(supplierExtInfoDO.getIsTest());
+            } else {
+                weightInfoDO.setIsTest("否");
+            }
             this.weightInfoDO = weightInfoDO;
-            webSocketHandler.sendWeightLogToAllUser("卡片信息读取完成，供应商名称：" + weightInfoDO.getSupplierName() + ",物料名称：" + weightInfoDO.getMaterialName() + "，开始称重");
+            webSocketHandler.sendWeightLogToAllUser("卡片信息读取完成，供应商名称：" + weightInfoDO.getSupplierName()
+                    + ",是否化验：" + weightInfoDO.getIsTest()
+                    + ",物料名称：" + weightInfoDO.getMaterialName()
+                    + ",开始称重");
             voiceService.voice("卡片信息读取完成，供应商名称：" + weightInfoDO.getSupplierName() + ",物料名称：" + weightInfoDO.getMaterialName() + "，开始称重");
             // 红绿灯置为红，开始称重
             modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), true);
+            // 称重前清空上次重量信息
+            weightInfoDO = null;
         };
     }
 
@@ -182,16 +187,33 @@ public class WeighAction {
                 Double weight = (Double) context.getMessageHeader("weight");
                 log.info("***** weight is: {} *****", weight);
                 WeightRecordDO recordDO = weightRecordService.lambdaQuery().eq(WeightRecordDO::getPlateNumber, carDO.getPlateNumber())
-                        .eq(WeightRecordDO::getWeighStatus, "毛重已检").one();
+                        .eq(WeightRecordDO::getWeighStatus, "检斤中").one();
                 if (recordDO != null) {
-                    Double firstWeight = recordDO.getTareWeight();
-                    Double roughWeight = firstWeight > weight ? firstWeight : weight;
-                    Double tareWeight = firstWeight < weight ? firstWeight : weight;
-                    Double netWeight = roughWeight - tareWeight;
-                    recordDO.setRoughWeight(roughWeight);
-                    recordDO.setTareWeight(tareWeight);
-                    recordDO.setNetWeight(netWeight);
+                    // 第二次称重
+                    Double firstWeight = recordDO.getRoughWeight() == null ? 0 : recordDO.getRoughWeight();
+                    Date currentTime = new Date();
+                    if (firstWeight > weight) {
+                        // 先毛后皮
+                        recordDO.setTareWeight(weight);
+                        recordDO.setNetWeight(firstWeight - weight);
 
+                        recordDO.setRoughWeightTime(recordDO.getWeighDate());
+                        recordDO.setTareWeightTime(currentTime);
+                        recordDO.setComment("进厂刘川");
+                    } else {
+                        // 先皮后毛
+                        recordDO.setTareWeight(firstWeight);
+                        recordDO.setRoughWeight(weight);
+                        recordDO.setNetWeight(weight - firstWeight);
+
+                        recordDO.setTareWeightTime(recordDO.getWeighDate());
+                        recordDO.setRoughWeightTime(currentTime);
+                        recordDO.setComment("出厂刘川");
+                    }
+                    recordDO.setWeighDate(currentTime);
+                    recordDO.setWeighStatus("检斤完成");
+
+                    weightRecordDO = recordDO;
                     webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.WEIGH_INFO, recordDO);
                     boolean isUpdate = weightRecordService.updateById(recordDO);
                     log.info("update record result: {}", isUpdate);
@@ -199,12 +221,13 @@ public class WeighAction {
                         voiceService.voice("称重失败，请重新上磅计量");
                         webSocketHandler.sendWeightLogToAllUser("称重失败，请重新上磅计量");
                     } else {
-                        voiceService.voice("毛重" + weight + "皮重" + tareWeight + "净重"
-                                + netWeight + ",称重结束，车辆请下磅");
-                        log.info("毛重: {}, 皮重: {}, 净重: {}。 称重结束，车辆请下磅", weight, tareWeight, netWeight);
+                        voiceService.voice("毛重" + weight + "皮重" + recordDO.getTareWeight() + "净重"
+                                + recordDO.getNetWeight() + ",称重结束，车辆请下磅");
+                        log.info("毛重: {}, 皮重: {}, 净重: {}。 称重结束，车辆请下磅", weight, recordDO.getTareWeight(), recordDO.getNetWeight());
                         webSocketHandler.sendWeightLogToAllUser("称重完成");
                     }
                 } else {
+                    // 第一次称重
                     recordDO = new WeightRecordDO();
                     recordDO.setWeighId(weightRecordService.generateWeighId(weightInfoDO.getMaterialCode()));
                     recordDO.setSupplierName(weightInfoDO.getSupplierName());
@@ -212,7 +235,7 @@ public class WeighAction {
                     recordDO.setPlateNumber(carDO.getPlateNumber());
                     recordDO.setRoughWeight(weight);
                     recordDO.setWeighDate(new Date());
-                    recordDO.setWeighStatus("毛重已检");
+                    recordDO.setWeighStatus("检斤中");
                     recordDO.setIsPrint("是");
                     recordDO.setControlId(weightInfoDO.getControlId());
                     recordDO.setComment(weightInfoDO.getComment());
@@ -220,6 +243,8 @@ public class WeighAction {
                     recordDO.setAuditor(weightInfoDO.getAuditor());
                     recordDO.setIsTest(weightInfoDO.getIsTest());
                     recordDO.setCarType(carDO.getCarType());
+                    recordDO.setControlId("Q/CHALCO-GS-910351-JL057-2019");
+                    recordDO.setAuditor("梁成超");
 
                     boolean isSave = weightRecordService.save(recordDO);
                     if (!isSave) {
@@ -248,6 +273,24 @@ public class WeighAction {
         return context -> {
             log.info("========truckLeavingWeigh action========");
             webSocketHandler.sendWeightLogToAllUser("车辆正在下称...");
+            // 车辆正在下称
+        };
+    }
+
+    /**
+     * source = "WEIGHED", target = "WEIGHED"
+     */
+    public Action<WeighStatusEnum, WeighEventEnum> print() {
+        return context -> {
+            log.info("========print action========");
+            webSocketHandler.sendWeightLogToAllUser("正在打印...");
+            if (weightRecordDO != null) {
+                try {
+                    printService.print(weightRecordDO);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
             // 车辆正在下称
         };
     }

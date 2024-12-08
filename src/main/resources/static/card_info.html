@@ -180,7 +180,18 @@
             console.log('连接成功')
         } else if (data.type == 10) {
             console.log(data.data)
-            $('.form-control[name="cardNum"]').text(data.data)
+            $('.form-control[name="cardNum"]').val(data.data)
+            $.post(
+                'admin/cardInfo/query',
+                {'cardNum': data.data},
+                res => {
+                    if (data.data) {
+                        $('.form-control[name="id"]').val(data.data.id)
+                        $('.form-control[name="data"]').val(data.data.data)
+                        $('.form-control[name="dataType"]').val(data.data.dataType)
+                    }
+                }
+            )
         }
     }
 
@@ -261,6 +272,7 @@
     //新增
     $('.btn_insert').click(function () {
         $('.form-control[name="id"]').prop('disabled', true)
+        $('.form-control[name="cardNum"]').prop('disabled', true)
     })
 
     //删除

@@ -1,0 +1,13 @@
+spring:
+  profiles:
+    active: test
+
+mybatis-plus:
+  mapper-locations: classpath:config/mapper/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+    default-enum-type-handler: com.calcifer.weight.typehandler.CodeEnumTypeHandler
+  type-aliases-package: com.calcifer.weight.entity
+logging:
+  config: classpath:config/logback-spring.xml

@@ -6,6 +6,7 @@ import com.calcifer.weight.autoweigh.WeighEventEnum;
 import com.calcifer.weight.autoweigh.WeighStatusEnum;
 import com.calcifer.weight.common.WeightContext;
 import com.calcifer.weight.entity.domain.UserSlaveInfo;
+import com.calcifer.weight.entity.domain.WeightRecordDO;
 import com.calcifer.weight.entity.dto.SlaveDetailInfo;
 import com.calcifer.weight.entity.enums.RespCodeEnum;
 import com.calcifer.weight.entity.vo.RespWrapper;
@@ -15,6 +16,7 @@ import com.calcifer.weight.repository.UserMapper;
 import com.calcifer.weight.repository.UserSlaveMapper;
 import com.calcifer.weight.service.ModbusDeviceService;
 import com.calcifer.weight.service.VoiceService;
+import com.calcifer.weight.service.WeightPrintService;
 import com.calcifer.weight.service.WeightRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +60,14 @@ public class TestController {
 
     @Autowired
     private WeightRecordService weightRecordService;
+    @Autowired
+    private WeightPrintService printService;
+
+    @RequestMapping("print")
+    public Object print(WeightRecordDO recordDO) throws Exception {
+        printService.print(recordDO);
+        return "over";
+    }
 
     @RequestMapping("stateMachineTest")
     public Object stateMachineTest() {
