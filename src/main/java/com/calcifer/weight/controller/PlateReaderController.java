@@ -46,7 +46,6 @@ public class PlateReaderController {
         String plateNumber = jo.getJSONObject("AlarmInfoPlate").getJSONObject("result").getJSONObject("PlateResult").getString("license");
         String plateReaderIP = jo.getJSONObject("AlarmInfoPlate").getString("ipaddr");
         WeightContext.lastStatusChange = System.currentTimeMillis();
-        ;
         PlateDTO plateDTO = new PlateDTO(plateNumber, plateReaderIP);
         Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.READ_PLATE_NUM).setHeader("plateDTO", plateDTO).build();
         weighStateMachine.sendEvent(message);

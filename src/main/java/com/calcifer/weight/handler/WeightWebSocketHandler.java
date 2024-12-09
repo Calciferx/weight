@@ -3,16 +3,19 @@ package com.calcifer.weight.handler;
 import com.alibaba.fastjson.JSON;
 import com.calcifer.weight.entity.enums.WSCodeEnum;
 import com.calcifer.weight.entity.vo.WSRespWrapper;
-import com.calcifer.weight.utils.DateUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xiaoleilu.hutool.date.DatePattern;
+import com.xiaoleilu.hutool.date.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -34,7 +37,7 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
         // 获取提交过来的消息详情
         log.info("收到用户 {} 的消息: {}", session.getId(), message.toString());
         //回复一条信息
-        session.sendMessage(new TextMessage("{\"reply msg\":\"" + message.getPayload() + "\"}"));
+        syncSendMessage(session, new TextMessage("{\"reply msg\":\"" + message.getPayload() + "\"}"));
     }
 
 
@@ -53,7 +56,7 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
         sessionMap.put(sessionId, session);
         WSRespWrapper<String> wsRespWrapper = new WSRespWrapper<>(sessionId, WSCodeEnum.MSGType_1);
         ObjectMapper objectMapper = new ObjectMapper();
-        session.sendMessage(new TextMessage(objectMapper.writeValueAsString(wsRespWrapper)));
+        syncSendMessage(session, new TextMessage(objectMapper.writeValueAsString(wsRespWrapper)));
     }
 
     /**
@@ -87,7 +90,7 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
             try {
                 if (session.isOpen()) {
                     log.info("sendMessageTo: {}", session.getId());
-                    session.sendMessage(new TextMessage(message));
+                    syncSendMessage(session, new TextMessage(message));
                 }
             } catch (IOException e) {
                 log.error("sendJsonToAllUser message exception", e);
@@ -103,9 +106,7 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
             for (WebSocketSession session : sessionMap.values()) {
                 if (session.isOpen()) {
                     log.debug("sendMessageTo: {}", session.getId());
-                    synchronized (session) {
-                        session.sendMessage(message);
-                    }
+                    syncSendMessage(session, message);
                 }
             }
         } catch (IOException e) {
@@ -123,12 +124,10 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
      * 给某个用户发送消息
      */
     public void sendMessageToUser(String sessionId, TextMessage message) {
-        WebSocketSession user = sessionMap.get(sessionId);
+        WebSocketSession session = sessionMap.get(sessionId);
         try {
-            if (user.isOpen()) {
-                synchronized (user) {
-                    user.sendMessage(message);
-                }
+            if (session.isOpen()) {
+                syncSendMessage(session, message);
             }
         } catch (IOException e) {
             log.error("sendMessageToUser exception", e);
@@ -143,6 +142,16 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
     }
 
     public void sendWeightLogToAllUser(String msg) {
-        sendJsonToAllUser(new WSRespWrapper<>(DateUtil.getTime() + ": " + msg, WSCodeEnum.WEIGH_LOG));
+        sendJsonToAllUser(new WSRespWrapper<>(DateUtil.format(new Date(), DatePattern.NORM_DATETIME_MS_PATTERN) + ": " + msg, WSCodeEnum.WEIGH_LOG));
+    }
+
+    private void syncSendMessage(WebSocketSession session, WebSocketMessage<?> message) throws IOException {
+        if (session.isOpen()) {
+            synchronized (session) {
+                if (session.isOpen()) {
+                    session.sendMessage(message);
+                }
+            }
+        }
     }
 }

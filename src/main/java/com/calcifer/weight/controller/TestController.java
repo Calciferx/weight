@@ -1,19 +1,14 @@
 package com.calcifer.weight.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.calcifer.weight.WeightApplication;
 import com.calcifer.weight.autoweigh.WeighEventEnum;
 import com.calcifer.weight.autoweigh.WeighStatusEnum;
 import com.calcifer.weight.common.WeightContext;
-import com.calcifer.weight.entity.domain.UserSlaveInfo;
 import com.calcifer.weight.entity.domain.WeightRecordDO;
 import com.calcifer.weight.entity.dto.SlaveDetailInfo;
 import com.calcifer.weight.entity.enums.RespCodeEnum;
 import com.calcifer.weight.entity.vo.RespWrapper;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
-import com.calcifer.weight.repository.TestMapper;
-import com.calcifer.weight.repository.UserMapper;
-import com.calcifer.weight.repository.UserSlaveMapper;
 import com.calcifer.weight.service.ModbusDeviceService;
 import com.calcifer.weight.service.VoiceService;
 import com.calcifer.weight.service.WeightPrintService;
@@ -30,21 +25,11 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
 @Slf4j
 public class TestController {
-
-    @Autowired
-    private TestMapper mapper;
-
-    @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
-    private UserSlaveMapper userSlaveMapper;
 
     @Resource
     private StateMachine<WeighStatusEnum, WeighEventEnum> weighStateMachine;
@@ -167,26 +152,6 @@ public class TestController {
         Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.TRUCK_FOUND).build();
         weighStateMachine.sendEvent(message);
         return "OK";
-    }
-
-    @RequestMapping(value = "/hello")
-    public String testMethod() {
-        List<HashMap<String, Object>> hashMaps = mapper.queryTest();
-        return JSON.toJSONString(hashMaps);
-    }
-
-    @RequestMapping(value = "/ex")
-    public String exceptionHandleTest() {
-        List<HashMap<String, Object>> hashMaps = mapper.queryTest();
-        throw new RuntimeException("hello异常");
-//        return JSON.toJSONString(hashMaps);
-    }
-
-
-    @RequestMapping(value = "/userSlaveInfo/{slaveId}")
-    public Object queryUserSlaveInfoTest(@PathVariable("slaveId") String slaveId) {
-        List<UserSlaveInfo> userSlaveInfoList = userSlaveMapper.queryUserSlaveInfo(slaveId);
-        return new RespWrapper<>(userSlaveInfoList);
     }
 
     @RequestMapping(value = "/slaveDetail/{slaveId}")

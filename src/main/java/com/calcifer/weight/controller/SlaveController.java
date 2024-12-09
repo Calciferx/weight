@@ -4,13 +4,10 @@ import com.calcifer.weight.autoweigh.WeighEventEnum;
 import com.calcifer.weight.autoweigh.WeighStatusEnum;
 import com.calcifer.weight.entity.enums.RespCodeEnum;
 import com.calcifer.weight.entity.vo.RespWrapper;
-import com.calcifer.weight.service.ModbusDeviceService;
 import com.intelligt.modbus.jlibmodbus.exception.ModbusIOException;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.web.bind.annotation.*;
@@ -20,17 +17,12 @@ import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
 @RestController
-@RequestMapping("/adminx/slave")
-@Api(basePath = "/adminx/slave", value = "从机档案", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+@RequestMapping("admin")
 public class SlaveController {
-
-    @Autowired
-    private ModbusDeviceService modbusDeviceService;
     @Resource
     private StateMachine<WeighStatusEnum, WeighEventEnum> weighStateMachine;
 
-
-    @PostMapping(value = "/initSystem.do")
+    @PostMapping(value = "initSystem")
     @ApiOperation(value = "初始化系统", notes = "条件：无", produces = MediaType.APPLICATION_JSON_VALUE)
     public RespWrapper<Boolean> initSystem(
             @ApiParam(required = true, value = "token") @RequestParam(required = true) String token,
