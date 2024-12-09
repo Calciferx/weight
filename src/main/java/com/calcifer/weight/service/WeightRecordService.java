@@ -14,8 +14,9 @@ import java.util.List;
 public class WeightRecordService extends ServiceImpl<WeightRecordMapper, WeightRecordDO> implements IService<WeightRecordDO> {
     public String generateWeighId(String materialCode) {
         List<WeightRecordDO> recordDOList = this.lambdaQuery()
+                .select(WeightRecordDO::getWeighId)
                 .likeRight(WeightRecordDO::getWeighId, materialCode)
-                .apply("DATEDIFF(DAY, [检斤日期], GETDATE()) = 0")
+                .apply("DATEDIFF(MONTH, [检斤日期], GETDATE()) = 0")
                 .orderByDesc(WeightRecordDO::getWeighId)
                 .list();
         String dateStr = DateUtil.format(new Date(), "yyMM");

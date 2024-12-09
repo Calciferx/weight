@@ -217,19 +217,23 @@ public class WeighAction {
                     webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.WEIGH_INFO, recordDO);
                     boolean isUpdate = weightRecordService.updateById(recordDO);
                     log.info("update record result: {}", isUpdate);
+                    weightRecordDO.setCheckMan("张军");
                     if (!isUpdate) {
                         voiceService.voice("称重失败，请重新上磅计量");
                         webSocketHandler.sendWeightLogToAllUser("称重失败，请重新上磅计量");
                     } else {
-                        voiceService.voice("毛重" + weight + "皮重" + recordDO.getTareWeight() + "净重"
-                                + recordDO.getNetWeight() + ",称重结束，车辆请下磅");
-                        log.info("毛重: {}, 皮重: {}, 净重: {}。 称重结束，车辆请下磅", weight, recordDO.getTareWeight(), recordDO.getNetWeight());
+                        voiceService.voice("毛重" + recordDO.getRoughWeight() + "皮重" + recordDO.getTareWeight() + "净重"
+                                + recordDO.getNetWeight() + ",称重结束，请按按钮打印磅单");
+                        log.info("毛重: {}, 皮重: {}, 净重: {}。 称重结束，车辆请下磅", recordDO.getRoughWeight(), recordDO.getTareWeight(), recordDO.getNetWeight());
                         webSocketHandler.sendWeightLogToAllUser("称重完成");
                     }
                 } else {
                     // 第一次称重
                     recordDO = new WeightRecordDO();
-                    recordDO.setWeighId(weightRecordService.generateWeighId(weightInfoDO.getMaterialCode()));
+                    String weighId = weightRecordService.generateWeighId(weightInfoDO.getMaterialCode());
+                    log.info("materialCode: {}", weightInfoDO.getMaterialCode());
+                    log.info("generate weighId: {}", weighId);
+                    recordDO.setWeighId(weighId);
                     recordDO.setSupplierName(weightInfoDO.getSupplierName());
                     recordDO.setMaterialName(weightInfoDO.getMaterialName());
                     recordDO.setPlateNumber(carDO.getPlateNumber());
@@ -245,6 +249,7 @@ public class WeighAction {
                     recordDO.setCarType(carDO.getCarType());
                     recordDO.setControlId("Q/CHALCO-GS-910351-JL057-2019");
                     recordDO.setAuditor("梁成超");
+                    recordDO.setWeighMan("张杰");
 
                     boolean isSave = weightRecordService.save(recordDO);
                     if (!isSave) {
@@ -284,6 +289,7 @@ public class WeighAction {
         return context -> {
             log.info("========print action========");
             webSocketHandler.sendWeightLogToAllUser("正在打印...");
+            voiceService.voice("磅单打印中，请稍候");
             if (weightRecordDO != null) {
                 try {
                     printService.print(weightRecordDO);
@@ -291,7 +297,6 @@ public class WeighAction {
                     throw new RuntimeException(e);
                 }
             }
-            // 车辆正在下称
         };
     }
 

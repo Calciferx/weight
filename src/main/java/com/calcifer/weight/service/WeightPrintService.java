@@ -62,40 +62,16 @@ public class WeightPrintService {
         log.info("print PDF: {}", output.getAbsolutePath());
         JasperExportManager.exportReportToPdfFile(jasperPrint, output.getAbsolutePath());
         BufferedInputStream pdfInputStream = FileUtil.getInputStream(output);
-        PDFprint(pdfInputStream, null);
+        PDFPrint(pdfInputStream);
 
     }
 
-    public static void PDFprint(InputStream inputStream, String printerName) throws Exception {
+    public static void PDFPrint(InputStream inputStream) throws Exception {
         PDDocument document = null;
         try {
             document = PDDocument.load(inputStream);
             PrinterJob printJob = PrinterJob.getPrinterJob();
             printJob.setJobName("检斤单");
-            if (printerName != null) {
-                // 查找并设置打印机
-                // 获得本台电脑连接的所有打印机
-                PrintService[] printServices = PrinterJob.lookupPrintServices();
-                if (printServices == null || printServices.length == 0) {
-                    System.out.print("打印失败，未找到可用打印机，请检查。");
-                    return;
-                }
-                PrintService printService = null;
-                //匹配指定打印机
-                for (int i = 0; i < printServices.length; i++) {
-                    System.out.println(printServices[i].getName());
-                    if (printServices[i].getName().contains(printerName)) {
-                        printService = printServices[i];
-                        break;
-                    }
-                }
-                if (printService != null) {
-                    printJob.setPrintService(printService);
-                } else {
-                    System.out.print("打印失败，未找到名称为" + printerName + "的打印机，请检查。");
-                    return;
-                }
-            }
             //设置纸张及缩放
             PDFPrintable pdfPrintable = new PDFPrintable(document, Scaling.ACTUAL_SIZE);
             //设置多页打印
@@ -126,7 +102,7 @@ public class WeightPrintService {
         Paper paper = new Paper();
         // 默认为A4纸张，对应像素宽和高分别为 595, 842
         int width = 595;
-        int height = 842;
+        int height = 392;
         // 设置边距，单位是像素，10mm边距，对应 28px
         int marginLeft = 10;
         int marginRight = 0;
@@ -152,6 +128,6 @@ public class WeightPrintService {
         }
         System.out.println(printerJob.getPrintService().getName());
         BufferedInputStream inputStream = FileUtil.getInputStream("C:\\Users\\Calcifer\\AppData\\Local\\Temp\\output7115266807229485883.pdf");
-        PDFprint(inputStream, null);
+        PDFPrint(inputStream);
     }
 }

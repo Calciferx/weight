@@ -67,7 +67,7 @@ public class WeighStateListener {
 
     @OnTransition(source = "ON_WEIGH", target = "WEIGHED")
     public void weigh(Message<WeighStatusEnum> message) {
-        // 称重完毕，记录重量，道闸打开，车辆驶离
+        // 称重完毕，记录重量
         log.info("state machine transition. from: {}, to: {}", "ON_WEIGH", "WEIGHED");
     }
 

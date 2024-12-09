@@ -15,6 +15,7 @@ public class UserService extends ServiceImpl<UserMapper, UserDO> {
         if (userDO != null && userDO.getPassword().trim().equals(pwd)) {
             User user = new User();
             BeanUtils.copyProperties(userDO, user);
+            user.setName(userDO.getUsername());
             return user;
         }
         return null;
