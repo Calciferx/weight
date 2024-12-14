@@ -15,35 +15,6 @@
     <link rel="stylesheet" href="_css/main.css">
 
 </head>
-<style>
-    /*上传图片重写---------------------------------------------*/
-    .imgBox {
-        width: 60px;
-        height: 60px;
-        background-image: url("_img/main/upload.png");
-    }
-
-    .imgBox:not(.addImgs) {
-        border: 1px #e5e5e5 solid;
-    }
-
-    body[thisdo="detail"] .addImgs {
-        display: none;
-    }
-
-    .addImgs {
-        width: 60px;
-        height: 60px;
-    }
-
-    .btn_publish {
-        line-height: 38px;
-    }
-
-    .btnTds {
-        line-height: 35px;
-    }
-</style>
 <body>
 <!--主框架-->
 <div class="bodyGrid">
@@ -64,7 +35,11 @@
             <div class="btn-group">
                 <button class="btn btn-outline-info btn_select1">查询</button>
             </div>
-
+        </div>
+        <div class="btnBar">
+            <div class="btn-group">
+                <button class="btn_print" do-ignore>打印</button>
+            </div>
         </div>
     </header>
     <main>
@@ -250,6 +225,7 @@
     let queryUrl = 'admin/weightRecord/query'
     let deleteUrl = 'admin/weightRecord/delete'
     let saveOrUpdateUrl = 'admin/weightRecord/saveOrUpdate'
+    let printUrl = 'device/print'
 
     let supplierList = []
     let materialList = []
@@ -481,6 +457,46 @@
 
         }
         to_update() //前往修改
+    })
+
+    // 打印
+    $('.btn_print').click(function () {
+        let checkeds = laytable.checkStatus('dataTable').data  //获取选中数据(复选框)
+        if (!$('body').attr('thisdo')) {
+            if (!checkeds.length) {
+                layer.msg('请至少选择一条数据')
+                return false
+            }
+        } else {
+            checkeds = [thistr]
+        }
+        let ids = checkeds.map(item => item.id).join(',')
+        layer.confirm(`确定打印这条记录的磅单？`, {
+            btn: ['确定', '取消'] //按钮
+        }, function () {
+            $.ajax(
+                {
+                    url: printUrl,
+                    type: 'POST',
+                    data: {
+                        token: token,
+                        id: ids
+                    },
+                    // contentType: 'application/json',
+                    dataType: 'json',
+                    success: res => {
+                        if (res.code == 1111) {
+                            layer.msg('已成功创建打印任务')
+                        } else {
+                            layer.msg('打印任务创建失败')
+                        }
+                    },
+                    error: res => {
+                        layer.msg('请求失败')
+                    }
+                }
+            )
+        })
     })
 
     //保存_执行 (表单内容, 按钮名称)

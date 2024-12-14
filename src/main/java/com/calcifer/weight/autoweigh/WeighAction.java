@@ -170,7 +170,7 @@ public class WeighAction {
             // 红绿灯置为红，开始称重
             modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), true);
             // 称重前清空上次重量信息
-            weightInfoDO = null;
+            weightRecordDO = null;
         };
     }
 
@@ -234,6 +234,7 @@ public class WeighAction {
                     log.info("materialCode: {}", weightInfoDO.getMaterialCode());
                     log.info("generate weighId: {}", weighId);
                     recordDO.setWeighId(weighId);
+                    recordDO.setMaterialId(weightInfoDO.getMaterialCode());
                     recordDO.setSupplierName(weightInfoDO.getSupplierName());
                     recordDO.setMaterialName(weightInfoDO.getMaterialName());
                     recordDO.setPlateNumber(carDO.getPlateNumber());
@@ -288,14 +289,16 @@ public class WeighAction {
     public Action<WeighStatusEnum, WeighEventEnum> print() {
         return context -> {
             log.info("========print action========");
-            webSocketHandler.sendWeightLogToAllUser("正在打印...");
-            voiceService.voice("磅单打印中，请稍候");
             if (weightRecordDO != null) {
                 try {
+                    webSocketHandler.sendWeightLogToAllUser("正在打印...");
+                    voiceService.voice("磅单打印中，请稍候");
                     printService.print(weightRecordDO);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
+            } else {
+                voiceService.voice("尚未进行第二次称重，无需打印磅单");
             }
         };
     }

@@ -13,7 +13,6 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.PDFPrintable;
 import org.apache.pdfbox.printing.Scaling;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
 import javax.print.PrintService;
@@ -35,6 +34,8 @@ import java.util.List;
 public class WeightPrintService {
     @Value("${calcifer.weight.print-template}")
     private String printTemplatePath;
+    @Value("${calcifer.weight.print-template2}")
+    private String printTemplatePath2;
 
     public void print(WeightRecordDO weightRecordDO) throws Exception {
         PrintService[] printServices = PrinterJob.lookupPrintServices();
@@ -48,7 +49,7 @@ public class WeightPrintService {
             return;
         }
         // 加载报表模板
-        BufferedInputStream bis = FileUtil.getInputStream(printTemplatePath);
+        BufferedInputStream bis = FileUtil.getInputStream("DHJ".equals(weightRecordDO.getMaterialId().trim()) ? printTemplatePath : printTemplatePath2);
         JasperReport jasperReport = (JasperReport) JRLoader.loadObject(bis);
 
         List<WeightRecordDO> recordDOList = Collections.singletonList(weightRecordDO);
@@ -57,7 +58,6 @@ public class WeightPrintService {
         JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, null, dataSource);
 
         // 导出报表
-        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         File output = File.createTempFile("output", ".pdf");
         log.info("print PDF: {}", output.getAbsolutePath());
         JasperExportManager.exportReportToPdfFile(jasperPrint, output.getAbsolutePath());
@@ -102,7 +102,7 @@ public class WeightPrintService {
         Paper paper = new Paper();
         // 默认为A4纸张，对应像素宽和高分别为 595, 842
         int width = 595;
-        int height = 392;
+        int height = 380;
         // 设置边距，单位是像素，10mm边距，对应 28px
         int marginLeft = 10;
         int marginRight = 0;

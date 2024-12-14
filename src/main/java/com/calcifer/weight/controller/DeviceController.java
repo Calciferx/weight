@@ -3,9 +3,13 @@ package com.calcifer.weight.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.calcifer.weight.common.WeightContext;
+import com.calcifer.weight.entity.domain.WeightRecordDO;
 import com.calcifer.weight.entity.enums.RespCodeEnum;
 import com.calcifer.weight.entity.vo.RespWrapper;
 import com.calcifer.weight.service.ModbusDeviceService;
+import com.calcifer.weight.service.WeightPrintService;
+import com.calcifer.weight.service.WeightRecordService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -23,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("device")
 public class DeviceController {
@@ -31,6 +36,10 @@ public class DeviceController {
 
     @Value("${calcifer.weight.plate-reader-address}")
     private List<String> plateReaderAddressArray;
+    @Autowired
+    private WeightPrintService printService;
+    @Autowired
+    private WeightRecordService weightRecordService;
 
     @RequestMapping("modbus/port")
     public Integer controlModbusByPort(int serialPort, boolean status) {
@@ -93,5 +102,20 @@ public class DeviceController {
                 throw new RuntimeException(e);
             }
         }).collect(Collectors.toList());
+    }
+
+    @RequestMapping("print")
+    public RespWrapper<?> print(Integer id) {
+        if (id == null) {
+            return new RespWrapper<>(RespCodeEnum.ERROR);
+        }
+        try {
+            WeightRecordDO recordDO = weightRecordService.lambdaQuery().eq(WeightRecordDO::getId, id).one();
+            printService.print(recordDO);
+        } catch (Exception e) {
+            log.info("PRINT EXCEPTION", e);
+            return new RespWrapper<>(RespCodeEnum.ERROR);
+        }
+        return new RespWrapper<>(RespCodeEnum.SUCCESS);
     }
 }

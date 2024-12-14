@@ -24,6 +24,61 @@ public class PlateReaderController {
     @Resource
     private StateMachine<WeighStatusEnum, WeighEventEnum> weighStateMachine;
 
+    /**
+     * {
+     * "AlarmInfoPlate": {
+     * "channel": 0,
+     * "deviceName": "IVS",
+     * "ipaddr": "192.168.1.100",
+     * "result": {
+     * "PlateResult": {
+     * "clean_time": 0,
+     * "colorType": 1,
+     * "direction": 0,
+     * "gioouts": [
+     * {
+     * "ctrltype": 0,
+     * "ionum": "0"
+     * },
+     * {
+     * "ctrltype": 0,
+     * "ionum": "1"
+     * },
+     * {
+     * "ctrltype": 0,
+     * "ionum": "2"
+     * }
+     * ],
+     * "isoffline": 0,
+     * "license": "鲁LFM200",
+     * "license_ext_type": 0,
+     * "plate_true_width": 475,
+     * "plateid": 1976,
+     * "plates": [
+     * {
+     * "color": 1,
+     * "is_danger": -1,
+     * "license": "鲁LFM200",
+     * "plate_width": 475,
+     * "pos": {
+     * "bottom": 1192,
+     * "left": 1107,
+     * "right": 1581,
+     * "top": 1007
+     * },
+     * "type": 1
+     * }
+     * ],
+     * "triggerType": 8,
+     * "type": 1
+     * }
+     * },
+     * "rule_id": 0,
+     * "serialno": "a516a283-48aa53e3",
+     * "user_data": ""
+     * }
+     * }
+     */
     @RequestMapping("result")
     public Object getPlateResult(@RequestBody String json) {
         if (!StringUtils.hasText(json)) {
