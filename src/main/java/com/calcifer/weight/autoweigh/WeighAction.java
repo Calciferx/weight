@@ -153,7 +153,7 @@ public class WeighAction {
                         newRecord.setRoughWeight(tareWeight);
                         newRecord.setTareWeight(weight);
                         newRecord.setNetWeight(tareWeight - weight);
-                        newRecord.setRoughWeightTime(DateUtil.getTime());
+                        newRecord.setTareWeightTime(DateUtil.getTime());
                     }
                     newRecord.setSecondWeighTime(DateUtil.getTime());
                     newRecord.setSecondWeight(weight);
