@@ -5,8 +5,10 @@ import com.calcifer.weight.entity.dto.SlaveDetailInfo;
 import com.calcifer.weight.entity.enums.ModBusDeviceEnum;
 import com.calcifer.weight.entity.enums.WSCodeEnum;
 import com.calcifer.weight.entity.po.SlaveInfo;
+import com.calcifer.weight.entity.vo.WSRespWrapper;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
 import com.calcifer.weight.repository.CardMapper;
+import com.calcifer.weight.utils.ArrayUtils;
 import com.calcifer.weight.utils.SerialPortUtil;
 import com.fazecast.jSerialComm.SerialPort;
 import com.intelligt.modbus.jlibmodbus.Modbus;
@@ -60,7 +62,6 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
     private SlaveInfo slaveInfo;
     private SlaveDetailInfo[] slaveDetailInfos;
     private WSCodeEnum[] wsMessageType;
-    private int[] wsMessageTypeIndex;
     private ModbusMaster modbusMaster;
 
     @Getter
@@ -117,7 +118,7 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
 //        init();
     }
 
-//    @PostConstruct
+    //    @PostConstruct
     public void init() {
         log.info("init devices...");
         if (enableModbusDeviceInit) {
@@ -163,8 +164,7 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
         List<SlaveDetailInfo> slaveDetailInfoList = slaveDetailService.querySlaveDetailInfoBySlaveId(slaveInfo.getId());
         Map<String, SlaveDetailInfo> typeMap = slaveDetailInfoList.stream().collect(Collectors.toMap(SlaveDetailInfo::getType, Function.identity()));
 
-        wsMessageType = new WSCodeEnum[]{INFR_NORTH_OUT, INFR_NORTH_IN, INFR_SOUTH_IN, INFR_SOUTH_OUT};
-        wsMessageTypeIndex = new int[]{0, 1, 2, 3};
+        wsMessageType = new WSCodeEnum[]{INFR_NORTH_OUT, INFR_NORTH_IN, null, null, null, null, null, null, INFR_SOUTH_IN, INFR_SOUTH_OUT};
 
         slaveDetailInfos = new SlaveDetailInfo[10];
         slaveDetailInfos[INFRA1] = typeMap.get("1"); // infrared1
@@ -227,7 +227,7 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
         }
     }
 
-    @Retryable(value = Exception.class,maxAttempts = 10,backoff = @Backoff(delay = 100,multiplier = 2))
+    @Retryable(value = Exception.class, maxAttempts = 10, backoff = @Backoff(delay = 100, multiplier = 2))
     public void controlModBusDevice(ModBusDeviceEnum modBusDeviceEnum, boolean status) {
 //        if (true) return;
         log.info("control modbus device: {}, status: {}", modBusDeviceEnum.getMsg(), status);
@@ -293,33 +293,9 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
         if (isReverse) {
             log.info("reverse direction...");
             // 反转数组
-            SlaveDetailInfo tmp;
-            for (int i = slaveDetailInfos.length / 2 - 1; i > -1; i--) {
-                int j = slaveDetailInfos.length - 1 - i;
-                tmp = slaveDetailInfos[i];
-                slaveDetailInfos[i] = slaveDetailInfos[j];
-                slaveDetailInfos[j] = tmp;
-            }
-            for (int i = wsMessageTypeIndex.length - 1; i > -1; i--) {
-                wsMessageTypeIndex[i] = wsMessageTypeIndex.length - 1 - wsMessageTypeIndex[i];
-            }
+            ArrayUtils.reverse(slaveDetailInfos);
+            ArrayUtils.reverse(wsMessageType);
         }
-    }
-
-    public WSCodeEnum getInfr1MessageTypeEnum() {
-        return wsMessageType[wsMessageTypeIndex[0]];
-    }
-
-    public WSCodeEnum getInfr2MessageTypeEnum() {
-        return wsMessageType[wsMessageTypeIndex[1]];
-    }
-
-    public WSCodeEnum getInfr3MessageTypeEnum() {
-        return wsMessageType[wsMessageTypeIndex[2]];
-    }
-
-    public WSCodeEnum getInfr4MessageTypeEnum() {
-        return wsMessageType[wsMessageTypeIndex[3]];
     }
 
     /**
@@ -331,6 +307,11 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
         int quantity = slaveInfo.getCoilNum();
         boolean[] discreteInputs = modbusMaster.readDiscreteInputs(slaveAddress, offset, quantity);
         ModBusDeviceStatus modBusDeviceStatus = new ModBusDeviceStatus(discreteInputs);
+        // 发送红外的ws消息
+        webSocketHandler.sendJsonToAllUser(new WSRespWrapper<>(modBusDeviceStatus.isInfrared1(), wsMessageType[INFRA1]));
+        webSocketHandler.sendJsonToAllUser(new WSRespWrapper<>(modBusDeviceStatus.isInfrared2(), wsMessageType[INFRA2]));
+        webSocketHandler.sendJsonToAllUser(new WSRespWrapper<>(modBusDeviceStatus.isInfrared3(), wsMessageType[INFRA3]));
+        webSocketHandler.sendJsonToAllUser(new WSRespWrapper<>(modBusDeviceStatus.isInfrared4(), wsMessageType[INFRA4]));
         String statusChangeStr = modBusDeviceStatus.getStatusChangeStr(lastModBusDeviceStatus);
         if (!StringUtils.isEmpty(statusChangeStr)) {
             log.info(statusChangeStr);

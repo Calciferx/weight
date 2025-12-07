@@ -385,27 +385,27 @@
         if (data.type == '1111') {  //初始信息(首次返回的消息)
             console.log('连接成功')
         } else if (data.type == '1') {  //前红外线1---北车检---状态显示
-            if (data.data == false) {
+            if (data.data == true) {
                 $('.WeighingStatus .beforeInfr1').css('background-color', '#A60000')
-            } else if (data.data == true) {
+            } else if (data.data == false) {
                 $('.WeighingStatus .beforeInfr1').css('background-color', '#00B83F')
             }
         } else if (data.type == '2') {  //前红外线2---北计量---状态显示
-            if (data.data == false) {
+            if (data.data == true) {
                 $('.WeighingStatus .beforeInfr2').css('background-color', '#A60000')
-            } else if (data.data == true) {
+            } else if (data.data == false) {
                 $('.WeighingStatus .beforeInfr2').css('background-color', '#00B83F')
             }
         } else if (data.type == '3') {  // 后红外1---南计量---状态显示
-            if (data.data == false) {
+            if (data.data == true) {
                 $('.WeighingStatus .afterInfr1').css('background-color', '#A60000')
-            } else if (data.data == true) {
+            } else if (data.data == false) {
                 $('.WeighingStatus .afterInfr1').css('background-color', '#00B83F')
             }
         } else if (data.type == '4') {  // 后红外2---南车检---状态显示
-            if (data.data == false) {
+            if (data.data == true) {
                 $('.WeighingStatus .afterInfr2').css('background-color', '#A60000')
-            } else if (data.data == true) {
+            } else if (data.data == false) {
                 $('.WeighingStatus .afterInfr2').css('background-color', '#00B83F')
             }
         } else if (data.type == '5') {  // 称重日志
