@@ -64,6 +64,8 @@ public class AutoScanJob {
     private int waitTime;
     @Value("${calcifer.weight.ignore-stable-flag:false}")
     private boolean ignoreStableFlag;
+    @Value("${calcifer.weight.stable-range:20}")
+    private int stableRange;
 
     @PostConstruct
     public void init() {
@@ -188,7 +190,7 @@ public class AutoScanJob {
                                 queue.offer(weightInfo);
                             } else {
                                 List<Integer> dataList = queue.stream().map(WeightInfo::getWeightNum).collect(Collectors.toList());
-                                if (Collections.max(dataList) - Collections.min(dataList) < 10) {
+                                if (Collections.max(dataList) - Collections.min(dataList) <= stableRange) {
                                     Integer appearMostNum = queue.stream().map(WeightInfo::getWeightNum)
                                             .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                                             .entrySet()
@@ -213,7 +215,7 @@ public class AutoScanJob {
                                     queue.offer(weightInfo);
                                 } else {
                                     List<Integer> dataList = queue.stream().map(WeightInfo::getWeightNum).collect(Collectors.toList());
-                                    if (Collections.max(dataList) - Collections.min(dataList) < 10) {
+                                    if (Collections.max(dataList) - Collections.min(dataList) <= stableRange) {
                                         Integer appearMostNum = queue.stream().map(WeightInfo::getWeightNum)
                                                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                                                 .entrySet()
