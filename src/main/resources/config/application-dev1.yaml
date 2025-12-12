@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: jdbc:sqlserver://192.168.111.131:1433;databaseName=weight20
+    username: SA
+    password: xwsssyea1009.
+calcifer:
+  weight:
+    slave-ip: 10.206.4.243
+    scale-port: COM3
+    front-card-reader-port: COM2
+    back-card-reader-port: COM4
+    enable-auth: false
+    enable-auto-scan: false
+    enable-modbus-device-init: false
+    enable-serial-device-init: false
+    # 称重时缓存重量值的队列长度
+    sampled-time: 10
+    # 当缓存队列满且重量值极差不大于该值时认为重量稳定
+    stable-range: 20
+    min-weight: 1000
+    max-weight: 100000
+    # 等待时间，单位毫秒，超过该时间没有状态变化将重置系统
+    wait-time: 60000
+    ignore-stable-flag: true
+
+logging:
+  config: classpath:config/logback-spring.xml
