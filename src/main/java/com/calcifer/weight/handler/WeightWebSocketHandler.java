@@ -111,6 +111,12 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    /**
+     * 按照与前端约定的格式发送ws数据
+     *
+     * @param wsCodeEnum 消息类型
+     * @param o          数据
+     */
     public void sendWSJsonToAllUser(WSCodeEnum wsCodeEnum, Object o) {
         sendJsonToAllUser(new WSRespWrapper<>(o, wsCodeEnum));
     }
@@ -134,6 +140,9 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
         sendMessageToUser(sessionId, textMessage);
     }
 
+    /**
+     * 发送前端日志窗口显示的称重日志
+     */
     public void sendWeightLogToAllUser(String msg) {
         sendJsonToAllUser(new WSRespWrapper<>(DateUtil.getTime() + ": " + msg, WSCodeEnum.WEIGH_LOG));
     }

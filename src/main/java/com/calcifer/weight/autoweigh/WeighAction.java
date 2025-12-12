@@ -307,4 +307,46 @@ public class WeighAction {
             }
         };
     }
+
+    /**
+     * source = "WAIT", target = "STOP_WAIT"
+     */
+    public Action<WeighStatusEnum, WeighEventEnum> stopWait() {
+        return context -> {
+            log.info("========stopWait action========");
+            webSocketHandler.sendWeightLogToAllUser("***停止自动过磅***");
+        };
+    }
+
+    /**
+     * source = "STOP_WAIT", target = "WAIT"
+     */
+    public Action<WeighStatusEnum, WeighEventEnum> startWait() {
+        return context -> {
+            log.info("========startWait action========");
+            webSocketHandler.sendWeightLogToAllUser("***开始自动过磅***");
+        };
+    }
+
+    /**
+     * 进入WAIT状态时执行
+     * 未进入计量流程时允许停止自动过磅，发消息启用前端按钮
+     */
+    public Action<WeighStatusEnum, WeighEventEnum> waitEntry() {
+        return context -> {
+            log.info("========waitEntry action========");
+            webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.AUTO_WEIGHT_BUTTON, true);
+        };
+    }
+
+    /**
+     * 进入WAIT_CARD状态时执行
+     * 进入计量流程后不允许停止自动过磅，发消息禁用前端按钮
+     */
+    public Action<WeighStatusEnum, WeighEventEnum> waitCardEntry() {
+        return context -> {
+            log.info("========waitCardEntry action========");
+            webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.AUTO_WEIGHT_BUTTON, false);
+        };
+    }
 }

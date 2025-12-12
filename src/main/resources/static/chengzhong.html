@@ -454,6 +454,12 @@
             $('.container [name="piZ"]').val('')  // 皮重
             $('.container [name="jingZ"]').val('')  // 净重
             getTables()
+        } else if (data.type == '10') { //自动过磅按钮控制
+            if (data.data == true) {
+                $('#type7').prop('disabled', false)
+            } else if (data.data == false) {
+                $('#type7').prop('disabled', true)
+            }
         } else if (data.type == '0') { //导出成功
 
         }
@@ -643,13 +649,25 @@
     //是否自动过磅
     $('#type7').click(function () {
         // console.log($(this).prop('checked'))
+        let body = {};
         if ($(this).prop('checked') == true) {
             $('.box .form-control').prop('disabled', true)
             $('.handBox .btn,.btn_cancel,.btn_insert1,.btn_dataCof').prop('disabled', true)
+            body.isAuto = true;
         } else {
             $('.box .form-control').prop('disabled', false)
             $('.handBox .btn').prop('disabled', false)
+            body.isAuto = false;
         }
+        $.post(
+            '../device/autoweight',
+            body,
+            res => {
+                if (res != 'OK') {
+                    layer.msg('请求失败')
+                }
+            }
+        )
     })
 
     // 清空按钮

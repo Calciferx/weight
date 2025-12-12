@@ -29,7 +29,9 @@ public class WeighStateMachineConfig extends StateMachineConfigurerAdapter<Weigh
         states
                 .withStates()
                 .initial(WeighStatusEnum.WAIT)
-                .states(EnumSet.allOf(WeighStatusEnum.class));
+                .states(EnumSet.allOf(WeighStatusEnum.class))
+                .state(WeighStatusEnum.WAIT, weighAction.waitEntry(), null)
+                .state(WeighStatusEnum.WAIT_CARD, weighAction.waitEntry(), null);
     }
 
     /**
@@ -38,29 +40,18 @@ public class WeighStateMachineConfig extends StateMachineConfigurerAdapter<Weigh
     public void configure(StateMachineTransitionConfigurer<WeighStatusEnum, WeighEventEnum> transitions) throws Exception {
         transitions
                 .withExternal().source(WeighStatusEnum.WAIT).target(WeighStatusEnum.WAIT_CARD).event(WeighEventEnum.TRUCK_FOUND).action(weighAction.foundTruck())
-                .and()
-                .withExternal().source(WeighStatusEnum.WAIT_CARD).target(WeighStatusEnum.WAIT_ENTER).event(WeighEventEnum.READ_CARD).action(weighAction.waitTruckEntering())
-                .and()
-                .withExternal().source(WeighStatusEnum.WAIT_CARD).target(WeighStatusEnum.WAIT).event(WeighEventEnum.CANCEL_ENTER).action(weighAction.truckLeave())
-                .and()
-                .withExternal().source(WeighStatusEnum.WAIT_ENTER).target(WeighStatusEnum.ENTERING).event(WeighEventEnum.ENTER).action(weighAction.truckEntering())
-                .and()
-                .withExternal().source(WeighStatusEnum.ENTERING).target(WeighStatusEnum.ON_WEIGH).event(WeighEventEnum.ENTERED).action(weighAction.truckEntered())
-                .and()
-                .withExternal().source(WeighStatusEnum.ON_WEIGH).target(WeighStatusEnum.WEIGHED).event(WeighEventEnum.WEIGHED).action(weighAction.weigh())
-                .and()
-                .withExternal().source(WeighStatusEnum.WEIGHED).target(WeighStatusEnum.LEAVING_WEIGH).event(WeighEventEnum.LEAVING_WEIGH).action(weighAction.truckLeavingWeigh())
-                .and()
-                .withExternal().source(WeighStatusEnum.LEAVING_WEIGH).target(WeighStatusEnum.LEFT_WEIGH).event(WeighEventEnum.LEFT_WEIGH).action(weighAction.truckLeftWeigh())
-                .and()
-                .withExternal().source(WeighStatusEnum.LEFT_WEIGH).target(WeighStatusEnum.LEAVING).event(WeighEventEnum.LEAVING).action(weighAction.truckLeaving())
-                .and()
-                .withExternal().source(WeighStatusEnum.LEAVING).target(WeighStatusEnum.WAIT).event(WeighEventEnum.LEFT).action(weighAction.truckLeft())
-                .and()
-                .withExternal().source(WeighStatusEnum.WEIGHED).target(WeighStatusEnum.LEAVING).event(WeighEventEnum.LEAVING).action(weighAction.truckLeaving())
-                .and()
+                .and().withExternal().source(WeighStatusEnum.WAIT_CARD).target(WeighStatusEnum.WAIT_ENTER).event(WeighEventEnum.READ_CARD).action(weighAction.waitTruckEntering())
+                .and().withExternal().source(WeighStatusEnum.WAIT_CARD).target(WeighStatusEnum.WAIT).event(WeighEventEnum.CANCEL_ENTER).action(weighAction.truckLeave())
+                .and().withExternal().source(WeighStatusEnum.WAIT_ENTER).target(WeighStatusEnum.ENTERING).event(WeighEventEnum.ENTER).action(weighAction.truckEntering())
+                .and().withExternal().source(WeighStatusEnum.ENTERING).target(WeighStatusEnum.ON_WEIGH).event(WeighEventEnum.ENTERED).action(weighAction.truckEntered())
+                .and().withExternal().source(WeighStatusEnum.ON_WEIGH).target(WeighStatusEnum.WEIGHED).event(WeighEventEnum.WEIGHED).action(weighAction.weigh())
+                .and().withExternal().source(WeighStatusEnum.WEIGHED).target(WeighStatusEnum.LEAVING_WEIGH).event(WeighEventEnum.LEAVING_WEIGH).action(weighAction.truckLeavingWeigh())
+                .and().withExternal().source(WeighStatusEnum.LEAVING_WEIGH).target(WeighStatusEnum.LEFT_WEIGH).event(WeighEventEnum.LEFT_WEIGH).action(weighAction.truckLeftWeigh())
+                .and().withExternal().source(WeighStatusEnum.LEFT_WEIGH).target(WeighStatusEnum.LEAVING).event(WeighEventEnum.LEAVING).action(weighAction.truckLeaving())
+                .and().withExternal().source(WeighStatusEnum.LEAVING).target(WeighStatusEnum.WAIT).event(WeighEventEnum.LEFT).action(weighAction.truckLeft())
+                .and().withExternal().source(WeighStatusEnum.WEIGHED).target(WeighStatusEnum.LEAVING).event(WeighEventEnum.LEAVING).action(weighAction.truckLeaving())
 
-                .withExternal().source(WeighStatusEnum.WAIT).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
+                .and().withExternal().source(WeighStatusEnum.WAIT).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
                 .and().withExternal().source(WeighStatusEnum.WAIT_CARD).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
                 .and().withExternal().source(WeighStatusEnum.WAIT_ENTER).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
                 .and().withExternal().source(WeighStatusEnum.ENTERING).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
@@ -68,6 +59,10 @@ public class WeighStateMachineConfig extends StateMachineConfigurerAdapter<Weigh
                 .and().withExternal().source(WeighStatusEnum.WEIGHED).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
                 .and().withExternal().source(WeighStatusEnum.LEAVING_WEIGH).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
                 .and().withExternal().source(WeighStatusEnum.LEFT_WEIGH).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
-                .and().withExternal().source(WeighStatusEnum.LEAVING).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset());
+                .and().withExternal().source(WeighStatusEnum.LEAVING).target(WeighStatusEnum.WAIT).event(WeighEventEnum.RESET).action(weighAction.reset())
+                // 未进入到计量流程的状态下收到前端停止自动计量的请求时进入STOP_WAIT状态
+                .and().withExternal().source(WeighStatusEnum.WAIT).target(WeighStatusEnum.STOP_WAIT).event(WeighEventEnum.STOP_WAIT).action(weighAction.stopWait())
+                .and().withExternal().source(WeighStatusEnum.STOP_WAIT).target(WeighStatusEnum.WAIT).event(WeighEventEnum.START_WAIT).action(weighAction.startWait());
+
     }
 }

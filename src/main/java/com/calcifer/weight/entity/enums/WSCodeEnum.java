@@ -14,6 +14,7 @@ public enum WSCodeEnum implements ICodeEnum {
     RT_WEIGH_NUM(7, "称重KG"),
     WEIGH_INFO(8, "毛重、净重、皮重"),
     TRUCK_AND_WEIGHT(9, "车辆及重量信息"),
+    AUTO_WEIGHT_BUTTON(10, "自动过磅按钮状态控制")
     ;
     private final int code;
     private final String msg;

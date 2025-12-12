@@ -14,6 +14,8 @@ public enum WeighEventEnum implements ICodeEnum {
     LEAVING(8, "车辆正在驶离"), // 红外4遮挡，车辆正在驶离
     LEFT(9, "车辆完全驶离"), // 红外4未遮挡，车辆完全按驶离
     RESET(10, "重置系统"),
+    STOP_WAIT(11, "停止自动计量"),
+    START_WAIT(12, "开始自动计量"),
     ;
 
     private final int code;
