@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    driver-class-name: net.sourceforge.jtds.jdbc.Driver
+    url: jdbc:jtds:sqlserver://10.98.9.8:1433;databaseName=gcgl;
+    username: sa
+    password: gshl8820
+    hikari:
+      connection-test-query: SELECT 1
+calcifer:
+  weight:
+    slave-ip: 10.206.4.243
+    coil-num: 6
+    enable-auth: false
+    enable-auto-scan: false
+    enable-modbus-device-init: false
+    enable-serial-device-init: false
+    enable-voice: false
+    # 称重时的采样次数
+    sampled-time: 10
+    min-weight: 1000
+    max-weight: 100000
+    # 等待时间，单位毫秒，超过该时间没有状态变化将重置系统
+    wait-time: 60000
+    modbus-device-info-path: classpath:config/modbus_device_info.json
+    serial-device-info-path: classpath:config/serial_device_info.json
+
+logging:
+  config: classpath:config/logback-spring.xml
