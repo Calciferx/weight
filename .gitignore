@@ -1,5 +1,3 @@
 /.idea/
-/src/main/resources/config/application-dev.yaml
-/src/main/resources/config/application-test.yaml
 /logs/
 /target/
