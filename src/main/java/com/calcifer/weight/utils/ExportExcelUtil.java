@@ -51,12 +51,12 @@ public class ExportExcelUtil {
 
         // 标题样式
         CellStyle titleStyle = workbook.createCellStyle();
-        titleStyle.setAlignment(XSSFCellStyle.ALIGN_CENTER); // 水平居中
-        titleStyle.setVerticalAlignment(XSSFCellStyle.VERTICAL_CENTER); // 垂直居中
-        titleStyle.setBorderBottom(XSSFCellStyle.BORDER_THIN); // 下边框
-        titleStyle.setBorderTop(XSSFCellStyle.BORDER_THIN); // 上边框
-        titleStyle.setBorderLeft(XSSFCellStyle.BORDER_THIN); // 左边框
-        titleStyle.setBorderRight(XSSFCellStyle.BORDER_THIN); // 右边框
+        titleStyle.setAlignment(HorizontalAlignment.CENTER); // 水平居中
+        titleStyle.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
+        titleStyle.setBorderBottom(BorderStyle.THIN); // 下边框
+        titleStyle.setBorderTop(BorderStyle.THIN); // 上边框
+        titleStyle.setBorderLeft(BorderStyle.THIN); // 左边框
+        titleStyle.setBorderRight(BorderStyle.THIN); // 右边框
         titleStyle.setRightBorderColor(IndexedColors.BLACK.getIndex());
         // 标题字体
         Font titleFont = workbook.createFont();
@@ -66,10 +66,10 @@ public class ExportExcelUtil {
 
         // 填报单位的样式
         CellStyle titleStyle_2 = workbook.createCellStyle();
-        titleStyle_2.setAlignment(XSSFCellStyle.ALIGN_RIGHT); // 水平居右
-        titleStyle_2.setVerticalAlignment(XSSFCellStyle.VERTICAL_CENTER); // 垂直居中
-        titleStyle_2.setFillPattern(XSSFCellStyle.SOLID_FOREGROUND);
-        titleStyle_2.setBorderRight(XSSFCellStyle.BORDER_THIN); // 右边框
+        titleStyle_2.setAlignment(HorizontalAlignment.RIGHT); // 水平居右
+        titleStyle_2.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
+        titleStyle_2.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        titleStyle_2.setBorderRight(BorderStyle.THIN); // 右边框
         titleStyle_2.setFillForegroundColor(IndexedColors.AQUA.getIndex());
         // 标题字体
         Font titleFont_2 = workbook.createFont();
@@ -79,10 +79,10 @@ public class ExportExcelUtil {
 
         // 填报单位的样式
         CellStyle titleStyle_u = workbook.createCellStyle();
-        titleStyle_u.setAlignment(XSSFCellStyle.ALIGN_LEFT); // 水平居左
-        titleStyle_u.setVerticalAlignment(XSSFCellStyle.VERTICAL_CENTER); // 垂直居中
-        titleStyle_u.setFillPattern(XSSFCellStyle.SOLID_FOREGROUND);
-        titleStyle_u.setBorderRight(XSSFCellStyle.BORDER_THIN); // 右边框
+        titleStyle_u.setAlignment(HorizontalAlignment.LEFT); // 水平居左
+        titleStyle_u.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
+        titleStyle_u.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        titleStyle_u.setBorderRight(BorderStyle.THIN); // 右边框
         titleStyle_u.setFillForegroundColor(IndexedColors.AQUA.getIndex());
         // 标题字体
         Font titleFont_u = workbook.createFont();
@@ -93,13 +93,13 @@ public class ExportExcelUtil {
 
         // 表头样式
         CellStyle headerStyle = workbook.createCellStyle();
-        headerStyle.setAlignment(XSSFCellStyle.ALIGN_CENTER); // 水平居中
-        headerStyle.setVerticalAlignment(XSSFCellStyle.VERTICAL_CENTER); // 垂直居中
-        headerStyle.setBorderBottom(XSSFCellStyle.BORDER_THIN); // 下边框
-        headerStyle.setBorderLeft(XSSFCellStyle.BORDER_THIN); // 左边框
-        headerStyle.setBorderTop(XSSFCellStyle.BORDER_THIN); // 上边框
-        headerStyle.setBorderRight(XSSFCellStyle.BORDER_THIN); // 右边框
-        headerStyle.setFillPattern(XSSFCellStyle.SOLID_FOREGROUND);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER); // 水平居中
+        headerStyle.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
+        headerStyle.setBorderBottom(BorderStyle.THIN); // 下边框
+        headerStyle.setBorderLeft(BorderStyle.THIN); // 左边框
+        headerStyle.setBorderTop(BorderStyle.THIN); // 上边框
+        headerStyle.setBorderRight(BorderStyle.THIN); // 右边框
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         headerStyle.setFillForegroundColor(IndexedColors.AQUA.getIndex());
         headerStyle.setWrapText(true); // 设置多行显示
         //这两句话是表示将表头单元格格式设置为文本型，在后面只要调用-----.setDataFormat(format.getFormat("@"))的方法就可以将数据设置为文本型。
@@ -113,12 +113,12 @@ public class ExportExcelUtil {
 
         // 数据样式
         CellStyle dataStyle = workbook.createCellStyle();
-        //dataStyle.setAlignment(XSSFCellStyle.ALIGN_CENTER); // 水平居中
-        //dataStyle.setVerticalAlignment(XSSFCellStyle.VERTICAL_CENTER); // 垂直居中
-        dataStyle.setBorderBottom(XSSFCellStyle.BORDER_THIN); // 下边框
-        dataStyle.setBorderLeft(XSSFCellStyle.BORDER_THIN); // 左边框
-        dataStyle.setBorderTop(XSSFCellStyle.BORDER_THIN); // 上边框
-        dataStyle.setBorderRight(XSSFCellStyle.BORDER_THIN); // 右边框
+        //dataStyle.setAlignment(HorizontalAlignment.CENTER); // 水平居中
+        //dataStyle.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
+        dataStyle.setBorderBottom(BorderStyle.THIN); // 下边框
+        dataStyle.setBorderLeft(BorderStyle.THIN); // 左边框
+        dataStyle.setBorderTop(BorderStyle.THIN); // 上边框
+        dataStyle.setBorderRight(BorderStyle.THIN); // 右边框
         dataStyle.setDataFormat(format.getFormat("@"));      //将数据单元格格式设置为文本类型
         // 数据字体
         Font dataFont = workbook.createFont();
@@ -128,8 +128,8 @@ public class ExportExcelUtil {
 
         // 尾部样式
         CellStyle footStyle = workbook.createCellStyle();
-        footStyle.setAlignment(XSSFCellStyle.ALIGN_LEFT); // 水平居中
-        footStyle.setVerticalAlignment(XSSFCellStyle.VERTICAL_CENTER); // 垂直居中
+        footStyle.setAlignment(HorizontalAlignment.LEFT); // 水平居中
+        footStyle.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
         // 尾部字体
         Font footFont = workbook.createFont();
         footFont.setFontHeightInPoints((short) 11);
@@ -137,10 +137,10 @@ public class ExportExcelUtil {
         footStyle.setFont(footFont);
 
         CellStyle commonStyle = workbook.createCellStyle();
-        commonStyle.setBorderBottom(XSSFCellStyle.BORDER_THIN); // 下边框
-        commonStyle.setBorderLeft(XSSFCellStyle.BORDER_THIN); // 左边框
-        commonStyle.setBorderTop(XSSFCellStyle.BORDER_THIN); // 上边框
-        commonStyle.setBorderRight(XSSFCellStyle.BORDER_THIN); // 右边框
+        commonStyle.setBorderBottom(BorderStyle.THIN); // 下边框
+        commonStyle.setBorderLeft(BorderStyle.THIN); // 左边框
+        commonStyle.setBorderTop(BorderStyle.THIN); // 上边框
+        commonStyle.setBorderRight(BorderStyle.THIN); // 右边框
 
         // 表格标题行
 //		Row row0 = sheet.createRow(0);
