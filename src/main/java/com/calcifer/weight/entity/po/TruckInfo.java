@@ -1,6 +1,6 @@
 package com.calcifer.weight.entity.po;
 
-import com.xiaoleilu.hutool.date.DateTime;
+import cn.hutool.core.date.DateTime;
 import lombok.Data;
 
 @Data

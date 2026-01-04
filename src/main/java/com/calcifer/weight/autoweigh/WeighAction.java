@@ -296,7 +296,7 @@ public class WeighAction {
         return context -> {
             log.info("========reset action========");
             webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.TRUCK_AND_WEIGHT, "清空页面数据显示");
-            synchronized (AutoScanJob.class) {
+//            synchronized (AutoScanJob.class) {
                 log.info("reset all devices...");
                 try {
                     deviceService.destroy();
@@ -304,7 +304,7 @@ public class WeighAction {
                     throw new RuntimeException(e);
                 }
                 deviceService.init();
-            }
+//            }
         };
     }
 

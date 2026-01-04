@@ -10,16 +10,16 @@ import com.calcifer.weight.handler.WeightWebSocketHandler;
 import com.calcifer.weight.service.ReportService;
 import com.calcifer.weight.utils.DateUtil;
 import com.calcifer.weight.utils.ExportExcelUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping("/adminx/report")
-@Api(basePath = "/adminx/report", value = "统计称重信息", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+@Tag(name = "统计称重信息")
 public class ReportController {
 
     @Autowired
@@ -38,15 +38,15 @@ public class ReportController {
 
     @ResponseBody
     @RequestMapping(value = "/findList.do", method = RequestMethod.POST)
-    @ApiOperation(value = "统计", notes = "条件：无", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "统计", description = "条件：无")
     public RespWrapper<Object> findList(
-            @ApiParam(required = true, value = "token") @RequestParam(required = true) String token,
-            @ApiParam(required = false, value = "统计类型（1.货名2.车号）") @RequestParam(required = false) String staticsType,
-            @ApiParam(required = false, value = "过磅模式") @RequestParam(required = false) String weighingMode,
-            @ApiParam(required = false, value = "开始时间") @RequestParam(required = false) String startTime,
-            @ApiParam(required = false, value = "结束时间") @RequestParam(required = false) String endTime,
-            @ApiParam(required = true, value = "1.查询2.导出") @RequestParam(required = true) ActionEnum flag,
-            @ApiParam(required = false, value = "websocket名称") @RequestParam(required = false) String webSocketName,
+            @Parameter(description = "token", required = true) @RequestParam(required = true) String token,
+            @Parameter(description = "统计类型（1.货名2.车号）") @RequestParam(required = false) String staticsType,
+            @Parameter(description = "过磅模式") @RequestParam(required = false) String weighingMode,
+            @Parameter(description = "开始时间") @RequestParam(required = false) String startTime,
+            @Parameter(description = "结束时间") @RequestParam(required = false) String endTime,
+            @Parameter(description = "1.查询2.导出", required = true) @RequestParam(required = true) ActionEnum flag,
+            @Parameter(description = "websocket名称") @RequestParam(required = false) String webSocketName,
             HttpServletRequest request) {
 
         ReportInfo queryReportInfo = new ReportInfo(staticsType, startTime, endTime, weighingMode);

@@ -17,9 +17,9 @@ import com.calcifer.weight.utils.IpUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.intelligt.modbus.jlibmodbus.exception.ModbusIOException;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -27,8 +27,8 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,7 +37,7 @@ import static com.calcifer.weight.WeightApplication.TOKEN_USER_MAP;
 @Slf4j
 @RestController
 @RequestMapping("/adminx/slave")
-@Api(basePath = "/adminx/slave", value = "从机档案", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+@Tag(name = "从机档案")
 public class SlaveController {
     @Autowired
     private SlaveInfoService slaveInfoService;
@@ -54,18 +54,18 @@ public class SlaveController {
      * 新增从机档案
      */
     @PostMapping(value = "/addSlave.do")
-    @ApiOperation(value = "新增", notes = "条件：无", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "新增", description = "条件：无")
     public RespWrapper<Boolean> addSlave(
-            @ApiParam(required = true, value = "token") @RequestParam(required = true) String token,
-            @ApiParam(required = true, value = "从机IP地址") @RequestParam(required = true) String slaveIp,
-            @ApiParam(required = false, value = "从机名称") @RequestParam(required = false) String slaveName,
-            @ApiParam(required = false, value = "从机编码") @RequestParam(required = false) String slaveCode,
-            @ApiParam(required = true, value = "线圈名称（只读属性）") @RequestParam(required = true) String coilName,
-            @ApiParam(required = true, value = "线圈数量") @RequestParam(required = true) int coilNum,
-            @ApiParam(required = true, value = "寄存器名称(可读可写)") @RequestParam(required = true) String discreteName,
-            @ApiParam(required = true, value = "寄存器数量") @RequestParam(required = true) int discreteNum,
-            @ApiParam(required = false, value = "备注") @RequestParam(required = false) String remark,
-            @ApiParam(required = true, value = "状态（1.启用2.停用）") @RequestParam(required = true) String status,
+            @Parameter(description = "token", required = true) @RequestParam(required = true) String token,
+            @Parameter(description = "从机IP地址", required = true) @RequestParam(required = true) String slaveIp,
+            @Parameter(description = "从机名称") @RequestParam(required = false) String slaveName,
+            @Parameter(description = "从机编码") @RequestParam(required = false) String slaveCode,
+            @Parameter(description = "线圈名称（只读属性）", required = true) @RequestParam(required = true) String coilName,
+            @Parameter(description = "线圈数量", required = true) @RequestParam(required = true) int coilNum,
+            @Parameter(description = "寄存器名称(可读可写)", required = true) @RequestParam(required = true) String discreteName,
+            @Parameter(description = "寄存器数量", required = true) @RequestParam(required = true) int discreteNum,
+            @Parameter(description = "备注") @RequestParam(required = false) String remark,
+            @Parameter(description = "状态（1.启用2.停用）", required = true) @RequestParam(required = true) String status,
             HttpServletRequest request
     ) {
         if (slaveInfoService.count(slaveIp, null, null) > 0) {
@@ -99,20 +99,20 @@ public class SlaveController {
      * 修改从机档案
      */
     @PostMapping(value = "/updateSlave.do")
-    @ApiOperation(value = "修改", notes = "条件：无", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "修改", description = "条件：无")
     public RespWrapper<Boolean> updateSlave(
-            @ApiParam(required = true, value = "token") @RequestParam(required = true) String token,
-            @ApiParam(required = true, value = "从机Id") @RequestParam(required = true) String id,
-            @ApiParam(required = false, value = "从机IP地址") @RequestParam(required = false) String slaveIp,
-            @ApiParam(required = false, value = "从机名称") @RequestParam(required = false) String slaveName,
-            @ApiParam(required = false, value = "从机编码") @RequestParam(required = false) String slaveCode,
-            @ApiParam(required = false, value = "线圈名称（只读属性）") @RequestParam(required = false) String coilName,
-            @ApiParam(required = false, value = "线圈数量") @RequestParam(required = false) Integer coilNum,
-            @ApiParam(required = false, value = "寄存器名称(可读可写)") @RequestParam(required = false) String discreteName,
-            @ApiParam(required = false, value = "寄存器数量") @RequestParam(required = false) Integer discreteNum,
-            @ApiParam(required = false, value = "备注") @RequestParam(required = false) String remark,
-            @ApiParam(required = false, value = "状态（1.启用2.停用）") @RequestParam(required = false) String status,
-            @ApiParam(required = false, value = "从机串口字符串") @RequestParam(required = false) String jsonStr,
+            @Parameter(description = "token", required = true) @RequestParam(required = true) String token,
+            @Parameter(description = "从机Id", required = true) @RequestParam(required = true) String id,
+            @Parameter(description = "从机IP地址") @RequestParam(required = false) String slaveIp,
+            @Parameter(description = "从机名称") @RequestParam(required = false) String slaveName,
+            @Parameter(description = "从机编码") @RequestParam(required = false) String slaveCode,
+            @Parameter(description = "线圈名称（只读属性）") @RequestParam(required = false) String coilName,
+            @Parameter(description = "线圈数量") @RequestParam(required = false) Integer coilNum,
+            @Parameter(description = "寄存器名称(可读可写)") @RequestParam(required = false) String discreteName,
+            @Parameter(description = "寄存器数量") @RequestParam(required = false) Integer discreteNum,
+            @Parameter(description = "备注") @RequestParam(required = false) String remark,
+            @Parameter(description = "状态（1.启用2.停用）") @RequestParam(required = false) String status,
+            @Parameter(description = "从机串口字符串") @RequestParam(required = false) String jsonStr,
             HttpServletRequest request
     ) {
         SlaveInfo slaveInfo = new SlaveInfo(id, slaveIp, slaveName, slaveCode, coilName, coilNum, discreteName, discreteNum, null, remark, status);
@@ -123,7 +123,7 @@ public class SlaveController {
         if (flag < 1) {
             return new RespWrapper<>(false, RespCodeEnum.ERROR);
         }
-        if (!StringUtils.isEmpty(jsonStr)) {
+        if (StringUtils.hasLength(jsonStr)) {
             List<SlaveDetailInfo> slaveDetailInfos = JSONObject.parseArray(jsonStr, SlaveDetailInfo.class);
             Integer delete = slaveDetailService.delete(id);
             if (slaveDetailInfos != null && !slaveDetailInfos.isEmpty()) {
@@ -158,11 +158,11 @@ public class SlaveController {
      * 删除从机档案
      */
     @PostMapping(value = "/deleteSlave.do")
-    @ApiOperation(value = "删除", notes = "条件：无", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "删除", description = "条件：无")
     public RespWrapper<Boolean> deleteSlave(
-            @ApiParam(required = true, value = "token") @RequestParam(required = true) String token,
-            @ApiParam(required = true, value = "从机Id") @RequestParam(required = true) String id,
-            @ApiParam(required = false, value = "ip") @RequestParam(required = false) String slaveIp,
+            @Parameter(description = "token", required = true) @RequestParam(required = true) String token,
+            @Parameter(description = "从机Id", required = true) @RequestParam(required = true) String id,
+            @Parameter(description = "ip") @RequestParam(required = false) String slaveIp,
             HttpServletRequest request
     ) {
         Integer count = slaveInfoService.count(null, id, "2");
@@ -181,13 +181,13 @@ public class SlaveController {
     }
 
     @PostMapping(value = "/pageList.do")
-    @ApiOperation(value = "列表（分页）", notes = "条件：无", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "列表（分页）", description = "条件：无")
     public RespWrapper<List<SlaveInfo>> pageList(
-            @ApiParam(required = true, value = "token") @RequestParam(required = true) String token,
-            @ApiParam(required = false, value = "模糊查询字段") @RequestParam(required = false) String keywords,
-            @ApiParam(required = false, value = "状态(1.启用2.停用)") @RequestParam(required = false) String status,
-            @ApiParam(required = true, value = "页码", defaultValue = "1") @RequestParam(value = "page") Integer pageNum,
-            @ApiParam(required = true, value = "每页条数", defaultValue = "10") @RequestParam(value = "pageSize") Integer pageSize,
+            @Parameter(description = "token", required = true) @RequestParam(required = true) String token,
+            @Parameter(description = "模糊查询字段") @RequestParam(required = false) String keywords,
+            @Parameter(description = "状态(1.启用2.停用)") @RequestParam(required = false) String status,
+            @Parameter(description = "页码", required = true) @RequestParam(value = "page", defaultValue = "1") Integer pageNum,
+            @Parameter(description = "每页条数", required = true) @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             HttpServletRequest request) {
         PageInfo<SlaveInfo> pageInfo = PageHelper.startPage(pageNum, pageNum).doSelectPageInfo(() -> slaveInfoService.querySlaveInfo(null, null, status, keywords));
         if (pageInfo != null) {
@@ -199,11 +199,11 @@ public class SlaveController {
 
 
     @PostMapping(value = "/findAll.do")
-    @ApiOperation(value = "查询全部", notes = "条件：无", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "查询全部", description = "条件：无")
     public RespWrapper<List<SlaveInfo>> findAll(
-            @ApiParam(required = true, value = "token") @RequestParam(required = true) String token,
-            @ApiParam(required = false, value = "模糊查询字段") @RequestParam(required = false) String keywords,
-            @ApiParam(required = false, value = "状态(1.启用2.停用)") @RequestParam(required = false) String status,
+            @Parameter(description = "token", required = true) @RequestParam(required = true) String token,
+            @Parameter(description = "模糊查询字段") @RequestParam(required = false) String keywords,
+            @Parameter(description = "状态(1.启用2.停用)") @RequestParam(required = false) String status,
             HttpServletRequest request) {
         List<SlaveInfo> slaveInfos = slaveInfoService.querySlaveInfo(null, null, status, keywords);
         return new RespWrapper<>(slaveInfos, RespCodeEnum.SUCCESS, "操作成功");
@@ -213,14 +213,14 @@ public class SlaveController {
      * 修改设备状态
      */
     @PostMapping(value = "/updateStatus.do")
-    @ApiOperation(value = "修改设备状态", notes = "条件：无", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "修改设备状态", description = "条件：无")
     public RespWrapper<Boolean> updateStatus(
-            @ApiParam(required = true, value = "token") @RequestParam(required = true) String token,
-            @ApiParam(required = false, value = "从机IP地址") @RequestParam(required = false) String slaveIp,
-            @ApiParam(required = false, value = "设备排序") @RequestParam(required = false) Integer sort,
-            @ApiParam(required = false, value = "状态（true.开启false.关闭）") @RequestParam(required = false) boolean status,
+            @Parameter(description = "token", required = true) @RequestParam(required = true) String token,
+            @Parameter(description = "从机IP地址") @RequestParam(required = false) String slaveIp,
+            @Parameter(description = "设备排序") @RequestParam(required = false) Integer sort,
+            @Parameter(description = "状态（true.开启false.关闭）") @RequestParam(required = false) boolean status,
             //TODO boolean下面还判断？
-            @ApiParam(required = false, value = "关联设备类型（1.进端红外2.进端道闸3.进端红绿灯4.出端红外线5.出端道闸6.出端红绿灯7.进端红外2 8.进端红外2 9.进端道闸关 10、出端道闸关）") @RequestParam(required = false) boolean type,
+            @Parameter(description = "关联设备类型（1.进端红外2.进端道闸3.进端红绿灯4.出端红外线5.出端道闸6.出端红绿灯7.进端红外2 8.进端红外2 9.进端道闸关 10、出端道闸关）") @RequestParam(required = false) boolean type,
             HttpServletRequest request
     ) {
         deviceService.controlModBusDevice(sort, status);
@@ -229,19 +229,19 @@ public class SlaveController {
 
 
     @PostMapping(value = "/findDetail.do")
-    @ApiOperation(value = "查询详情", notes = "条件：无", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "查询详情", description = "条件：无")
     public RespWrapper<List<SlaveDetailInfo>> findDetail(
-            @ApiParam(required = true, value = "token") @RequestParam(required = true) String token,
-            @ApiParam(required = true, value = "主表id") @RequestParam(required = true) String slaveId,
+            @Parameter(description = "token", required = true) @RequestParam(required = true) String token,
+            @Parameter(description = "主表id", required = true) @RequestParam(required = true) String slaveId,
             HttpServletRequest request) {
         List<SlaveDetailInfo> slaveDetailInfos = slaveDetailService.querySlaveDetailInfo(slaveId, null, null);
         return new RespWrapper<>(slaveDetailInfos, RespCodeEnum.SUCCESS, "操作成功");
     }
 
     @PostMapping(value = "/initSystem.do")
-    @ApiOperation(value = "初始化系统", notes = "条件：无", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "初始化系统", description = "条件：无")
     public RespWrapper<Boolean> initSystem(
-            @ApiParam(required = true, value = "token") @RequestParam(required = true) String token,
+            @Parameter(description = "token", required = true) @RequestParam(required = true) String token,
             HttpServletRequest request) throws ModbusIOException {
         log.info("init system...send reset event");
         log.info("now state machine status is {}", weighStateMachine.getState());

@@ -1,6 +1,6 @@
 package com.calcifer.weight.autoweigh;
 
-import com.xiaoleilu.hutool.util.HexUtil;
+import cn.hutool.core.util.HexUtil;
 import org.junit.jupiter.api.Test;
 
 class AutoScanJobTest {

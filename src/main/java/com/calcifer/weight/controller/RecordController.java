@@ -10,15 +10,15 @@ import com.calcifer.weight.handler.WeightWebSocketHandler;
 import com.calcifer.weight.service.RecordService;
 import com.calcifer.weight.utils.DateUtil;
 import com.calcifer.weight.utils.ExportExcelUtil;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,9 +40,9 @@ public class RecordController {
      */
     @PostMapping(value = "/pageList.do")
     public RespWrapper<List<RecordVO>> pageList(
-            @ApiParam(required = true, value = "token") @RequestParam(required = true) String token,
-            @ApiParam(required = false, value = "时间类型（1.本日记录2.本周记录3.本月记录4.本季纪录5.本年记录）") @RequestParam(required = false) RecordTypeEnum recordType,
-            @ApiParam(required = false, value = "完成情况类型(1.未完成记录2.已完成记录)") @RequestParam(required = false) CompleteStatusEnum logType) {
+            @Parameter(description = "token", required = true) @RequestParam(required = true) String token,
+            @Parameter(description = "时间类型（1.本日记录2.本周记录3.本月记录4.本季纪录5.本年记录）") @RequestParam(required = false) RecordTypeEnum recordType,
+            @Parameter(description = "完成情况类型(1.未完成记录2.已完成记录)") @RequestParam(required = false) CompleteStatusEnum logType) {
 
         if (!TOKEN_USER_MAP.containsKey(token)) {
             return new RespWrapper<>(RespCodeEnum.IS_NOT_LOGIN_ERROR);
@@ -82,18 +82,18 @@ public class RecordController {
      * 查询称重信息
      **/
     @PostMapping(value = "/findList.do")
-    @ApiOperation(value = "查询称重信息", notes = "条件：无", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "查询称重信息", description = "条件：无")
     public RespWrapper<Object> pageList(
-            @ApiParam(required = true, value = "token") @RequestParam(required = true) String token,
-            @ApiParam(required = true, value = "1.查询2.导出") @RequestParam(required = true) ActionEnum flag,
-            @ApiParam(required = false, value = "webSocketName") @RequestParam(required = false) String webSocketName,
-            @ApiParam(required = false, value = "车号(包含)") @RequestParam(required = false) String carNum,
-            @ApiParam(required = false, value = "车号(等于)") @RequestParam(required = false) String carNo,
-            @ApiParam(required = false, value = "货名") @RequestParam(required = false) String goodsName,
-            @ApiParam(required = false, value = "开始时间") @RequestParam(required = false) String startTime,
-            @ApiParam(required = false, value = "结束时间") @RequestParam(required = false) String endTime,
-            @ApiParam(required = false, value = "完成情况类型(1.未完成记录2.已完成记录)") @RequestParam(required = false) CompleteStatusEnum logType,
-            @ApiParam(required = false, value = "过磅模式") @RequestParam(required = false) String weighingMode,
+            @Parameter(description = "token", required = true) @RequestParam(required = true) String token,
+            @Parameter(description = "1.查询2.导出", required = true) @RequestParam(required = true) ActionEnum flag,
+            @Parameter(description = "webSocketName") @RequestParam(required = false) String webSocketName,
+            @Parameter(description = "车号(包含)") @RequestParam(required = false) String carNum,
+            @Parameter(description = "车号(等于)") @RequestParam(required = false) String carNo,
+            @Parameter(description = "货名") @RequestParam(required = false) String goodsName,
+            @Parameter(description = "开始时间") @RequestParam(required = false) String startTime,
+            @Parameter(description = "结束时间") @RequestParam(required = false) String endTime,
+            @Parameter(description = "完成情况类型(1.未完成记录2.已完成记录)") @RequestParam(required = false) CompleteStatusEnum logType,
+            @Parameter(description = "过磅模式") @RequestParam(required = false) String weighingMode,
             HttpServletRequest request) {
         if (!TOKEN_USER_MAP.containsKey(token)) {
             return new RespWrapper<>(RespCodeEnum.IS_NOT_LOGIN_ERROR);
@@ -132,10 +132,10 @@ public class RecordController {
      * 删除称重信息
      **/
     @PostMapping(value = "/delete.do")
-    @ApiOperation(value = "删除称重信息", notes = "条件：无", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "删除称重信息", description = "条件：无")
     public RespWrapper<Object> deleteSlave(
-            @ApiParam(required = true, value = "token") @RequestParam(required = true) String token,
-            @ApiParam(required = true, value = "流水号(英文逗号分隔)") @RequestParam(required = true) String serialNumbers,
+            @Parameter(description = "token", required = true) @RequestParam(required = true) String token,
+            @Parameter(description = "流水号(英文逗号分隔)", required = true) @RequestParam(required = true) String serialNumbers,
             HttpServletRequest request
     ) {
         if (!TOKEN_USER_MAP.containsKey(token)) {

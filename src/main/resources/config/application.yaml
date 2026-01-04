@@ -1,7 +1,9 @@
 spring:
   profiles:
-    active: test
-
+    active: dev
+  mvc:
+    servlet:
+      path: /api
 mybatis:
   mapper-locations: classpath:config/mapper/*.xml
   configuration:

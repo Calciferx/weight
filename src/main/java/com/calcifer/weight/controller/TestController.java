@@ -23,7 +23,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -122,10 +122,6 @@ public class TestController {
         return "backLightTrue";
     }
 
-    @RequestMapping("listenerTest")
-    public Object listenerTest() {
-        return deviceService.getCardListener() == null;
-    }
 
     @RequestMapping("jarPathTest")
     public Object jarPathTest() throws URISyntaxException {

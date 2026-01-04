@@ -7,7 +7,6 @@ import com.calcifer.weight.entity.enums.WSCodeEnum;
 import com.calcifer.weight.entity.po.SlaveInfo;
 import com.calcifer.weight.entity.vo.WSRespWrapper;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
-import com.calcifer.weight.repository.CardMapper;
 import com.calcifer.weight.utils.ArrayUtils;
 import com.calcifer.weight.utils.SerialPortUtil;
 import com.fazecast.jSerialComm.SerialPort;
@@ -18,20 +17,18 @@ import com.intelligt.modbus.jlibmodbus.exception.ModbusProtocolException;
 import com.intelligt.modbus.jlibmodbus.master.ModbusMaster;
 import com.intelligt.modbus.jlibmodbus.master.ModbusMasterFactory;
 import com.intelligt.modbus.jlibmodbus.tcp.TcpParameters;
+import jakarta.annotation.PreDestroy;
+import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -47,7 +44,7 @@ import static com.calcifer.weight.entity.enums.WSCodeEnum.*;
  */
 @Service
 @Slf4j
-public class DeviceService implements ApplicationListener<ContextRefreshedEvent> {
+public class DeviceService {
     public static int INFRA1 = 0;
     public static int INFRA2 = 1;
     public static int BARRIER1_ON = 2;
@@ -64,11 +61,9 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
     private WSCodeEnum[] wsMessageType;
     private ModbusMaster modbusMaster;
 
-    @Getter
     @Resource(name = "cardListener")
     private SerialPortUtil.DataAvailableListener cardListener;
 
-    @Getter
     @Resource(name = "scaleListener")
     private SerialPortUtil.DataAvailableListener scaleListener;
     private SerialPort scaleSerialPort;
@@ -94,8 +89,6 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
     @Autowired
     private SlaveDetailService slaveDetailService;
 
-    @Autowired
-    private CardMapper cardMapper;
 
     @Autowired
     private WeightWebSocketHandler webSocketHandler;
@@ -113,12 +106,6 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
     private boolean init;
 
 
-    @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
-//        init();
-    }
-
-    //    @PostConstruct
     public void init() {
         log.info("init devices...");
         if (enableModbusDeviceInit) {
@@ -313,7 +300,7 @@ public class DeviceService implements ApplicationListener<ContextRefreshedEvent>
         webSocketHandler.sendJsonToAllUser(new WSRespWrapper<>(modBusDeviceStatus.isInfrared3(), wsMessageType[INFRA3]));
         webSocketHandler.sendJsonToAllUser(new WSRespWrapper<>(modBusDeviceStatus.isInfrared4(), wsMessageType[INFRA4]));
         String statusChangeStr = modBusDeviceStatus.getStatusChangeStr(lastModBusDeviceStatus);
-        if (!StringUtils.isEmpty(statusChangeStr)) {
+        if (StringUtils.hasLength(statusChangeStr)) {
             log.info(statusChangeStr);
         }
         lastModBusDeviceStatus = modBusDeviceStatus;

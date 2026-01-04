@@ -11,9 +11,9 @@ import com.calcifer.weight.handler.WeightWebSocketHandler;
 import com.calcifer.weight.service.LogService;
 import com.calcifer.weight.utils.DateUtil;
 import com.calcifer.weight.utils.ExportExcelUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.beanutils.BeanMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  */
 @RequestMapping("/sys/logs")
 @RestController
-@Api(basePath = "/sys/logs", value = "系统 操作日志", description = "系统", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+@Tag(name = "系统 操作日志", description = "系统")
 public class LogController {
 
     @Autowired
@@ -47,14 +47,14 @@ public class LogController {
      * 描述: 列表
      */
     @PostMapping(value = "/findAll.do")
-    @ApiOperation(value = "列表", notes = "条件：无", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "列表", description = "条件：无")
     public RespWrapper<Object> listAll(
-            @ApiParam(required = true, value = "token") @RequestParam(required = true) String token,
-            @ApiParam(required = false, value = "查询时间") @RequestParam(required = false) String createTime,
-            @ApiParam(required = false, value = "查询时间") @RequestParam(required = false) String webSocketName,
-            @ApiParam(required = true, value = "1.查询2.导出") @RequestParam(required = true) ActionEnum flag,
-//			@ApiParam(required = false, value = "页码", defaultValue = "1") @RequestParam(required = false) Integer pageNum,
-//            @ApiParam(required = false, value = "每页条数", defaultValue = "10") @RequestParam(required = false) Integer pageSize,
+            @Parameter(description = "token", required = true) @RequestParam(required = true) String token,
+            @Parameter(description = "查询时间") @RequestParam(required = false) String createTime,
+            @Parameter(description = "查询时间") @RequestParam(required = false) String webSocketName,
+            @Parameter(description = "1.查询2.导出", required = true) @RequestParam(required = true) ActionEnum flag,
+//			@Parameter(description = "页码") @RequestParam(required = false, defaultValue = "1") Integer pageNum,
+//            @Parameter(description = "每页条数") @RequestParam(required = false, defaultValue = "10") Integer pageSize,
             HttpServletRequest request) {
         Map<String, Object> result = new HashMap<String, Object>();
         Map<String, Object> params = new HashMap<String, Object>();
