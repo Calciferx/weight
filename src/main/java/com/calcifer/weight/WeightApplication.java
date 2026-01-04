@@ -15,9 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @SpringBootApplication
 @MapperScan("com.calcifer.weight.repository")
 public class WeightApplication {
-    public static final ConcurrentHashMap<String, String> NAME_TOKEN_MAP = new ConcurrentHashMap<>();
-    public static final ConcurrentHashMap<String, User> TOKEN_USER_MAP = new ConcurrentHashMap<>();
-
     public static void main(String[] args) {
         SpringApplication.run(WeightApplication.class, args);
     }

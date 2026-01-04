@@ -1,12 +1,11 @@
 package com.calcifer.weight.interceptor;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import static com.calcifer.weight.WeightApplication.TOKEN_USER_MAP;
+import static com.calcifer.weight.common.WeightContext.TOKEN_USER_MAP;
 
 public class AuthInterceptor implements HandlerInterceptor {
     @Value("${calcifer.weight.enable-auth:true}")

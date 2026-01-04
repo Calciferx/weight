@@ -20,19 +20,18 @@ import com.intelligt.modbus.jlibmodbus.exception.ModbusIOException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.UUID;
 
-import static com.calcifer.weight.WeightApplication.TOKEN_USER_MAP;
+import static com.calcifer.weight.common.WeightContext.TOKEN_USER_MAP;
 
 @Slf4j
 @RestController

@@ -12,18 +12,17 @@ import com.calcifer.weight.utils.DateUtil;
 import com.calcifer.weight.utils.ExportExcelUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanMap;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.calcifer.weight.WeightApplication.TOKEN_USER_MAP;
+import static com.calcifer.weight.common.WeightContext.TOKEN_USER_MAP;
 
 @Slf4j
 @RestController

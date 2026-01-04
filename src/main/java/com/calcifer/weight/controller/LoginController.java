@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.calcifer.weight.WeightApplication.NAME_TOKEN_MAP;
-import static com.calcifer.weight.WeightApplication.TOKEN_USER_MAP;
+import static com.calcifer.weight.common.WeightContext.NAME_TOKEN_MAP;
+import static com.calcifer.weight.common.WeightContext.TOKEN_USER_MAP;
 
 @Slf4j
 @RestController
