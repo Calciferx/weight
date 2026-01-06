@@ -1,8 +1,7 @@
 package com.calcifer.weight.common;
 
-import com.calcifer.weight.entity.dto.User;
+import com.calcifer.weight.entity.dto.UserDTO;
 
-import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WeightContext {
@@ -12,5 +11,5 @@ public class WeightContext {
     public static long lastStatusChange;
 
     public static final ConcurrentHashMap<String, String> NAME_TOKEN_MAP = new ConcurrentHashMap<>();
-    public static final ConcurrentHashMap<String, User> TOKEN_USER_MAP = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<String, UserDTO> TOKEN_USER_MAP = new ConcurrentHashMap<>();
 }

@@ -10,6 +10,7 @@ import com.calcifer.weight.entity.enums.RespCodeEnum;
 import com.calcifer.weight.entity.enums.UserStatusEnum;
 import com.calcifer.weight.entity.po.UserPO;
 import com.calcifer.weight.entity.po.UserSlaveInfo;
+import com.calcifer.weight.entity.vo.PageWrapper;
 import com.calcifer.weight.entity.vo.RespWrapper;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
 import com.calcifer.weight.repository.*;
@@ -27,7 +28,6 @@ import jakarta.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 
@@ -166,7 +166,7 @@ public class TestController {
     @RequestMapping(value = "/world/{name}")
     public Object queryUserTest(@PathVariable("name") String name) {
         UserPO admin = userMapper.queryUser(new UserPO(name));
-        return new RespWrapper<>(admin, RespCodeEnum.SUCCESS, (admin.getStatus() == UserStatusEnum.FORBIDDEN) + "");
+        return new RespWrapper<>(admin);
     }
 
     @RequestMapping(value = "/userSlaveInfo/{slaveId}")
@@ -187,6 +187,6 @@ public class TestController {
     @ResponseBody
     public Object exceptionHandleTest(Exception e) {
         log.error(e.getMessage(), e);
-        return new RespWrapper<>(RespCodeEnum.DEBUG);
+        return new RespWrapper<>(RespCodeEnum.EXCEPTION);
     }
 }

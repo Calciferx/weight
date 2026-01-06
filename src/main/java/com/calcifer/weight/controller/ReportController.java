@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanMap;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -70,10 +69,10 @@ public class ReportController {
             int exportResult = ExportExcelUtil.exportExcel("称重统计信息", folderPath, columnNames, columnWidth, mapList, fileName);
 //            result.put("api", "/adminx/report/findList.do");
             webSocketHandler.sendMessageToUser(webSocketName, new WSRespWrapper<>(url + fileName, WSCodeEnum.exportMsg));
-            return new RespWrapper<>(url + fileName, RespCodeEnum.SUCCESS);
+            return new RespWrapper<>(url + fileName);
         } else {
             reportInfos = reportService.getReportInfo(queryReportInfo);
-            return new RespWrapper<>(reportInfos, RespCodeEnum.SUCCESS);
+            return new RespWrapper<>(reportInfos);
         }
     }
 
@@ -81,6 +80,6 @@ public class ReportController {
     @ExceptionHandler
     public Object exceptionHandleTest(Exception e) {
         log.error(e.getMessage(), e);
-        return new RespWrapper<>(RespCodeEnum.DEBUG);
+        return new RespWrapper<>(RespCodeEnum.EXCEPTION);
     }
 }

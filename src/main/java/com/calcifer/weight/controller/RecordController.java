@@ -1,6 +1,6 @@
 package com.calcifer.weight.controller;
 
-import com.calcifer.weight.entity.dto.RecordDto;
+import com.calcifer.weight.entity.dto.RecordDTO;
 import com.calcifer.weight.entity.enums.*;
 import com.calcifer.weight.entity.po.RecordPO;
 import com.calcifer.weight.entity.vo.RecordVO;
@@ -39,12 +39,12 @@ public class RecordController {
      */
     @PostMapping(value = "/pageList.do")
     public RespWrapper<List<RecordVO>> pageList(
-            @Parameter(description = "token", required = true) @RequestParam(required = true) String token,
+            @Parameter(description = "token", required = true) @RequestParam String token,
             @Parameter(description = "时间类型（1.本日记录2.本周记录3.本月记录4.本季纪录5.本年记录）") @RequestParam(required = false) RecordTypeEnum recordType,
             @Parameter(description = "完成情况类型(1.未完成记录2.已完成记录)") @RequestParam(required = false) CompleteStatusEnum logType) {
 
         if (!TOKEN_USER_MAP.containsKey(token)) {
-            return new RespWrapper<>(RespCodeEnum.IS_NOT_LOGIN_ERROR);
+            return new RespWrapper<>(false, RespCodeEnum.IS_NOT_LOGIN_ERROR);
         }
         RecordPO recordPO = new RecordPO();
         if (recordType != null) {
@@ -97,15 +97,15 @@ public class RecordController {
         if (!TOKEN_USER_MAP.containsKey(token)) {
             return new RespWrapper<>(RespCodeEnum.IS_NOT_LOGIN_ERROR);
         }
-        RecordDto queryRecordDto = new RecordDto(carNum, goodsName, carNo, startTime, endTime, weighingMode);
+        RecordDTO queryRecordDTO = new RecordDTO(carNum, goodsName, carNo, startTime, endTime, weighingMode);
         if (logType != null) {
             if (logType == CompleteStatusEnum.COMPLETED) {
-                queryRecordDto.setTareNull1(logType);
+                queryRecordDTO.setTareNull1(logType);
             } else {
-                queryRecordDto.setTareNull(logType);
+                queryRecordDTO.setTareNull(logType);
             }
         }
-        List<RecordDto> resultList = recordService.findRecordList(queryRecordDto);
+        List<RecordDTO> resultList = recordService.findRecordList(queryRecordDTO);
         if (flag == ActionEnum.QUERY) {
             return new RespWrapper<>(resultList);
         } else {
@@ -122,7 +122,7 @@ public class RecordController {
 //            result.put("api", "/adminx/record/findList.do");
             webSocketHandler.sendMessageToUser(webSocketName, new WSRespWrapper<>(url + fileName, WSCodeEnum.exportMsg));
 
-            return new RespWrapper<>(url + fileName, RespCodeEnum.SUCCESS);
+            return new RespWrapper<>(url + fileName);
         }
     }
 
@@ -144,13 +144,13 @@ public class RecordController {
         if (deletedNum > 0) {
             return new RespWrapper<>(RespCodeEnum.SUCCESS);
         }
-        return new RespWrapper<>(RespCodeEnum.ERROR);
+        return new RespWrapper<>(RespCodeEnum.FAILED);
     }
 
     //TODO 统一异常处理
     @ExceptionHandler
     public Object exceptionHandleTest(Exception e) {
         log.error(e.getMessage(), e);
-        return new RespWrapper<>(RespCodeEnum.DEBUG);
+        return new RespWrapper<>(RespCodeEnum.EXCEPTION);
     }
 }

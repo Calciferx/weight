@@ -1,6 +1,6 @@
 package com.calcifer.weight.service;
 
-import com.calcifer.weight.entity.dto.User;
+import com.calcifer.weight.entity.dto.UserDTO;
 import com.calcifer.weight.entity.po.UserPO;
 import com.calcifer.weight.repository.UserMapper;
 import org.springframework.beans.BeanUtils;
@@ -16,13 +16,13 @@ public class UserService {
     @Autowired
     private UserMapper userMapper;
 
-    public User queryUser(String name, String pwd) {
+    public UserDTO queryUser(String name, String pwd) {
         UserPO userPO = new UserPO(name);
         userPO = userMapper.queryUser(userPO);
         if (userPO != null && userPO.getPwd().equalsIgnoreCase(DigestUtils.md5DigestAsHex(pwd.getBytes()))) {
-            User user = new User();
-            BeanUtils.copyProperties(userPO, user);
-            return user;
+            UserDTO userDTO = new UserDTO();
+            BeanUtils.copyProperties(userPO, userDTO);
+            return userDTO;
         }
         return null;
     }

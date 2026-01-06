@@ -5,16 +5,16 @@ public enum ActionEnum implements ICodeEnum {
     EXPORT(2, "导出"),
     ;
 
-    private final int code;
+    private final Integer code;
     private final String msg;
 
-    ActionEnum(int code, String msg) {
+    ActionEnum(Integer code, String msg) {
         this.code = code;
         this.msg = msg;
     }
 
     @Override
-    public int getCode() {
+    public Integer getCode() {
         return code;
     }
 

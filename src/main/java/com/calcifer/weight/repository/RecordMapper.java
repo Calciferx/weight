@@ -1,6 +1,6 @@
 package com.calcifer.weight.repository;
 
-import com.calcifer.weight.entity.dto.RecordDto;
+import com.calcifer.weight.entity.dto.RecordDTO;
 import com.calcifer.weight.entity.po.RecordPO;
 import org.springframework.stereotype.Repository;
 
@@ -10,7 +10,7 @@ import java.util.List;
 public interface RecordMapper {
     List<RecordPO> getRecordList(RecordPO recordPO);
 
-    List<RecordDto> findRecordList(RecordDto recordDto);
+    List<RecordDTO> findRecordList(RecordDTO recordDto);
 
     int updateRecord(RecordPO recordPO);
 

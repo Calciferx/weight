@@ -14,8 +14,6 @@ import com.calcifer.weight.service.SlaveDetailService;
 import com.calcifer.weight.service.SlaveInfoService;
 import com.calcifer.weight.utils.DateUtil;
 import com.calcifer.weight.utils.IpUtil;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.intelligt.modbus.jlibmodbus.exception.ModbusIOException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -68,12 +66,12 @@ public class SlaveController {
             HttpServletRequest request
     ) {
         if (slaveInfoService.count(slaveIp, null, null) > 0) {
-            return new RespWrapper<>(false, RespCodeEnum.ERROR, "ip已存在");
+            return new RespWrapper<>(false, RespCodeEnum.FAILED, "ip已存在");
         }
         SlaveInfo slaveInfo = new SlaveInfo(UUID.randomUUID().toString(), slaveIp, slaveName, slaveCode, coilName, coilNum, discreteName, discreteNum, DateUtil.getTime(), remark, status);
         int flag = slaveInfoService.add(slaveInfo);
         if (flag < 1) {
-            return new RespWrapper<>(false, RespCodeEnum.ERROR, "操作失败");
+            return new RespWrapper<>(false, RespCodeEnum.FAILED, "操作失败");
         }
         SlaveDetailInfo slaveDetailInfo = new SlaveDetailInfo(DateUtil.getTime(), "", slaveInfo.getId(), "2");
         for (int i = 0; i < coilNum; i++) {
@@ -116,11 +114,11 @@ public class SlaveController {
     ) {
         SlaveInfo slaveInfo = new SlaveInfo(id, slaveIp, slaveName, slaveCode, coilName, coilNum, discreteName, discreteNum, null, remark, status);
         if (slaveInfoService.count(slaveIp, null, null) > 0) {
-            return new RespWrapper<>(false, RespCodeEnum.ERROR, "ip已存在");
+            return new RespWrapper<>(false, RespCodeEnum.FAILED, "ip已存在");
         }
         Integer flag = slaveInfoService.update(slaveInfo);
         if (flag < 1) {
-            return new RespWrapper<>(false, RespCodeEnum.ERROR);
+            return new RespWrapper<>(false, RespCodeEnum.FAILED);
         }
         if (StringUtils.hasLength(jsonStr)) {
             List<SlaveDetailInfo> slaveDetailInfos = JSONObject.parseArray(jsonStr, SlaveDetailInfo.class);
@@ -166,7 +164,7 @@ public class SlaveController {
     ) {
         Integer count = slaveInfoService.count(null, id, "2");
         if (count < 1) {
-            return new RespWrapper<>(false, RespCodeEnum.ERROR, "请停用后重试");
+            return new RespWrapper<>(false, RespCodeEnum.FAILED, "请停用后重试");
         }
         int flag = slaveInfoService.delete(id);
         Integer deletedNum = slaveDetailService.delete(id);
@@ -174,7 +172,7 @@ public class SlaveController {
             LogInfo logInfo = new LogInfo(null, null, "基础档案", "从机档案", "删除", TOKEN_USER_MAP.get(token).getRealName(), IpUtil.getClientIpAddress(request), null, null, id, "删除" + slaveIp + "从机档案", null, null);
             logService.addLog(logInfo);
         } else {
-            return new RespWrapper<>(false, RespCodeEnum.ERROR);
+            return new RespWrapper<>(false, RespCodeEnum.FAILED);
         }
         return new RespWrapper<>(true, RespCodeEnum.SUCCESS, "操作成功");
     }
@@ -188,12 +186,13 @@ public class SlaveController {
             @Parameter(description = "页码", required = true) @RequestParam(value = "page", defaultValue = "1") Integer pageNum,
             @Parameter(description = "每页条数", required = true) @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             HttpServletRequest request) {
-        PageInfo<SlaveInfo> pageInfo = PageHelper.startPage(pageNum, pageNum).doSelectPageInfo(() -> slaveInfoService.querySlaveInfo(null, null, status, keywords));
-        if (pageInfo != null) {
-            return new RespWrapper<>(pageInfo.getList(), RespCodeEnum.SUCCESS, (int) pageInfo.getTotal(), pageInfo.getPages(), "操作成功");
-        } else {
-            return new RespWrapper<>(null, RespCodeEnum.SUCCESS, "操作成功");
-        }
+//        PageInfo<SlaveInfo> pageInfo = PageHelper.startPage(pageNum, pageNum).doSelectPageInfo(() -> slaveInfoService.querySlaveInfo(null, null, status, keywords));
+//        if (pageInfo != null) {
+//            return new RespWrapper<>(pageInfo.getList(), RespCodeEnum.SUCCESS, (int) pageInfo.getTotal(), pageInfo.getPages(), "操作成功");
+//        } else {
+//            return new RespWrapper<>(null, RespCodeEnum.SUCCESS, "操作成功");
+//        }
+        return null;
     }
 
 
@@ -205,7 +204,7 @@ public class SlaveController {
             @Parameter(description = "状态(1.启用2.停用)") @RequestParam(required = false) String status,
             HttpServletRequest request) {
         List<SlaveInfo> slaveInfos = slaveInfoService.querySlaveInfo(null, null, status, keywords);
-        return new RespWrapper<>(slaveInfos, RespCodeEnum.SUCCESS, "操作成功");
+        return new RespWrapper<>(slaveInfos);
     }
 
     /**
@@ -234,7 +233,7 @@ public class SlaveController {
             @Parameter(description = "主表id", required = true) @RequestParam(required = true) String slaveId,
             HttpServletRequest request) {
         List<SlaveDetailInfo> slaveDetailInfos = slaveDetailService.querySlaveDetailInfo(slaveId, null, null);
-        return new RespWrapper<>(slaveDetailInfos, RespCodeEnum.SUCCESS, "操作成功");
+        return new RespWrapper<>(slaveDetailInfos);
     }
 
     @PostMapping(value = "/initSystem.do")
@@ -251,6 +250,6 @@ public class SlaveController {
     @ExceptionHandler
     public Object exceptionHandleTest(Exception e) {
         log.error(e.getMessage(), e);
-        return new RespWrapper<>(RespCodeEnum.DEBUG);
+        return new RespWrapper<>(RespCodeEnum.EXCEPTION);
     }
 }

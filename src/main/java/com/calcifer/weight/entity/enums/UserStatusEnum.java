@@ -3,22 +3,20 @@ package com.calcifer.weight.entity.enums;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum UserStatusEnum implements ICodeEnum {
-    FORBIDDEN(0, "账户被禁用"),
-    FORBIDDEN1(1, "账户被禁用"),
-    FORBIDDEN2(2, "账户被禁用"),
-    FORBIDDEN3(3, "账户被禁用"),
+    FORBIDDEN(0, "账户已禁用"),
+    ACTIVATED(1, "账户已启用"),
     ;
 
-    private final int code;
+    private final Integer code;
     private final String msg;
 
-    UserStatusEnum(int code, String msg) {
+    UserStatusEnum(Integer code, String msg) {
         this.code = code;
         this.msg = msg;
     }
 
     @JsonValue
-    public int getCode() {
+    public Integer getCode() {
         return code;
     }
 

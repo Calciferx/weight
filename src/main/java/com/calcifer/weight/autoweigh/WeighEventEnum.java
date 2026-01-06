@@ -18,16 +18,16 @@ public enum WeighEventEnum implements ICodeEnum {
     START_WAIT(12, "开始自动计量"),
     ;
 
-    private final int code;
+    private final Integer code;
     private final String msg;
 
-    WeighEventEnum(int code, String msg) {
+    WeighEventEnum(Integer code, String msg) {
         this.code = code;
         this.msg = msg;
     }
 
     @Override
-    public int getCode() {
+    public Integer getCode() {
         return code;
     }
 

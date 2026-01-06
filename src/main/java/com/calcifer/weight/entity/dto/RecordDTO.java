@@ -4,7 +4,7 @@ import com.calcifer.weight.entity.enums.CompleteStatusEnum;
 import lombok.Data;
 
 @Data
-public class RecordDto {
+public class RecordDTO {
     //流水号
     private String serialNumber;
     //车号
@@ -88,10 +88,10 @@ public class RecordDto {
     private String startTime;
     private String endTime;
 
-    public RecordDto() {
+    public RecordDTO() {
     }
 
-    public RecordDto(String carNum, String goodsName, String carNo, String startTime, String endTime, String weighingMode) {
+    public RecordDTO(String carNum, String goodsName, String carNo, String startTime, String endTime, String weighingMode) {
         this.carNum = carNum;
         this.goodsName = goodsName;
         this.carNo = carNo;

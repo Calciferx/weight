@@ -7,17 +7,17 @@ public enum CompleteStatusEnum implements ICodeEnum {
     COMPLETED(2, "已完成记录"),
     ;
 
-    private final int code;
+    private final Integer code;
     private final String msg;
 
-    CompleteStatusEnum(int code, String msg) {
+    CompleteStatusEnum(Integer code, String msg) {
         this.code = code;
         this.msg = msg;
     }
 
     @Override
     @JsonValue
-    public int getCode() {
+    public Integer getCode() {
         return code;
     }
 

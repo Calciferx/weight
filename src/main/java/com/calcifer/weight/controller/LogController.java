@@ -5,6 +5,7 @@ import com.calcifer.weight.entity.enums.ActionEnum;
 import com.calcifer.weight.entity.enums.RespCodeEnum;
 import com.calcifer.weight.entity.enums.WSCodeEnum;
 import com.calcifer.weight.entity.po.LogInfo;
+import com.calcifer.weight.entity.vo.PageWrapper;
 import com.calcifer.weight.entity.vo.RespWrapper;
 import com.calcifer.weight.entity.vo.WSRespWrapper;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
@@ -16,7 +17,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.beanutils.BeanMap;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,27 +28,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * 日志管理
- */
-@RequestMapping("/sys/logs")
+@RequestMapping("log")
 @RestController
-@Tag(name = "系统 操作日志", description = "系统")
+@Tag(name = "操作记录", description = "操作记录")
 public class LogController {
-
     @Autowired
     private LogService logService;
-
     @Autowired
     private WeightWebSocketHandler webSocketHandler;
 
 
-    /**
-     * 描述: 列表
-     */
-    @PostMapping(value = "/findAll.do")
-    @Operation(summary = "列表", description = "条件：无")
-    public RespWrapper<Object> listAll(
+    @PostMapping(value = "/query")
+    @Operation(summary = "操作记录查询", description = "操作记录查询")
+    public RespWrapper<?> listAll(
             @Parameter(description = "token", required = true) @RequestParam(required = true) String token,
             @Parameter(description = "查询时间") @RequestParam(required = false) String createTime,
             @Parameter(description = "查询时间") @RequestParam(required = false) String webSocketName,
@@ -74,9 +66,9 @@ public class LogController {
             String[] columnWidth = {"14", "25", "16", "17", "15", "17"};
             ExportExcelUtil.exportExcel("操作日志", folderPath, columnNames, columnWidth, logInfoMap, fileName);
             webSocketHandler.sendMessageToUser(webSocketName, new WSRespWrapper<>("/upload/user/" + fileName, WSCodeEnum.exportMsg));
-            return new RespWrapper<>(url + fileName, RespCodeEnum.SUCCESS);
+            return new RespWrapper<>(url + fileName);
         } else {
-            return new RespWrapper<>(logInfoList, RespCodeEnum.SUCCESS);
+            return new RespWrapper<>(logInfoList);
         }
     }
 }

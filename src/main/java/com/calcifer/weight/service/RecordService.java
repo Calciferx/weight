@@ -1,6 +1,6 @@
 package com.calcifer.weight.service;
 
-import com.calcifer.weight.entity.dto.RecordDto;
+import com.calcifer.weight.entity.dto.RecordDTO;
 import com.calcifer.weight.entity.enums.CompleteStatusEnum;
 import com.calcifer.weight.entity.po.RecordPO;
 import com.calcifer.weight.entity.vo.RecordVO;
@@ -43,7 +43,7 @@ public class RecordService {
         return recordMapper.getRecordList(recordPO);
     }
 
-    public List<RecordDto> findRecordList(RecordDto recordDto) {
+    public List<RecordDTO> findRecordList(RecordDTO recordDto) {
         return recordMapper.findRecordList(recordDto);
     }
 

@@ -16,16 +16,16 @@ public enum WSCodeEnum implements ICodeEnum {
     TRUCK_AND_WEIGHT(9, "车辆及重量信息"),
     AUTO_WEIGHT_BUTTON(10, "自动过磅按钮状态控制")
     ;
-    private final int code;
+    private final Integer code;
     private final String msg;
 
-    WSCodeEnum(int code, String msg) {
+    WSCodeEnum(Integer code, String msg) {
         this.code = code;
         this.msg = msg;
     }
 
     @JsonValue
-    public int getCode() {
+    public Integer getCode() {
         return code;
     }
 

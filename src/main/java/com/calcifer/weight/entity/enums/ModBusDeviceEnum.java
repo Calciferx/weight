@@ -11,16 +11,16 @@ public enum ModBusDeviceEnum implements ICodeEnum {
     BACK_LIGHT(LIGHT2, "出端红绿灯"),
     ;
 
-    private final int code;
+    private final Integer code;
     private final String msg;
 
-    ModBusDeviceEnum(int code, String msg) {
+    ModBusDeviceEnum(Integer code, String msg) {
         this.code = code;
         this.msg = msg;
     }
 
     @Override
-    public int getCode() {
+    public Integer getCode() {
         return code;
     }
 

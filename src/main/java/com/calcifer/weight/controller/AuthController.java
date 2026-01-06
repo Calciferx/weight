@@ -1,7 +1,7 @@
 package com.calcifer.weight.controller;
 
 import com.calcifer.weight.entity.dto.SlaveDetailInfo;
-import com.calcifer.weight.entity.dto.User;
+import com.calcifer.weight.entity.dto.UserDTO;
 import com.calcifer.weight.entity.enums.RespCodeEnum;
 import com.calcifer.weight.entity.enums.UserStatusEnum;
 import com.calcifer.weight.entity.po.UserRolePO;
@@ -27,29 +27,25 @@ import static com.calcifer.weight.common.WeightContext.TOKEN_USER_MAP;
 
 @Slf4j
 @RestController
-@RequestMapping("adminx/login")
-public class LoginController {
-
+@RequestMapping("auth")
+public class AuthController {
     @Autowired
     private UserService userService;
-
     @Autowired
     private UserSlaveService userSlaveService;
-
     @Autowired
     private SlaveDetailService slaveDetailService;
-
     @Autowired
     private UserRoleService userRoleService;
 
 
-    @PostMapping("login.do")
-    public RespWrapper<LoginVO> login(String username, String password) {
-        User user = userService.queryUser(username, password);
-        if (user == null) {
+    @PostMapping("login")
+    public RespWrapper<?> login(String username, String password) {
+        UserDTO userDTO = userService.queryUser(username, password);
+        if (userDTO == null) {
             return new RespWrapper<>(RespCodeEnum.IS_NOT_USERNAME_ERROR);
         }
-        if (user.getStatus() == UserStatusEnum.FORBIDDEN) {
+        if (userDTO.getStatus() == UserStatusEnum.FORBIDDEN) {
             return new RespWrapper<>(RespCodeEnum.USER_LOCK_ERROR);
         }
         // 如果已登录则移除之前的登录信息
@@ -62,20 +58,20 @@ public class LoginController {
         String token = UUID.randomUUID().toString();
         log.info("user: {}, token: {}", username, token);
         NAME_TOKEN_MAP.put(username, token);
-        TOKEN_USER_MAP.put(token, user);
+        TOKEN_USER_MAP.put(token, userDTO);
 
-        UserSlaveInfo userSlaveInfo = userSlaveService.queryUserSlaveInfo(user.getId());
+        UserSlaveInfo userSlaveInfo = userSlaveService.queryUserSlaveInfo(userDTO.getUserId());
         List<SlaveDetailInfo> slaveDetailInfos = new ArrayList<>();
         if (userSlaveInfo != null) {
             slaveDetailInfos = slaveDetailService.querySlaveDetailInfo(userSlaveInfo.getSlaveId(), null, null);
         }
-        List<UserRolePO> userRolePOS = userRoleService.queryUserRole(user.getId());
-        LoginVO loginVO = new LoginVO(token, user, userRolePOS, slaveDetailInfos);
+        List<UserRolePO> userRolePOS = userRoleService.queryUserRole(userDTO.getUserId());
+        LoginVO loginVO = new LoginVO(token, userDTO, userRolePOS, slaveDetailInfos);
         return new RespWrapper<>(loginVO);
     }
 
-    @PostMapping("notAuth")
-    public RespWrapper<Object> notAuth() {
+    @PostMapping("logout")
+    public RespWrapper<Object> logout() {
         return new RespWrapper<>(RespCodeEnum.IS_NOT_LOGIN_ERROR);
     }
 }

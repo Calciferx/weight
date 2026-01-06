@@ -5,16 +5,16 @@ public enum DirectionEnum implements ICodeEnum {
     REVERSE(2, "反向"),
     ;
 
-    private final int code;
+    private final Integer code;
     private final String msg;
 
-    DirectionEnum(int code, String msg) {
+    DirectionEnum(Integer code, String msg) {
         this.code = code;
         this.msg = msg;
     }
 
     @Override
-    public int getCode() {
+    public Integer getCode() {
         return code;
     }
 

@@ -15,16 +15,16 @@ public enum WeighStatusEnum implements ICodeEnum {
     STOP_WAIT(9, "停止自动计量")
     ;
 
-    private final int code;
+    private final Integer code;
     private final String msg;
 
-    WeighStatusEnum(int code, String msg) {
+    WeighStatusEnum(Integer code, String msg) {
         this.code = code;
         this.msg = msg;
     }
 
     @Override
-    public int getCode() {
+    public Integer getCode() {
         return code;
     }
 

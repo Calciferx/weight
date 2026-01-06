@@ -10,17 +10,17 @@ public enum RecordTypeEnum implements ICodeEnum {
     CURRENT_YEAR(5, "本年记录"),
     ;
 
-    private final int code;
+    private final Integer code;
     private final String msg;
 
-    RecordTypeEnum(int code, String msg) {
+    RecordTypeEnum(Integer code, String msg) {
         this.code = code;
         this.msg = msg;
     }
 
     @Override
     @JsonValue
-    public int getCode() {
+    public Integer getCode() {
         return code;
     }
 
