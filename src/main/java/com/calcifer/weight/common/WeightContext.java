@@ -10,6 +10,5 @@ public class WeightContext {
      */
     public static long lastStatusChange;
 
-    public static final ConcurrentHashMap<String, String> NAME_TOKEN_MAP = new ConcurrentHashMap<>();
-    public static final ConcurrentHashMap<String, UserDTO> TOKEN_USER_MAP = new ConcurrentHashMap<>();
+    public static final ThreadLocal<SessionInfo> CURRENT_SESSION = ThreadLocal.withInitial(SessionInfo::new);
 }

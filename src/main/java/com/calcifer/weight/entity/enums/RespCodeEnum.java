@@ -8,9 +8,9 @@ public enum RespCodeEnum implements ICodeEnum {
     EXCEPTION(1002, "操作异常"),
 
     OrderERROR(22222, "单据已存在"),
-    IS_NOT_LOGIN_ERROR(1008, "用户未登录"),
-    IS_NOT_USERNAME_ERROR(1010, "用户不存在"),
-    USER_LOCK_ERROR(1011, "用户被禁用"),
+    NOT_LOGIN_ERROR(1008, "用户未登录"),
+    USERNAME_NOT_FOUND(1010, "用户不存在"),
+    USER_LOCKED_ERROR(1011, "用户被禁用"),
     PASSWORD_ERROR(1009, "密码错误"),
     ERP_ENTER_ERROR(2000, "T+回写失败"),
     SERVICE_ERROR(500, "接口请求"),

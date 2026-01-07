@@ -19,14 +19,10 @@ import java.util.List;
 import java.util.UUID;
 
 
-/**
- * 描述: 用户
- */
-
 @Slf4j
 @RestController
 @RequestMapping("user")
-@Tag(name = "用户管理", description = "用户管理接口")
+@Tag(name = "用户管理", description = "用户管理")
 public class UserController {
     @Autowired
     private UserService userService;

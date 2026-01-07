@@ -181,12 +181,4 @@ public class TestController {
         List<SlaveDetailInfo> slaveDetailInfos = slaveDetailMapper.querySlaveDetailInfo(slaveDetailInfo);
         return new RespWrapper<>(slaveDetailInfos);
     }
-
-
-    @ExceptionHandler
-    @ResponseBody
-    public Object exceptionHandleTest(Exception e) {
-        log.error(e.getMessage(), e);
-        return new RespWrapper<>(RespCodeEnum.EXCEPTION);
-    }
 }

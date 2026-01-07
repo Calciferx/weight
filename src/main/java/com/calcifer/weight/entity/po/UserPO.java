@@ -1,9 +1,11 @@
 package com.calcifer.weight.entity.po;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.calcifer.weight.entity.enums.UserStatusEnum;
 import lombok.Data;
 
 @Data
+@TableField
 public class UserPO {
     private String id;
     private String pwd;

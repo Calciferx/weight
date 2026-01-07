@@ -39,36 +39,14 @@ public class LogController {
 
 
     @PostMapping(value = "/query")
-    @Operation(summary = "操作记录查询", description = "操作记录查询")
-    public RespWrapper<?> listAll(
-            @Parameter(description = "token", required = true) @RequestParam(required = true) String token,
-            @Parameter(description = "查询时间") @RequestParam(required = false) String createTime,
-            @Parameter(description = "查询时间") @RequestParam(required = false) String webSocketName,
-            @Parameter(description = "1.查询2.导出", required = true) @RequestParam(required = true) ActionEnum flag,
-//			@Parameter(description = "页码") @RequestParam(required = false, defaultValue = "1") Integer pageNum,
-//            @Parameter(description = "每页条数") @RequestParam(required = false, defaultValue = "10") Integer pageSize,
-            HttpServletRequest request) {
-        Map<String, Object> result = new HashMap<String, Object>();
-        Map<String, Object> params = new HashMap<String, Object>();
+    @Operation(summary = "查询操作记录", description = "查询操作记录")
+    public RespWrapper<?> query(){
+        return null;
+    }
 
-        LogInfo logInfo = new LogInfo();
-        logInfo.setCreateTime(createTime);
-        List<LogInfo> logInfoList = logService.findSysLogInfoByCondition(logInfo);
-        if (flag != ActionEnum.QUERY) {
-            List<Map<Object, Object>> logInfoMap = logInfoList.stream().map(BeanMap::new).collect(Collectors.toList());
-//                    List list = customerService.findAllList(params, ".pageList");
-            String folderPath = request.getSession().getServletContext().getRealPath("/upload/user/");
-            // String fileName = DateUtil.getSdfTimess() + "操作日志_导出.xls";
-            String fileName = DateUtil.getSdfTimess() + "OperationLog.xls";
-            String url = "/upload/user/";
-            String[][] columnNames = {{"用户", "ip", "模块", "功能", "操作时间", "操作内容"},
-                    {"name", "ip", "modular", "function", "createTime", "operation"}};
-            String[] columnWidth = {"14", "25", "16", "17", "15", "17"};
-            ExportExcelUtil.exportExcel("操作日志", folderPath, columnNames, columnWidth, logInfoMap, fileName);
-            webSocketHandler.sendMessageToUser(webSocketName, new WSRespWrapper<>("/upload/user/" + fileName, WSCodeEnum.exportMsg));
-            return new RespWrapper<>(url + fileName);
-        } else {
-            return new RespWrapper<>(logInfoList);
-        }
+    @PostMapping(value = "/delete")
+    @Operation(summary = "删除操作记录", description = "删除操作记录")
+    public RespWrapper<?> delete(){
+        return null;
     }
 }
