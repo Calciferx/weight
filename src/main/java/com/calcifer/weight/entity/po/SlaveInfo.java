@@ -1,9 +1,14 @@
 package com.calcifer.weight.entity.po;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 @Data
+@TableName("wg_slave_info")
 public class SlaveInfo {
+    @TableId
     private String id;
     private String slaveIp;
     private String slaveName;
@@ -16,6 +21,7 @@ public class SlaveInfo {
     private String remark;
     private String status;
 
+    @TableField(exist = false)
     private String keywords;
 
     public SlaveInfo() {

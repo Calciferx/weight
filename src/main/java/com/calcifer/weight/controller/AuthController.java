@@ -11,7 +11,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,10 +30,14 @@ public class AuthController {
     @Operation(summary = "登录", description = "登录")
     @PostMapping("login")
     public RespWrapper<?> login(
-            @Parameter(description = "用户名", required = true) String username,
-            @Parameter(description = "密码", required = true) String password,
+            @RequestBody UserDTO userDTO,
             HttpServletRequest request) {
-        UserDTO userDTO = userService.queryUser(username, password);
+        String username = userDTO.getUsername();
+        String password = userDTO.getPassword();
+        if (!StringUtils.hasText(username) && !StringUtils.hasText(password)) {
+            return new RespWrapper<>(false, RespCodeEnum.ILLEGAL_INPUT);
+        }
+        userDTO = userService.queryUser(username, password);
         if (userDTO == null) {
             return new RespWrapper<>(false, RespCodeEnum.USERNAME_NOT_FOUND);
         }
@@ -40,7 +46,7 @@ public class AuthController {
         }
         request.getSession().setAttribute("user", userDTO);
 
-        return new RespWrapper<>(userDTO);
+        return new RespWrapper<>(true, RespCodeEnum.SUCCESS);
     }
 
     @Operation(summary = "登出", description = "登出")

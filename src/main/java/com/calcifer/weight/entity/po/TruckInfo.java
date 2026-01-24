@@ -1,11 +1,17 @@
 package com.calcifer.weight.entity.po;
 
 import cn.hutool.core.date.DateTime;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 @Data
+@TableName("tbl_card")
 public class TruckInfo {
-    private String ID;
+    @TableId(type = IdType.AUTO)
+    private Integer ID;
     private String cardNum;
     private String carNum;
     private double tare;

@@ -3,16 +3,16 @@ package com.calcifer.weight.autoweigh;
 import com.calcifer.weight.entity.enums.ICodeEnum;
 
 public enum WeighStatusEnum implements ICodeEnum {
-    WAIT(1, "等待车辆驶入"),
-    WAIT_CARD(2, "等待司机刷卡"),
-    WAIT_ENTER(2, "等待车辆上称"),
-    ENTERING(3, "车辆正在上称"),
-    ON_WEIGH(4, "车辆已上称"),
-    WEIGHED(5, "称重完成"),
-    LEAVING_WEIGH(6, "正在下称"),
-    LEFT_WEIGH(7, "已下称"),
-    LEAVING(8, "正在驶离"),
-    STOP_WAIT(9, "停止自动计量")
+    WAIT(-1, "等待车辆驶入"),
+    TRUCK_FOUND(0, "发现车辆，等待司机刷卡"),
+    CARD_READ(1, "已刷卡，等待车辆上称"),
+    ENTERING(2, "车辆正在上称"),
+    WEIGHING(3, "车辆已上称，正在称重"),
+    WEIGHED(4, "称重完成"),
+    EXITING(5, "车辆正在下称"),
+    EXITED(6, "车辆已下称"),
+    TRUCK_LEAVING(7, "车辆正在驶离"),
+    STOP_WAIT(8, "停止自动计量")
     ;
 
     private final Integer code;

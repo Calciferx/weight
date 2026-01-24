@@ -1,0 +1,50 @@
+[
+  {
+    "title": "卡号",
+    "dataIndex": "cardNum",
+    "key": "cardNum",
+    "width": 120
+  },
+  {
+    "title": "车号",
+    "dataIndex": "carNum",
+    "key": "carNum",
+    "width": 120
+  },
+  {
+    "title": "皮重",
+    "dataIndex": "tare",
+    "key": "tare",
+    "width": 100
+  },
+  {
+    "title": "发货单位",
+    "dataIndex": "faHuo",
+    "key": "faHuo",
+    "width": 150
+  },
+  {
+    "title": "收货单位",
+    "dataIndex": "shouHuo",
+    "key": "shouHuo",
+    "width": 150
+  },
+  {
+    "title": "货物",
+    "dataIndex": "goods",
+    "key": "goods",
+    "width": 120
+  },
+  {
+    "title": "规格",
+    "dataIndex": "spec",
+    "key": "spec",
+    "width": 100
+  },
+  {
+    "title": "备注",
+    "dataIndex": "memo",
+    "key": "memo",
+    "width": 150
+  }
+]

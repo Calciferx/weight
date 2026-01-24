@@ -1,7 +1,10 @@
 package com.calcifer.weight.entity.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+
+import java.util.Date;
 
 @Data
 public class RecordVO {
@@ -70,16 +73,20 @@ public class RecordVO {
     private String tareWeighterId;
     //    CONVERT(varchar,毛重时间,120) 毛重时间
     @JsonProperty("毛重时间")
-    private String roughWeightTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date roughWeightTime;
     //    CONVERT(varchar,皮重时间,120) 皮重时间
     @JsonProperty("皮重时间")
-    private String tareWeightTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date tareWeightTime;
     //    CONVERT(varchar,一次过磅时间,120) 一次过磅时间
     @JsonProperty("一次过磅时间")
-    private String firstWeighTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date firstWeighTime;
     //    CONVERT(varchar,二次过磅时间,120) 二次过磅时间
     @JsonProperty("二次过磅时间")
-    private String secondWeighTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date secondWeighTime;
     //    备用1,
     @JsonProperty("备用1")
     private String bak1;
@@ -88,7 +95,8 @@ public class RecordVO {
     private String updateBy;
     //    CONVERT(varchar,更新时间,120) 更新时间,
     @JsonProperty("更新时间")
-    private String updateTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date updateTime;
     //    备注
     @JsonProperty("备注")
     private String comment;

@@ -17,7 +17,7 @@ import java.util.Map;
 public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse serverHttpResponse, WebSocketHandler webSocketHandler, Map<String, Object> attributes) throws Exception {
-        log.info("Before Handshake");
+        log.info("Before Handshake. URI: {}, Attributes: {}", request.getURI(), attributes);
         return true;
     }
 

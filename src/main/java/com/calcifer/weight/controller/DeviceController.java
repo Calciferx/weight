@@ -54,4 +54,26 @@ public class DeviceController {
         weighStateMachine.sendEvent(message);
         return new RespWrapper<>(true, RespCodeEnum.SUCCESS);
     }
+
+    @Operation(summary = "初始化设备", description = "初始化所有设备状态")
+    @RequestMapping("init")
+    public RespWrapper<?> init() {
+        // 1. 发送 RESET 事件并获取是否被接受
+        boolean accepted = weighStateMachine.sendEvent(MessageBuilder.withPayload(WeighEventEnum.RESET).build());
+
+        // 2. 检查事件是否被接受以及执行过程中是否有异常
+        if (!accepted) {
+            return new RespWrapper<>(false, RespCodeEnum.FAILED, "设备初始化失败：重置指令未被接受");
+        }
+        if (weighStateMachine.hasStateMachineError()) {
+            // 尝试从 ExtendedState 获取具体的错误信息（需在状态机 Action 中通过 context.getExtendedState().getVariables().put("ERROR_MSG", ...) 存入）
+            String errorMsg = weighStateMachine.getExtendedState().get("ERROR_MSG", String.class);
+            if (errorMsg != null) {
+                weighStateMachine.getExtendedState().getVariables().remove("ERROR_MSG");
+                return new RespWrapper<>(false, RespCodeEnum.FAILED, errorMsg);
+            }
+        }
+
+        return new RespWrapper<>(true, RespCodeEnum.SUCCESS);
+    }
 }

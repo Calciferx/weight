@@ -1,0 +1,38 @@
+[
+  {
+    "title": "用户名",
+    "dataIndex": "username",
+    "key": "username",
+    "width": 120
+  },
+  {
+    "title": "真实姓名",
+    "dataIndex": "realName",
+    "key": "realName",
+    "width": 120
+  },
+  {
+    "title": "手机号",
+    "dataIndex": "phoneNumber",
+    "key": "phoneNumber",
+    "width": 150
+  },
+  {
+    "title": "状态",
+    "dataIndex": "status",
+    "key": "status",
+    "width": 100
+  },
+  {
+    "title": "创建时间",
+    "dataIndex": "createTime",
+    "key": "createTime",
+    "width": 180
+  },
+  {
+    "title": "角色",
+    "dataIndex": "roleName",
+    "key": "roleName",
+    "width": 120
+  }
+]

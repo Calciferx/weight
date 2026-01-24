@@ -1,10 +1,9 @@
 package com.calcifer.weight.handler;
 
+import cn.hutool.core.date.DatePattern;
 import com.alibaba.fastjson.JSON;
 import com.calcifer.weight.entity.enums.WSCodeEnum;
 import com.calcifer.weight.entity.vo.WSRespWrapper;
-import com.calcifer.weight.utils.DateUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -14,7 +13,8 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Date;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Websocket处理器
@@ -24,7 +24,7 @@ import java.util.HashMap;
 public class WeightWebSocketHandler extends TextWebSocketHandler {
 
     //已建立的连接
-    private static final HashMap<String, WebSocketSession> sessionMap = new HashMap<>();
+    private static final ConcurrentHashMap<String, WebSocketSession> sessionMap = new ConcurrentHashMap<>();
 
     /**
      * 处理前端发送的文本信息
@@ -35,7 +35,10 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
         // 获取提交过来的消息详情
         log.info("收到用户 {} 的消息: {}", session.getId(), message.toString());
         //回复一条信息
-        session.sendMessage(new TextMessage("{\"reply msg\":\"" + message.getPayload() + "\"}"));
+        session.sendMessage(new TextMessage("""
+                {"reply msg": %s}
+                """.formatted(message.getPayload())
+        ));
     }
 
 
@@ -51,10 +54,10 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
         if (sessionId == null) {
             sessionId = session.getId();
         }
+        session.getAttributes().put("sessionId", sessionId);
         sessionMap.put(sessionId, session);
-        WSRespWrapper<String> wsRespWrapper = new WSRespWrapper<>(sessionId, WSCodeEnum.MSGType_1);
-        ObjectMapper objectMapper = new ObjectMapper();
-        session.sendMessage(new TextMessage(objectMapper.writeValueAsString(wsRespWrapper)));
+        WSRespWrapper<String> wsRespWrapper = new WSRespWrapper<>(sessionId, WSCodeEnum.SUCCESS);
+        session.sendMessage(new TextMessage(JSON.toJSONString(wsRespWrapper)));
     }
 
     /**
@@ -62,9 +65,11 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
      */
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        String sessionId = session.getId();
+        String sessionId = (String) session.getAttributes().get("sessionId");
         log.info("用户: {} Connection closed. Status: {}", sessionId, status);
-        sessionMap.remove(sessionId);
+        if (sessionId != null) {
+            sessionMap.remove(sessionId);
+        }
     }
 
     /**
@@ -72,12 +77,24 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
      */
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        String sessionId = session.getId();
+        String sessionId = (String) session.getAttributes().get("sessionId");
         if (session.isOpen()) {
             session.close();
         }
         log.info("用户: {} websocket connection closed", sessionId);
-        sessionMap.remove(sessionId);
+        if (sessionId != null) {
+            sessionMap.remove(sessionId);
+        }
+    }
+
+    private void syncSendMessage(WebSocketSession session, WebSocketMessage<?> message) throws IOException {
+        if (session.isOpen()) {
+            synchronized (session) {
+                if (session.isOpen()) {
+                    session.sendMessage(message);
+                }
+            }
+        }
     }
 
     /**
@@ -96,11 +113,13 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    /**
+     * 给所有在线用户发送json消息
+     */
     public void sendJsonToAllUser(Object o) {
         log.debug("send json to all user...");
-        ObjectMapper objectMapper = new ObjectMapper();
         try {
-            TextMessage message = new TextMessage(objectMapper.writeValueAsString(o));
+            TextMessage message = new TextMessage(JSON.toJSONString(o));
             for (WebSocketSession session : sessionMap.values()) {
                 if (session.isOpen()) {
                     log.debug("sendMessageTo: {}", session.getId());
@@ -113,13 +132,21 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
     }
 
     /**
-     * 按照与前端约定的格式发送ws数据
+     * 按照与前端约定的格式给所有用户发送json消息
      *
      * @param wsCodeEnum 消息类型
      * @param o          数据
      */
     public void sendWSJsonToAllUser(WSCodeEnum wsCodeEnum, Object o) {
         sendJsonToAllUser(new WSRespWrapper<>(o, wsCodeEnum));
+    }
+
+    /**
+     * 按照与前端约定的格式给所有用户发送json消息
+     * 发送前端日志窗口显示的称重日志
+     */
+    public void sendWeightLogToAllUser(String msg) {
+        sendJsonToAllUser(new WSRespWrapper<>(DatePattern.NORM_DATETIME_MS_FORMAT.format(new Date()) + ": " + msg, WSCodeEnum.WEIGH_LOG));
     }
 
     /**
@@ -137,25 +164,11 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    /**
+     * 给某个用户发送json消息
+     */
     public void sendMessageToUser(String sessionId, Object o) {
         TextMessage textMessage = new TextMessage(JSON.toJSONString(o));
         sendMessageToUser(sessionId, textMessage);
-    }
-
-    /**
-     * 发送前端日志窗口显示的称重日志
-     */
-    public void sendWeightLogToAllUser(String msg) {
-        sendJsonToAllUser(new WSRespWrapper<>(DateUtil.getTime() + ": " + msg, WSCodeEnum.WEIGH_LOG));
-    }
-
-    private void syncSendMessage(WebSocketSession session, WebSocketMessage<?> message) throws IOException {
-        if (session.isOpen()) {
-            synchronized (session) {
-                if (session.isOpen()) {
-                    session.sendMessage(message);
-                }
-            }
-        }
     }
 }

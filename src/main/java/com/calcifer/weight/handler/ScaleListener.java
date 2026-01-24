@@ -72,7 +72,7 @@ public class ScaleListener implements SerialPortUtil.DataAvailableListener {
                     if (num > 100) {
                         WeightContext.lastStatusChange = System.currentTimeMillis();
                     }
-                    WeightInfo weightInfo = new WeightInfo(status, num);
+                    WeightInfo weightInfo = new WeightInfo(status, num, new Date());
                     WSRespWrapper<WeightInfo> rtWeightInfo = new WSRespWrapper<>(weightInfo, WSCodeEnum.RT_WEIGH_NUM);
                     log.debug("weight map: {}", JSON.toJSONString(rtWeightInfo));
                     // 如果称的状态为稳定则开始采样计算重量，否则清空重量数据队列

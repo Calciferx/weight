@@ -2,6 +2,8 @@ package com.calcifer.weight.entity.dto;
 
 import com.calcifer.weight.entity.enums.UserStatusEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -12,7 +14,7 @@ public class UserDTO {
     private String userId;
     @Schema(description = "用户名", example = "jack", requiredMode = Schema.RequiredMode.REQUIRED)
     private String username;
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Schema(description = "密码", example = "pwd1234")
     private String password;
     @Schema(description = "角色", example = "ADMIN")

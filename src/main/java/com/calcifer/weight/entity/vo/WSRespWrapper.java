@@ -15,10 +15,4 @@ public class WSRespWrapper<T> {
         this.type = type;
         this.msg = type.getMsg();
     }
-
-    public WSRespWrapper(T data, WSCodeEnum type, String msg) {
-        this.data = data;
-        this.type = type;
-        this.msg = msg;
-    }
 }

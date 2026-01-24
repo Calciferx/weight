@@ -1,6 +1,7 @@
 package com.calcifer.weight.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.calcifer.weight.WeightApplication;
 import com.calcifer.weight.autoweigh.WeighEventEnum;
 import com.calcifer.weight.autoweigh.WeighStatusEnum;
@@ -8,6 +9,7 @@ import com.calcifer.weight.entity.dto.SlaveDetailInfo;
 import com.calcifer.weight.entity.enums.ModBusDeviceEnum;
 import com.calcifer.weight.entity.enums.RespCodeEnum;
 import com.calcifer.weight.entity.enums.UserStatusEnum;
+import com.calcifer.weight.entity.po.TruckInfo;
 import com.calcifer.weight.entity.po.UserPO;
 import com.calcifer.weight.entity.po.UserSlaveInfo;
 import com.calcifer.weight.entity.vo.PageWrapper;
@@ -15,6 +17,8 @@ import com.calcifer.weight.entity.vo.RespWrapper;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
 import com.calcifer.weight.repository.*;
 import com.calcifer.weight.service.DeviceService;
+import com.calcifer.weight.service.SlaveDetailService;
+import com.calcifer.weight.service.UserSlaveService;
 import com.calcifer.weight.service.VoiceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,22 +34,20 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
 public class TestController {
 
     @Autowired
-    private TestMapper mapper;
-
-    @Autowired
     private UserMapper userMapper;
 
     @Autowired
-    private UserSlaveMapper userSlaveMapper;
+    private UserSlaveService userSlaveService;
 
     @Autowired
-    private SlaveDetailMapper slaveDetailMapper;
+    private SlaveDetailService slaveDetailService;
 
     @Autowired
     private CardMapper cardMapper;
@@ -147,38 +149,37 @@ public class TestController {
 
     @RequestMapping("cardMapperTest/{cardNum}")
     public Object getTruckInfo(@PathVariable("cardNum") String cardNum) {
-        return cardMapper.getTruckInfo(cardNum);
+        return cardMapper.selectOne(new LambdaQueryWrapper<TruckInfo>().eq(TruckInfo::getCardNum, cardNum));
     }
 
     @RequestMapping(value = "/hello")
     public String testMethod() {
-        List<HashMap<String, Object>> hashMaps = mapper.queryTest();
+        List<Map<String, Object>> hashMaps = userMapper.selectMaps(null);
         return JSON.toJSONString(hashMaps);
     }
 
     @RequestMapping(value = "/ex")
     public String exceptionHandleTest() {
-        List<HashMap<String, Object>> hashMaps = mapper.queryTest();
+        List<Map<String, Object>> hashMaps = userMapper.selectMaps(null);
         throw new RuntimeException("hello异常");
 //        return JSON.toJSONString(hashMaps);
     }
 
     @RequestMapping(value = "/world/{name}")
     public Object queryUserTest(@PathVariable("name") String name) {
-        UserPO admin = userMapper.queryUser(new UserPO(name));
+        UserPO admin = userMapper.selectOne(new LambdaQueryWrapper<UserPO>().eq(UserPO::getUsername, name));
         return new RespWrapper<>(admin);
     }
 
     @RequestMapping(value = "/userSlaveInfo/{slaveId}")
     public Object queryUserSlaveInfoTest(@PathVariable("slaveId") String slaveId) {
-        List<UserSlaveInfo> userSlaveInfoList = userSlaveMapper.queryUserSlaveInfo(slaveId);
+        List<UserSlaveInfo> userSlaveInfoList = userSlaveService.queryUserSlaveInfo(slaveId);
         return new RespWrapper<>(userSlaveInfoList);
     }
 
     @RequestMapping(value = "/slaveDetail/{slaveId}")
     public Object querySlaveDetailTest(@PathVariable("slaveId") String slaveId) {
-        SlaveDetailInfo slaveDetailInfo = new SlaveDetailInfo(slaveId, null, null);
-        List<SlaveDetailInfo> slaveDetailInfos = slaveDetailMapper.querySlaveDetailInfo(slaveDetailInfo);
+        List<SlaveDetailInfo> slaveDetailInfos = slaveDetailService.querySlaveDetailInfoBySlaveId(slaveId);
         return new RespWrapper<>(slaveDetailInfos);
     }
 }

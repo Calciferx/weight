@@ -1,44 +1,30 @@
 package com.calcifer.weight.entity.po;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.calcifer.weight.entity.enums.UserStatusEnum;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@TableField
+@NoArgsConstructor
+@TableName("sys_user")
 public class UserPO {
-    private String id;
-    private String pwd;
-    private String name;
-    private String phone;
+    @TableId("id")
+    private String userId;
+    @TableField("name")
+    private String username;
+    @TableField("pwd")
+    private String password;
     private UserStatusEnum status;
     private String createTime;
     private String realName;
+    @TableField("phone")
+    private String phoneNumber;
+    @TableField("role_id")
+    private String role;
+    private String customerStatus;
     private String areaId;
     private String managerCustomer;
-    private Integer customerStatus;
-    private String roleId;
-
-    private String roleName;
-
-    public UserPO() {
-    }
-
-    public UserPO(String name) {
-        this.name = name;
-    }
-
-    public UserPO(String id, String pwd, String name, String phone, UserStatusEnum status, String createTime, String realName, String areaId, String managerCustomer, Integer customerStatus, String roleId) {
-        this.id = id;
-        this.pwd = pwd;
-        this.name = name;
-        this.phone = phone;
-        this.status = status;
-        this.createTime = createTime;
-        this.realName = realName;
-        this.areaId = areaId;
-        this.managerCustomer = managerCustomer;
-        this.customerStatus = customerStatus;
-        this.roleId = roleId;
-    }
 }

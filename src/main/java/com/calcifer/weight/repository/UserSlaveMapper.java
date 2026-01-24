@@ -1,12 +1,9 @@
 package com.calcifer.weight.repository;
 
-import com.calcifer.weight.entity.po.UserSlaveInfo;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.calcifer.weight.entity.po.UserSlave;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
-public interface UserSlaveMapper {
-
-    List<UserSlaveInfo> queryUserSlaveInfo(String slaveId);
+public interface UserSlaveMapper extends BaseMapper<UserSlave> {
 }

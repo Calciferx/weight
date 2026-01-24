@@ -1,0 +1,44 @@
+[
+  {
+    "title": "流水号",
+    "dataIndex": "serialNum",
+    "key": "serialNum",
+    "width": 150
+  },
+  {
+    "title": "车号",
+    "dataIndex": "carNo",
+    "key": "carNo",
+    "width": 120
+  },
+  {
+    "title": "状态",
+    "dataIndex": "status",
+    "key": "status",
+    "width": 100
+  },
+  {
+    "title": "毛重",
+    "dataIndex": "grossWeight",
+    "key": "grossWeight",
+    "width": 100
+  },
+  {
+    "title": "皮重",
+    "dataIndex": "tareWeight",
+    "key": "tareWeight",
+    "width": 100
+  },
+  {
+    "title": "净重",
+    "dataIndex": "netWeight",
+    "key": "netWeight",
+    "width": 100
+  },
+  {
+    "title": "时间",
+    "dataIndex": "updateTime",
+    "key": "updateTime",
+    "width": 180
+  }
+]

@@ -9,6 +9,7 @@ import com.calcifer.weight.service.UserService;
 import com.calcifer.weight.utils.DateUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,6 @@ import java.util.UUID;
 public class UserController {
     @Autowired
     private UserService userService;
-    @Autowired
-    private UserRoleService userRoleService;
 
 
     @PostMapping(value = "/add")
@@ -35,8 +34,8 @@ public class UserController {
     public RespWrapper<?> add(@RequestBody UserDTO userDTO) {
         UserPO userPO = new UserPO();
         BeanUtils.copyProperties(userDTO, userPO);
-        userPO.setId(UUID.randomUUID().toString());
-        userPO.setPwd(DigestUtils.md5DigestAsHex(userDTO.getPassword().getBytes()));
+        userPO.setUserId(UUID.randomUUID().toString());
+        userPO.setPassword(DigestUtils.md5DigestAsHex(userDTO.getPassword().getBytes()));
         userPO.setCreateTime(DateUtil.getTime());
 
         Integer flag = userService.addUser(userPO);
@@ -52,8 +51,8 @@ public class UserController {
     public RespWrapper<?> update(@RequestBody UserDTO userDTO) {
         UserPO userPO = new UserPO();
         BeanUtils.copyProperties(userDTO, userPO);
-        userPO.setId(UUID.randomUUID().toString());
-        userPO.setPwd(DigestUtils.md5DigestAsHex(userDTO.getPassword().getBytes()));
+        userPO.setUserId(UUID.randomUUID().toString());
+        userPO.setPassword(DigestUtils.md5DigestAsHex(userDTO.getPassword().getBytes()));
         userPO.setCreateTime(DateUtil.getTime());
 
         Integer flag = userService.update(userPO);
@@ -78,8 +77,14 @@ public class UserController {
     @PostMapping(value = "/query")
     @Operation(summary = "查询用户信息", description = "查询用户信息")
     public RespWrapper<List<UserPO>> pageList(@RequestBody UserDTO userDTO) {
-        List<UserPO> userPOS = userService.queryUserByIds(List.of(userDTO.getUserId()));
+        List<UserPO> userPOS = userService.list();
         return new RespWrapper<>(userPOS);
     }
 
+    @GetMapping(value = "/currentUser")
+    @Operation(summary = "获取当前用户信息", description = "获取当前用户信息")
+    public RespWrapper<?> currentUser(HttpServletRequest request) {
+        Object userDTO = request.getSession().getAttribute("user");
+        return new RespWrapper<>(userDTO);
+    }
 }

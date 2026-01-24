@@ -1,0 +1,68 @@
+[
+  {
+    "title": "流水号",
+    "dataIndex": "serialNum",
+    "key": "serialNum",
+    "width": 150
+  },
+  {
+    "title": "车号",
+    "dataIndex": "carNo",
+    "key": "carNo",
+    "width": 120
+  },
+  {
+    "title": "货名",
+    "dataIndex": "goodsName",
+    "key": "goodsName",
+    "width": 120
+  },
+  {
+    "title": "规格",
+    "dataIndex": "specification",
+    "key": "specification",
+    "width": 100
+  },
+  {
+    "title": "发货单位",
+    "dataIndex": "goodsSender",
+    "key": "goodsSender",
+    "width": 150
+  },
+  {
+    "title": "收货单位",
+    "dataIndex": "goodsReceiver",
+    "key": "goodsReceiver",
+    "width": 150
+  },
+  {
+    "title": "毛重",
+    "dataIndex": "grossWeight",
+    "key": "grossWeight",
+    "width": 100
+  },
+  {
+    "title": "皮重",
+    "dataIndex": "tareWeight",
+    "key": "tareWeight",
+    "width": 100
+  },
+  {
+    "title": "净重",
+    "dataIndex": "netWeight",
+    "key": "netWeight",
+    "width": 100
+  },
+  {
+    "title": "一次过磅时间",
+    "dataIndex": "firstWeighTime",
+    "key": "firstWeighTime",
+    "width": 180
+  },
+  {
+    "title": "二次过磅时间",
+    "dataIndex": "secondWeighTime",
+    "key": "secondWeighTime",
+    "width": 180
+  }
+]

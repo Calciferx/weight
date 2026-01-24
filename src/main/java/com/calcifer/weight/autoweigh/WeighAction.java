@@ -1,5 +1,6 @@
 package com.calcifer.weight.autoweigh;
 
+import cn.hutool.core.date.DatePattern;
 import com.calcifer.weight.entity.enums.CompleteStatusEnum;
 import com.calcifer.weight.entity.enums.ModBusDeviceEnum;
 import com.calcifer.weight.entity.enums.WSCodeEnum;
@@ -10,7 +11,6 @@ import com.calcifer.weight.service.DeviceService;
 import com.calcifer.weight.service.RandomService;
 import com.calcifer.weight.service.RecordService;
 import com.calcifer.weight.service.VoiceService;
-import com.calcifer.weight.utils.DateUtil;
 import com.intelligt.modbus.jlibmodbus.exception.ModbusIOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +19,7 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -66,7 +67,7 @@ public class WeighAction {
     public Action<WeighStatusEnum, WeighEventEnum> waitTruckEntering() {
         return context -> {
             log.info("========waitTruckEntering action========");
-            if (!deviceService.getLastModBusDeviceStatus().isInfrared1() || deviceService.getLastModBusDeviceStatus().isInfrared4()) {
+            if (!deviceService.getLastModBusDeviceStatus().isInfraredFrontFound() || deviceService.getLastModBusDeviceStatus().isInfraredBackFound()) {
                 voiceService.voice("系统状态错误，请车辆完全退出后重新进入");
                 throw new RuntimeException("status incorrect. " + deviceService.getLastModBusDeviceStatus());
             }
@@ -135,6 +136,7 @@ public class WeighAction {
                 log.info("***** weight is: {} *****", weight);
                 List<RecordPO> recordList = recordService.getRecordList(truckInfo.getCarNum(), CompleteStatusEnum.UNCOMPLETED);
                 String voice = null;
+                Date now = new Date();
                 if (!recordList.isEmpty()) {
 //            if(DateUtil.dateMinDiff(weightMap.get("更新时间")+"",DateUtil.getTime(),"yyyy-MM-dd HH:mm:ss")<10){
 //                this.weightStatus = "3";////丢弃意外的二次数据
@@ -145,17 +147,17 @@ public class WeighAction {
                     Double tareWeight = record.getTareWeight() == null ? 0 : record.getTareWeight();
                     RecordPO newRecord = new RecordPO();
                     if (weight > tareWeight) {
-                        newRecord.setRoughWeight(weight);
+                        newRecord.setGrossWeight(weight);
                         newRecord.setTareWeight(tareWeight);
                         newRecord.setNetWeight(weight - tareWeight);
-                        newRecord.setRoughWeightTime(DateUtil.getTime());
+                        newRecord.setRoughWeightTime(now);
                     } else {
-                        newRecord.setRoughWeight(tareWeight);
+                        newRecord.setGrossWeight(tareWeight);
                         newRecord.setTareWeight(weight);
                         newRecord.setNetWeight(tareWeight - weight);
-                        newRecord.setTareWeightTime(DateUtil.getTime());
+                        newRecord.setTareWeightTime(now);
                     }
-                    newRecord.setSecondWeighTime(DateUtil.getTime());
+                    newRecord.setSecondWeighTime(now);
                     newRecord.setSecondWeight(weight);
                     newRecord.setBak1("2");
                     newRecord.setSerialNum(record.getSerialNum());
@@ -176,25 +178,24 @@ public class WeighAction {
                 } else {
                     RecordPO newRecord = new RecordPO();
                     //TODO randomService优化
-                    newRecord.setSerialNum(randomService.randomUtils("A1001", DateUtil.getDays()));
-                    newRecord.setCarNum(truckInfo.getCarNum());
+                    newRecord.setSerialNum(randomService.randomUtils("A1001", DatePattern.PURE_DATE_FORMAT.format(now)));
+                    newRecord.setCarNo(truckInfo.getCarNum());
                     newRecord.setWeighType(String.valueOf(truckInfo.getType()));
-                    newRecord.setGoodSender(truckInfo.getFaHuo());
-                    newRecord.setGoodReceiver(truckInfo.getShouHuo());
-                    newRecord.setGoodName(truckInfo.getGoods());
+                    newRecord.setGoodsSender(truckInfo.getFaHuo());
+                    newRecord.setGoodsReceiver(truckInfo.getShouHuo());
+                    newRecord.setGoodsName(truckInfo.getGoods());
                     newRecord.setSpecification(truckInfo.getSpec());
-                    newRecord.setRoughWeight(0D);
-                    newRecord.setRoughWeight(0D);
+                    newRecord.setGrossWeight(0D);
+                    newRecord.setGrossWeight(0D);
                     newRecord.setTareWeight(weight);
-                    String time = DateUtil.getTime();
-                    newRecord.setRoughWeightTime(time);
-                    newRecord.setTareWeightTime(time);
-                    newRecord.setFirstWeighTime(time);
-                    newRecord.setSecondWeighTime(time);
+                    newRecord.setRoughWeightTime(now);
+                    newRecord.setTareWeightTime(now);
+                    newRecord.setFirstWeighTime(now);
+                    newRecord.setSecondWeighTime(now);
                     if ("一次过磅".equals(truckInfo.getBackup13())) {
                         newRecord.setBak1("2");
                         newRecord.setRecordFinish("1");
-                        newRecord.setRoughWeight(weight);
+                        newRecord.setGrossWeight(weight);
                         newRecord.setTareWeight(0D);
                         newRecord.setNetWeight(weight);
                         newRecord.setBak13("一次过磅");
@@ -276,7 +277,7 @@ public class WeighAction {
         return context -> {
             log.info("========truckLeft action========");
             webSocketHandler.sendWeightLogToAllUser("称重结束，车辆已驶离...");
-            webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.TRUCK_AND_WEIGHT, "清空页面数据显示");
+            webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.WEIGH_INFO, new RecordPO());
             // 车辆已驶离，道闸关闭，红绿灯置为绿
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_OFF, true);
@@ -295,15 +296,19 @@ public class WeighAction {
     public Action<WeighStatusEnum, WeighEventEnum> reset() {
         return context -> {
             log.info("========reset action========");
-            webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.TRUCK_AND_WEIGHT, "清空页面数据显示");
+            // 清空
+            webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.WEIGH_INFO, new RecordPO());
 //            synchronized (AutoScanJob.class) {
-                log.info("reset all devices...");
-                try {
-                    deviceService.destroy();
-                } catch (ModbusIOException e) {
-                    throw new RuntimeException(e);
-                }
+            log.info("reset all devices...");
+            try {
+                deviceService.destroy();
                 deviceService.init();
+            } catch (Exception e) {
+                // 将异常信息存入 ExtendedState
+                context.getExtendedState().getVariables().put("ERROR_MSG", "硬件重置失败: " + e.getMessage());
+                // 抛出异常或设置错误标志，使 stateMachine.hasStateMachineError() 返回 true
+                throw new RuntimeException(e);
+            }
 //            }
         };
     }

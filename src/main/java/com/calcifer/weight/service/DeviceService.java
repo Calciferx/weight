@@ -1,5 +1,6 @@
 package com.calcifer.weight.service;
 
+import cn.hutool.core.util.ArrayUtil;
 import com.alibaba.fastjson.JSON;
 import com.calcifer.weight.entity.dto.SlaveDetailInfo;
 import com.calcifer.weight.entity.enums.ModBusDeviceEnum;
@@ -7,7 +8,6 @@ import com.calcifer.weight.entity.enums.WSCodeEnum;
 import com.calcifer.weight.entity.po.SlaveInfo;
 import com.calcifer.weight.entity.vo.WSRespWrapper;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
-import com.calcifer.weight.utils.ArrayUtils;
 import com.calcifer.weight.utils.SerialPortUtil;
 import com.fazecast.jSerialComm.SerialPort;
 import com.intelligt.modbus.jlibmodbus.Modbus;
@@ -45,20 +45,21 @@ import static com.calcifer.weight.entity.enums.WSCodeEnum.*;
 @Service
 @Slf4j
 public class DeviceService {
-    public static int INFRA1 = 0;
-    public static int INFRA2 = 1;
-    public static int BARRIER1_ON = 2;
-    public static int BARRIER1_OFF = 3;
-    public static int LIGHT1 = 4;
-    public static int LIGHT2 = 5;
-    public static int BARRIER2_OFF = 6;
-    public static int BARRIER2_ON = 7;
-    public static int INFRA3 = 8;
-    public static int INFRA4 = 9;
+    public static int INFRA_FRONT_FOUND = 0;
+    public static int INFRA_FRONT_WEIGH = 1;
+    public static int BARRIER_FRONT_ON = 2;
+    public static int BARRIER_FRONT_OFF = 3;
+    public static int LIGHT_FRONT = 4;
+    public static int LIGHT_BACK = 5;
+    public static int BARRIER_BACK_OFF = 6;
+    public static int BARRIER_BACK_ON = 7;
+    public static int INFRA_BACK_WEIGH = 8;
+    public static int INFRA_BACK_FOUND = 9;
 
     private SlaveInfo slaveInfo;
     private SlaveDetailInfo[] slaveDetailInfos;
-    private WSCodeEnum[] wsMessageType;
+    private SlaveDetailInfo[] slaveDetailInfosPositive;
+    private SlaveDetailInfo[] slaveDetailInfosNegative;
     private ModbusMaster modbusMaster;
 
     @Resource(name = "cardListener")
@@ -104,6 +105,8 @@ public class DeviceService {
 
     @Getter
     private boolean init;
+    //当前设备顺序，true为反转
+    private boolean reverseFlag;
 
 
     public void init() {
@@ -151,19 +154,22 @@ public class DeviceService {
         List<SlaveDetailInfo> slaveDetailInfoList = slaveDetailService.querySlaveDetailInfoBySlaveId(slaveInfo.getId());
         Map<String, SlaveDetailInfo> typeMap = slaveDetailInfoList.stream().collect(Collectors.toMap(SlaveDetailInfo::getType, Function.identity()));
 
-        wsMessageType = new WSCodeEnum[]{INFR_NORTH_OUT, INFR_NORTH_IN, null, null, null, null, null, null, INFR_SOUTH_IN, INFR_SOUTH_OUT};
+        slaveDetailInfosPositive = new SlaveDetailInfo[10];
+        slaveDetailInfosPositive[INFRA_FRONT_FOUND] = typeMap.get("1"); // infrared1
+        slaveDetailInfosPositive[INFRA_FRONT_WEIGH] = typeMap.get("7"); // infrared2
+        slaveDetailInfosPositive[BARRIER_FRONT_ON] = typeMap.get("2"); // barrierGate1On
+        slaveDetailInfosPositive[BARRIER_FRONT_OFF] = typeMap.get("9"); // barrierGate1Off
+        slaveDetailInfosPositive[LIGHT_FRONT] = typeMap.get("3"); // trafficLight1
+        slaveDetailInfosPositive[LIGHT_BACK] = typeMap.get("6"); // trafficLight2
+        slaveDetailInfosPositive[BARRIER_BACK_OFF] = typeMap.get("10"); // barrierGate2Off
+        slaveDetailInfosPositive[BARRIER_BACK_ON] = typeMap.get("5"); // barrierGate2On
+        slaveDetailInfosPositive[INFRA_BACK_WEIGH] = typeMap.get("4"); // infrared3
+        slaveDetailInfosPositive[INFRA_BACK_FOUND] = typeMap.get("8"); // infrared4
 
-        slaveDetailInfos = new SlaveDetailInfo[10];
-        slaveDetailInfos[INFRA1] = typeMap.get("1"); // infrared1
-        slaveDetailInfos[INFRA2] = typeMap.get("7"); // infrared2
-        slaveDetailInfos[BARRIER1_ON] = typeMap.get("2"); // barrierGate1On
-        slaveDetailInfos[BARRIER1_OFF] = typeMap.get("9"); // barrierGate1Off
-        slaveDetailInfos[LIGHT1] = typeMap.get("3"); // trafficLight1
-        slaveDetailInfos[LIGHT2] = typeMap.get("6"); // trafficLight2
-        slaveDetailInfos[BARRIER2_OFF] = typeMap.get("10"); // barrierGate2Off
-        slaveDetailInfos[BARRIER2_ON] = typeMap.get("5"); // barrierGate2On
-        slaveDetailInfos[INFRA3] = typeMap.get("4"); // infrared3
-        slaveDetailInfos[INFRA4] = typeMap.get("8"); // infrared4
+        slaveDetailInfosNegative = slaveDetailInfosPositive.clone();
+        ArrayUtil.reverse(slaveDetailInfosNegative);
+
+        slaveDetailInfos = slaveDetailInfosPositive;
 
 
         initModbusMaster();
@@ -279,9 +285,9 @@ public class DeviceService {
     public void reverseDirection(boolean isReverse) {
         if (isReverse) {
             log.info("reverse direction...");
-            // 反转数组
-            ArrayUtils.reverse(slaveDetailInfos);
-            ArrayUtils.reverse(wsMessageType);
+            // 设备顺序反转
+            reverseFlag = !reverseFlag;
+            slaveDetailInfos = reverseFlag ? slaveDetailInfosNegative : slaveDetailInfosPositive;
         }
     }
 
@@ -294,11 +300,8 @@ public class DeviceService {
         int quantity = slaveInfo.getCoilNum();
         boolean[] discreteInputs = modbusMaster.readDiscreteInputs(slaveAddress, offset, quantity);
         ModBusDeviceStatus modBusDeviceStatus = new ModBusDeviceStatus(discreteInputs);
-        // 发送红外的ws消息
-        webSocketHandler.sendJsonToAllUser(new WSRespWrapper<>(modBusDeviceStatus.isInfrared1(), wsMessageType[INFRA1]));
-        webSocketHandler.sendJsonToAllUser(new WSRespWrapper<>(modBusDeviceStatus.isInfrared2(), wsMessageType[INFRA2]));
-        webSocketHandler.sendJsonToAllUser(new WSRespWrapper<>(modBusDeviceStatus.isInfrared3(), wsMessageType[INFRA3]));
-        webSocketHandler.sendJsonToAllUser(new WSRespWrapper<>(modBusDeviceStatus.isInfrared4(), wsMessageType[INFRA4]));
+        // 发送红外状态的ws消息
+        webSocketHandler.sendJsonToAllUser(new WSRespWrapper<>(Map.of("infra1" ,modBusDeviceStatus.isInfrared1(), "infra2" ,modBusDeviceStatus.isInfrared2(), "infra3" ,modBusDeviceStatus.isInfrared3(), "infra4" ,modBusDeviceStatus.isInfrared4()), INFRA));
         String statusChangeStr = modBusDeviceStatus.getStatusChangeStr(lastModBusDeviceStatus);
         if (StringUtils.hasLength(statusChangeStr)) {
             log.info(statusChangeStr);
@@ -316,7 +319,7 @@ public class DeviceService {
 
         @Override
         public String toString() {
-            return String.format("device status: %s, infra1:%s, infra2:%s, infra3:%s, infra4:%s", JSON.toJSONString(discreteInputs), isInfrared1(), isInfrared2(), isInfrared3(), isInfrared4());
+            return String.format("device status: %s, InfraredFrontFound:%s, InfraredFrontWeigh:%s, InfraredBackWeigh:%s, InfraredBackFound:%s", JSON.toJSONString(discreteInputs), isInfraredFrontFound(), isInfraredFrontWeigh(), isInfraredBackWeigh(), isInfraredBackFound());
         }
 
         public String getStatusChangeStr(ModBusDeviceStatus lastStatus) {
@@ -324,44 +327,54 @@ public class DeviceService {
                 return toString();
             }
             ArrayList<String> list = new ArrayList<>();
-            if (isInfrared1() != lastStatus.isInfrared1()) {
-                list.add(String.format("infra1 changed: from %S to %S", lastStatus.isInfrared1(), isInfrared1()));
+            if (isInfraredFrontFound() != lastStatus.isInfraredFrontFound()) {
+                list.add(String.format("InfraredFrontFound changed: from %S to %S", lastStatus.isInfraredFrontFound(), isInfraredFrontFound()));
             }
-            if (isInfrared2() != lastStatus.isInfrared2()) {
-                list.add(String.format("infra2 changed: from %S to %S", lastStatus.isInfrared2(), isInfrared2()));
+            if (isInfraredFrontWeigh() != lastStatus.isInfraredFrontWeigh()) {
+                list.add(String.format("InfraredFrontWeigh changed: from %S to %S", lastStatus.isInfraredFrontWeigh(), isInfraredFrontWeigh()));
             }
-            if (isInfrared3() != lastStatus.isInfrared3()) {
-                list.add(String.format("infra3 changed: from %S to %S", lastStatus.isInfrared3(), isInfrared3()));
+            if (isInfraredBackWeigh() != lastStatus.isInfraredBackWeigh()) {
+                list.add(String.format("InfraredBackWeigh changed: from %S to %S", lastStatus.isInfraredBackWeigh(), isInfraredBackWeigh()));
             }
-            if (isInfrared4() != lastStatus.isInfrared4()) {
-                list.add(String.format("infra4 changed: from %S to %S", lastStatus.isInfrared4(), isInfrared4()));
+            if (isInfraredBackFound() != lastStatus.isInfraredBackFound()) {
+                list.add(String.format("InfraredBackFound changed: from %S to %S", lastStatus.isInfraredBackFound(), isInfraredBackFound()));
             }
             return String.join(";", list);
         }
 
-        // 红外1和红外4 遮挡为true，红外2和红外3遮挡为false,返回值统一为遮挡为true
+        // 车检红外遮挡为true，计量红外遮挡为false,返回值统一为遮挡为true
+        public boolean isInfraredFrontFound() {
+            return discreteInputs[slaveDetailInfos[INFRA_FRONT_FOUND].getSerialSort()];
+        }
+
+        public boolean isInfraredFrontWeigh() {
+            return !discreteInputs[slaveDetailInfos[INFRA_FRONT_WEIGH].getSerialSort()];
+        }
+
+        public boolean isInfraredBackWeigh() {
+            return !discreteInputs[slaveDetailInfos[INFRA_BACK_WEIGH].getSerialSort()];
+        }
+
+        public boolean isInfraredBackFound() {
+            return discreteInputs[slaveDetailInfos[INFRA_BACK_FOUND].getSerialSort()];
+        }
+
+        // 固定设备顺序，不随reverse而变
+        // 车检红外遮挡为true，计量红外遮挡为false,返回值统一为遮挡为true
         public boolean isInfrared1() {
-            return discreteInputs[slaveDetailInfos[INFRA1].getSerialSort()];
+            return discreteInputs[slaveDetailInfosPositive[INFRA_FRONT_FOUND].getSerialSort()];
         }
 
         public boolean isInfrared2() {
-            return !discreteInputs[slaveDetailInfos[INFRA2].getSerialSort()];
+            return !discreteInputs[slaveDetailInfosPositive[INFRA_FRONT_WEIGH].getSerialSort()];
         }
 
         public boolean isInfrared3() {
-            return !discreteInputs[slaveDetailInfos[INFRA3].getSerialSort()];
+            return !discreteInputs[slaveDetailInfosPositive[INFRA_BACK_WEIGH].getSerialSort()];
         }
 
         public boolean isInfrared4() {
-            return discreteInputs[slaveDetailInfos[INFRA4].getSerialSort()];
-        }
-
-        public boolean isTrafficLight1() {
-            return discreteInputs[slaveDetailInfos[LIGHT1].getSerialSort()];
-        }
-
-        public boolean isTrafficLight2() {
-            return discreteInputs[slaveDetailInfos[LIGHT2].getSerialSort()];
+            return discreteInputs[slaveDetailInfosPositive[INFRA_BACK_FOUND].getSerialSort()];
         }
     }
 }

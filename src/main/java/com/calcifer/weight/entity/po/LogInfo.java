@@ -1,5 +1,7 @@
 package com.calcifer.weight.entity.po;
 
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 /**
@@ -9,6 +11,7 @@ import lombok.Data;
  * @version 1.0.0 2020-12-11
  */
 @Data
+@TableName("sys_log_info")
 public class LogInfo implements java.io.Serializable {
     /**
      * 版本号
@@ -20,6 +23,7 @@ public class LogInfo implements java.io.Serializable {
     /**
      * id
      */
+    @TableId
     private String id;
 
     /**

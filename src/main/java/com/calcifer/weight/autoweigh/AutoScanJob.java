@@ -49,47 +49,48 @@ public class AutoScanJob {
             DeviceService.ModBusDeviceStatus modBusDeviceStatus = deviceService.readModBusDeviceStatus();
             // 任意一个红外被遮挡时重置计时变量
             long currentTimeMillis = System.currentTimeMillis();
-            if (modBusDeviceStatus.isInfrared1() || modBusDeviceStatus.isInfrared2() || modBusDeviceStatus.isInfrared3() || modBusDeviceStatus.isInfrared4()) {
+            if (modBusDeviceStatus.isInfraredFrontFound() || modBusDeviceStatus.isInfraredFrontWeigh() || modBusDeviceStatus.isInfraredBackWeigh() || modBusDeviceStatus.isInfraredBackFound()) {
                 WeightContext.lastStatusChange = currentTimeMillis;
             } else if (currentTimeMillis - WeightContext.lastStatusChange > waitTime && weighStateMachine.getState().getId() != WeighStatusEnum.WAIT) {
                 // 超过waitTime没有状态变化自动重置系统
                 voiceService.voice("长时间未检测到车辆，系统复位");
                 Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.RESET).build();
                 weighStateMachine.sendEvent(message);
+                weighStateMachine.getExtendedState().getVariables().remove("ERROR_MSG");
             }
-            if (modBusDeviceStatus.isInfrared1()) {
+            if (modBusDeviceStatus.isInfraredFrontFound()) {
                 Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.TRUCK_FOUND).setHeader("reverse", false).build();
                 weighStateMachine.sendEvent(message);
             }
-            if (!modBusDeviceStatus.isInfrared1()) {
+            if (!modBusDeviceStatus.isInfraredFrontFound()) {
                 Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.CANCEL_ENTER).build();
                 weighStateMachine.sendEvent(message);
             }
-            if (modBusDeviceStatus.isInfrared4()) {
+            if (modBusDeviceStatus.isInfraredBackFound()) {
                 Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.TRUCK_FOUND).setHeader("reverse", true).build();
                 weighStateMachine.sendEvent(message);
             }
-            if (modBusDeviceStatus.isInfrared2()) {
+            if (modBusDeviceStatus.isInfraredFrontWeigh()) {
                 Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.ENTER).build();
                 weighStateMachine.sendEvent(message);
             }
-            if (!modBusDeviceStatus.isInfrared2()) {
+            if (!modBusDeviceStatus.isInfraredFrontWeigh()) {
                 Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.ENTERED).build();
                 weighStateMachine.sendEvent(message);
             }
-            if (modBusDeviceStatus.isInfrared3()) {
+            if (modBusDeviceStatus.isInfraredBackWeigh()) {
                 Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.LEAVING_WEIGH).build();
                 weighStateMachine.sendEvent(message);
             }
-            if (!modBusDeviceStatus.isInfrared3()) {
+            if (!modBusDeviceStatus.isInfraredBackWeigh()) {
                 Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.LEFT_WEIGH).build();
                 weighStateMachine.sendEvent(message);
             }
-            if (modBusDeviceStatus.isInfrared4()) {
+            if (modBusDeviceStatus.isInfraredBackFound()) {
                 Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.LEAVING).build();
                 weighStateMachine.sendEvent(message);
             }
-            if (!modBusDeviceStatus.isInfrared4()) {
+            if (!modBusDeviceStatus.isInfraredBackFound()) {
                 Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.LEFT).build();
                 weighStateMachine.sendEvent(message);
             }

@@ -1,6 +1,7 @@
 package com.calcifer.weight.handler;
 
 import cn.hutool.core.convert.Convert;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.calcifer.weight.autoweigh.WeighEventEnum;
 import com.calcifer.weight.autoweigh.WeighStatusEnum;
 import com.calcifer.weight.entity.po.TruckInfo;
@@ -43,7 +44,7 @@ public class CardListener implements SerialPortUtil.DataAvailableListener {
                 String cardNum = matcher.group().substring(8, 32);
                 //                String cardNum = "E2000016660E015616306EDE";
                 log.info("read cardNum: {}", cardNum);
-                TruckInfo truckInfo = cardMapper.getTruckInfo(cardNum);
+                TruckInfo truckInfo = cardMapper.selectOne(new LambdaQueryWrapper<TruckInfo>().eq(TruckInfo::getCardNum, cardNum));
                 if (truckInfo != null && ("启用").equals(truckInfo.getBackup14())) {
                     log.info("read truckInfo success");
                     Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.READ_CARD).setHeader("truckInfo", truckInfo).build();

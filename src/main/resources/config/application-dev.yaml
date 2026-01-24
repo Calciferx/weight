@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    url: jdbc:sqlserver://192.168.111.131:1433;databaseName=weight20
+    url: jdbc:sqlserver://192.168.20.3:1433;databaseName=weight20;encrypt=true;trustServerCertificate=true;
     username: SA
-    password: xwsssyea1009.
+    password: Strong@Password!
 calcifer:
   weight:
     slave-ip: 10.206.4.243

@@ -1,34 +1,39 @@
 package com.calcifer.weight.autoweigh;
 
-import com.calcifer.weight.entity.po.TruckInfo;
+import com.calcifer.weight.entity.enums.WSCodeEnum;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
-import com.calcifer.weight.service.DeviceService;
-import com.calcifer.weight.service.RandomService;
-import com.calcifer.weight.service.RecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
+import org.springframework.statemachine.annotation.OnStateChanged;
 import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.annotation.WithStateMachine;
+import org.springframework.statemachine.state.State;
 import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @WithStateMachine(name = "weighStateMachine")
 @Slf4j
 public class WeighStateListener {
     @Autowired
-    private DeviceService deviceService;
-
-    @Autowired
-    private RecordService recordService;
-
-    @Autowired
-    private RandomService randomService;
-
-    @Autowired
     private WeightWebSocketHandler webSocketHandler;
 
-    private TruckInfo truckInfo;
+    @OnStateChanged
+    public void onStateChanged(State<WeighStatusEnum, WeighEventEnum> to) {
+        if (to != null) {
+            WeighStatusEnum state = to.getId();
+            log.info("状态机状态变更至: {}", state);
+            Map<String, Object> data = Map.of(
+                    "code", state.getCode(),
+                    "msg", state.getMsg()
+            );
+            // 发送系统状态消息给前端
+            webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.SYSTEM_STATUS, data);
+        }
+    }
 
     @OnTransition(source = "WAIT", target = "WAIT_CARD")
     public void readCard(Message<WeighStatusEnum> message) {

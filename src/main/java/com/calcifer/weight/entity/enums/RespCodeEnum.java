@@ -6,6 +6,7 @@ public enum RespCodeEnum implements ICodeEnum {
     SUCCESS(0, "请求成功"),
     FAILED(1001, "操作失败"),
     EXCEPTION(1002, "操作异常"),
+    ILLEGAL_INPUT(1003, "非法的用户名或密码"),
 
     OrderERROR(22222, "单据已存在"),
     NOT_LOGIN_ERROR(1008, "用户未登录"),

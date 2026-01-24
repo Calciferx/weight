@@ -1,0 +1,26 @@
+[
+  {
+    "title": "车号",
+    "dataIndex": "carNum",
+    "key": "carNum",
+    "width": 120
+  },
+  {
+    "title": "卡号",
+    "dataIndex": "cardNum",
+    "key": "cardNum",
+    "width": 120
+  },
+  {
+    "title": "皮重",
+    "dataIndex": "tare",
+    "key": "tare",
+    "width": 100
+  },
+  {
+    "title": "备注",
+    "dataIndex": "memo",
+    "key": "memo",
+    "width": 150
+  }
+]

@@ -1,54 +1,64 @@
 package com.calcifer.weight.service;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.calcifer.weight.entity.po.SlaveInfo;
 import com.calcifer.weight.repository.SlaveMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class SlaveInfoService {
-    @Autowired
-    private SlaveMapper slaveMapper;
+public class SlaveInfoService extends ServiceImpl<SlaveMapper, SlaveInfo> {
 
     public SlaveInfo querySlaveInfoBySlaveIp(String slaveIp) {
-        SlaveInfo slaveInfo = new SlaveInfo();
-        slaveInfo.setSlaveIp(slaveIp);
-        slaveInfo.setStatus("1");
-        List<SlaveInfo> slaveInfos = slaveMapper.querySlaveInfo(slaveInfo);
-        if (slaveInfos.isEmpty()) {
-            return null;
-        } else {
-            return slaveInfos.get(0);
-        }
+        return lambdaQuery()
+                .eq(SlaveInfo::getSlaveIp, slaveIp)
+                .eq(SlaveInfo::getStatus, "1")
+                .one();
     }
 
     public List<SlaveInfo> querySlaveInfo(String slaveIp, String id, String status, String keywords) {
-        SlaveInfo slaveInfo = new SlaveInfo(slaveIp, id, "1");
-        slaveInfo.setKeywords(keywords);
-        return slaveMapper.querySlaveInfo(slaveInfo);
+        return lambdaQuery()
+                .eq(StringUtils.isNotBlank(slaveIp), SlaveInfo::getSlaveIp, slaveIp)
+                .eq(StringUtils.isNotBlank(id), SlaveInfo::getId, id)
+                .eq(StringUtils.isNotBlank(status), SlaveInfo::getStatus, status)
+                .and(StringUtils.isNotBlank(keywords), w -> w.like(SlaveInfo::getSlaveIp, keywords)
+                        .or().like(SlaveInfo::getSlaveName, keywords)
+                        .or().like(SlaveInfo::getSlaveCode, keywords)
+                        .or().like(SlaveInfo::getCoilName, keywords)
+                        .or().like(SlaveInfo::getDiscreteName, keywords))
+                .list();
     }
 
     public Integer count(SlaveInfo slaveInfo) {
-        return slaveMapper.count(slaveInfo);
+        return Math.toIntExact(lambdaQuery()
+                .eq(StringUtils.isNotBlank(slaveInfo.getSlaveIp()), SlaveInfo::getSlaveIp, slaveInfo.getSlaveIp())
+                .eq(StringUtils.isNotBlank(slaveInfo.getId()), SlaveInfo::getId, slaveInfo.getId())
+                .eq(StringUtils.isNotBlank(slaveInfo.getStatus()), SlaveInfo::getStatus, slaveInfo.getStatus())
+                .count());
     }
 
     public Integer count(String slaveIp, String id, String status) {
-        return slaveMapper.count(new SlaveInfo(slaveIp, id, status));
+        return Math.toIntExact(lambdaQuery()
+                .eq(StringUtils.isNotBlank(slaveIp), SlaveInfo::getSlaveIp, slaveIp)
+                .eq(StringUtils.isNotBlank(id), SlaveInfo::getId, id)
+                .eq(StringUtils.isNotBlank(status), SlaveInfo::getStatus, status)
+                .count());
     }
 
     public Integer add(SlaveInfo slaveInfo) {
-        return slaveMapper.add(slaveInfo);
+        return save(slaveInfo) ? 1 : 0;
     }
 
     public Integer update(SlaveInfo slaveInfo) {
-        return slaveMapper.update(slaveInfo);
+        return updateById(slaveInfo) ? 1 : 0;
     }
 
     public Integer delete(String id) {
-        SlaveInfo slaveInfo = new SlaveInfo();
-        slaveInfo.setId(id);
-        return slaveMapper.delete(slaveInfo);
+        return lambdaUpdate()
+                .eq(SlaveInfo::getId, id)
+                .eq(SlaveInfo::getStatus, "2")
+                .remove() ? 1 : 0;
     }
 }
