@@ -133,24 +133,24 @@ public class RecordService extends ServiceImpl<RecordMapper, RecordPO> {
             outDto.setUpdateUser(po.getUpdateBy());
             outDto.setUpdateTime(DateUtil.format(po.getUpdateTime(), "yyyy-MM-dd HH:mm:ss"));
             outDto.setRemark(po.getComment());
-            outDto.setClientType(po.getCustomerType());
+//            outDto.setClientType(po.getCustomerType());
             outDto.setOneWeight(po.getFirstWeight() != null ? String.valueOf(po.getFirstWeight()) : null);
             outDto.setTwoWeight(po.getSecondWeight() != null ? String.valueOf(po.getSecondWeight()) : null);
             outDto.setB0(po.getB0());
             outDto.setAguid(po.getAguid());
             outDto.setPlanNumber(po.getPlanNumber());
-            outDto.setRecordCreateMode(po.getRecordCreateMode());
-            outDto.setRecordFinish(po.getRecordFinish());
-            outDto.setLimitState(po.getLimitState());
+//            outDto.setRecordCreateMode(po.getRecordCreateMode());
+//            outDto.setRecordFinish(po.getRecordFinish());
+//            outDto.setLimitState(po.getLimitState());
             outDto.setManyID(po.getManyId());
-            outDto.setManyNetWeight(po.getMultiNetWeight());
+//            outDto.setManyNetWeight(po.getMultiNetWeight());
             return outDto;
         }).collect(Collectors.toList());
     }
 
     public int updateRecord(RecordPO recordPO) {
         recordPO.setUpdateTime(new Date());
-        recordPO.setRecordFinish("1");
+        recordPO.setRecordFinish(1);
         return updateById(recordPO) ? 1 : 0;
     }
 

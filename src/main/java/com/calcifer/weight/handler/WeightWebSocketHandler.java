@@ -4,7 +4,9 @@ import cn.hutool.core.date.DatePattern;
 import com.alibaba.fastjson.JSON;
 import com.calcifer.weight.entity.enums.WSCodeEnum;
 import com.calcifer.weight.entity.vo.WSRespWrapper;
+import com.calcifer.weight.tunnel.TunnelClientService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -22,6 +24,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Component
 public class WeightWebSocketHandler extends TextWebSocketHandler {
+
+    @Autowired
+    @org.springframework.context.annotation.Lazy
+    private TunnelClientService tunnelClientService;
 
     //已建立的连接
     private static final ConcurrentHashMap<String, WebSocketSession> sessionMap = new ConcurrentHashMap<>();
@@ -119,6 +125,9 @@ public class WeightWebSocketHandler extends TextWebSocketHandler {
     public void sendJsonToAllUser(Object o) {
         log.debug("send json to all user...");
         try {
+            // 通过隧道发送到公网
+            tunnelClientService.broadcast(o);
+            
             TextMessage message = new TextMessage(JSON.toJSONString(o));
             for (WebSocketSession session : sessionMap.values()) {
                 if (session.isOpen()) {

@@ -4,8 +4,7 @@ import cn.hutool.core.util.ArrayUtil;
 import com.alibaba.fastjson.JSON;
 import com.calcifer.weight.entity.dto.SlaveDetailInfo;
 import com.calcifer.weight.entity.enums.ModBusDeviceEnum;
-import com.calcifer.weight.entity.enums.WSCodeEnum;
-import com.calcifer.weight.entity.po.SlaveInfo;
+import com.calcifer.weight.entity.po.SlaveInfoPO;
 import com.calcifer.weight.entity.vo.WSRespWrapper;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
 import com.calcifer.weight.utils.SerialPortUtil;
@@ -56,7 +55,7 @@ public class DeviceService {
     public static int INFRA_BACK_WEIGH = 8;
     public static int INFRA_BACK_FOUND = 9;
 
-    private SlaveInfo slaveInfo;
+    private SlaveInfoPO slaveInfoPO;
     private SlaveDetailInfo[] slaveDetailInfos;
     private SlaveDetailInfo[] slaveDetailInfosPositive;
     private SlaveDetailInfo[] slaveDetailInfosNegative;
@@ -150,8 +149,8 @@ public class DeviceService {
     }
 
     private void initModbusDevice() {
-        slaveInfo = slaveInfoService.querySlaveInfoBySlaveIp(slaveIp);
-        List<SlaveDetailInfo> slaveDetailInfoList = slaveDetailService.querySlaveDetailInfoBySlaveId(slaveInfo.getId());
+        slaveInfoPO = slaveInfoService.querySlaveInfoBySlaveIp(slaveIp);
+        List<SlaveDetailInfo> slaveDetailInfoList = slaveDetailService.querySlaveDetailInfoBySlaveId(slaveInfoPO.getId());
         Map<String, SlaveDetailInfo> typeMap = slaveDetailInfoList.stream().collect(Collectors.toMap(SlaveDetailInfo::getType, Function.identity()));
 
         slaveDetailInfosPositive = new SlaveDetailInfo[10];
@@ -297,7 +296,7 @@ public class DeviceService {
     public ModBusDeviceStatus readModBusDeviceStatus() throws ModbusProtocolException, ModbusNumberException, ModbusIOException {
         int slaveAddress = 1;
         int offset = 0;
-        int quantity = slaveInfo.getCoilNum();
+        int quantity = slaveInfoPO.getCoilNum();
         boolean[] discreteInputs = modbusMaster.readDiscreteInputs(slaveAddress, offset, quantity);
         ModBusDeviceStatus modBusDeviceStatus = new ModBusDeviceStatus(discreteInputs);
         // 发送红外状态的ws消息

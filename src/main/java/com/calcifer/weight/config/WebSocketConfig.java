@@ -22,7 +22,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         //1.注册WebSocket
-        String websocket_url = "/ws";                        //设置websocket的地址
+        String websocket_url = "/api-ws";                        //设置websocket的地址
         registry.addHandler(webSocketHandler, websocket_url)                          //注册Handler
                 .addInterceptors(webSocketHandshakeInterceptor)                   //注册Interceptor
                 .setAllowedOrigins("*");

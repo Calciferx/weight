@@ -12,7 +12,7 @@ public enum WeighStatusEnum implements ICodeEnum {
     EXITING(5, "车辆正在下称"),
     EXITED(6, "车辆已下称"),
     TRUCK_LEAVING(7, "车辆正在驶离"),
-    STOP_WAIT(8, "停止自动计量")
+    STOP_WAIT(-2, "停止自动计量")
     ;
 
     private final Integer code;

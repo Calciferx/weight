@@ -9,13 +9,17 @@ import lombok.Data;
 
 @Data
 @TableName("tbl_card")
-public class TruckInfo {
-    @TableId(type = IdType.AUTO)
-    private Integer ID;
+public class CardInfoPO {
+    @TableId(value = "ID", type = IdType.AUTO)
+    private Integer id;
+    @TableField("cardNum")
     private String cardNum;
+    @TableField("carNum")
     private String carNum;
     private double tare;
+    @TableField("faHuo")
     private String faHuo;
+    @TableField("shouHuo")
     private String shouHuo;
     private String goods;
     private String spec;
@@ -34,6 +38,8 @@ public class TruckInfo {
     private String backup13;
     private String backup14;
     private int type;
+    @TableField("StartTime")
     private DateTime StartTime;
+    @TableField("EndTime")
     private DateTime EndTime;
 }

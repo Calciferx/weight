@@ -5,13 +5,12 @@ import com.calcifer.weight.entity.enums.CompleteStatusEnum;
 import com.calcifer.weight.entity.enums.ModBusDeviceEnum;
 import com.calcifer.weight.entity.enums.WSCodeEnum;
 import com.calcifer.weight.entity.po.RecordPO;
-import com.calcifer.weight.entity.po.TruckInfo;
+import com.calcifer.weight.entity.po.CardInfoPO;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
 import com.calcifer.weight.service.DeviceService;
 import com.calcifer.weight.service.RandomService;
 import com.calcifer.weight.service.RecordService;
 import com.calcifer.weight.service.VoiceService;
-import com.intelligt.modbus.jlibmodbus.exception.ModbusIOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.statemachine.StateContext;
@@ -40,7 +39,7 @@ public class WeighAction {
     @Autowired
     private WeightWebSocketHandler webSocketHandler;
 
-    private TruckInfo truckInfo;
+    private CardInfoPO cardInfoPO;
 
     /**
      * source = "WAIT", target = "WAIT_CARD"
@@ -73,8 +72,8 @@ public class WeighAction {
             }
             webSocketHandler.sendWeightLogToAllUser("读卡成功，等待车辆进入...");
             // 道闸打开，红绿灯置为绿
-            truckInfo = (TruckInfo) context.getMessageHeader("truckInfo");
-            webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.TRUCK_INFO, truckInfo);
+            cardInfoPO = (CardInfoPO) context.getMessageHeader("truckInfo");
+            webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.TRUCK_INFO, cardInfoPO);
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_LIGHT, false);
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, true);
             deviceService.controlModBusDevice(ModBusDeviceEnum.FRONT_BARRIER_ON, true);
@@ -134,15 +133,10 @@ public class WeighAction {
                 // 称重完毕，记录重量，道闸打开，车辆驶离
                 Double weight = (Double) context.getMessageHeader("weight");
                 log.info("***** weight is: {} *****", weight);
-                List<RecordPO> recordList = recordService.getRecordList(truckInfo.getCarNum(), CompleteStatusEnum.UNCOMPLETED);
+                List<RecordPO> recordList = recordService.getRecordList(cardInfoPO.getCarNum(), CompleteStatusEnum.UNCOMPLETED);
                 String voice = null;
                 Date now = new Date();
                 if (!recordList.isEmpty()) {
-//            if(DateUtil.dateMinDiff(weightMap.get("更新时间")+"",DateUtil.getTime(),"yyyy-MM-dd HH:mm:ss")<10){
-//                this.weightStatus = "3";////丢弃意外的二次数据
-//                isRedoErr=true;////丢弃意外的二次数据
-//                break ;
-//            }
                     RecordPO record = recordList.get(0);
                     Double tareWeight = record.getTareWeight() == null ? 0 : record.getTareWeight();
                     RecordPO newRecord = new RecordPO();
@@ -179,12 +173,12 @@ public class WeighAction {
                     RecordPO newRecord = new RecordPO();
                     //TODO randomService优化
                     newRecord.setSerialNum(randomService.randomUtils("A1001", DatePattern.PURE_DATE_FORMAT.format(now)));
-                    newRecord.setCarNo(truckInfo.getCarNum());
-                    newRecord.setWeighType(String.valueOf(truckInfo.getType()));
-                    newRecord.setGoodsSender(truckInfo.getFaHuo());
-                    newRecord.setGoodsReceiver(truckInfo.getShouHuo());
-                    newRecord.setGoodsName(truckInfo.getGoods());
-                    newRecord.setSpecification(truckInfo.getSpec());
+                    newRecord.setCarNo(cardInfoPO.getCarNum());
+                    newRecord.setWeighType(String.valueOf(cardInfoPO.getType()));
+                    newRecord.setGoodsSender(cardInfoPO.getFaHuo());
+                    newRecord.setGoodsReceiver(cardInfoPO.getShouHuo());
+                    newRecord.setGoodsName(cardInfoPO.getGoods());
+                    newRecord.setSpecification(cardInfoPO.getSpec());
                     newRecord.setGrossWeight(0D);
                     newRecord.setGrossWeight(0D);
                     newRecord.setTareWeight(weight);
@@ -192,20 +186,20 @@ public class WeighAction {
                     newRecord.setTareWeightTime(now);
                     newRecord.setFirstWeighTime(now);
                     newRecord.setSecondWeighTime(now);
-                    if ("一次过磅".equals(truckInfo.getBackup13())) {
+                    if ("一次过磅".equals(cardInfoPO.getBackup13())) {
                         newRecord.setBak1("2");
-                        newRecord.setRecordFinish("1");
+                        newRecord.setRecordFinish(1);
                         newRecord.setGrossWeight(weight);
                         newRecord.setTareWeight(0D);
                         newRecord.setNetWeight(weight);
                         newRecord.setBak13("一次过磅");
                     } else {
                         newRecord.setBak1("1");
-                        newRecord.setRecordFinish("0");
+                        newRecord.setRecordFinish(0);
                         newRecord.setBak13("标准过磅");
                     }
                     newRecord.setBak14("IC卡启用");
-                    newRecord.setCustomerType("");
+                    newRecord.setCustomerType(0);
                     newRecord.setFirstWeight(weight);
                     newRecord.setSecondWeight(0D);
                     int addRowNum = recordService.addRecord(newRecord);

@@ -55,12 +55,17 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-            <version>3.5.9</version>
+            <version>3.5.15</version>
         </dependency>
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.microsoft</groupId>-->
+<!--            <artifactId>sqljdbc4</artifactId>-->
+<!--            <version>3.0</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
@@ -115,6 +120,12 @@
             <groupId>com.intelligt.modbus</groupId>
             <artifactId>jlibmodbus</artifactId>
             <version>1.2.9.7</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.java-websocket</groupId>
+            <artifactId>Java-WebSocket</artifactId>
+            <version>1.5.3</version>
         </dependency>
 
     </dependencies>

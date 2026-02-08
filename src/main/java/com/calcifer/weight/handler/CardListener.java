@@ -4,7 +4,7 @@ import cn.hutool.core.convert.Convert;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.calcifer.weight.autoweigh.WeighEventEnum;
 import com.calcifer.weight.autoweigh.WeighStatusEnum;
-import com.calcifer.weight.entity.po.TruckInfo;
+import com.calcifer.weight.entity.po.CardInfoPO;
 import com.calcifer.weight.repository.CardMapper;
 import com.calcifer.weight.service.VoiceService;
 import com.calcifer.weight.utils.SerialPortUtil;
@@ -44,10 +44,10 @@ public class CardListener implements SerialPortUtil.DataAvailableListener {
                 String cardNum = matcher.group().substring(8, 32);
                 //                String cardNum = "E2000016660E015616306EDE";
                 log.info("read cardNum: {}", cardNum);
-                TruckInfo truckInfo = cardMapper.selectOne(new LambdaQueryWrapper<TruckInfo>().eq(TruckInfo::getCardNum, cardNum));
-                if (truckInfo != null && ("启用").equals(truckInfo.getBackup14())) {
+                CardInfoPO cardInfoPO = cardMapper.selectOne(new LambdaQueryWrapper<CardInfoPO>().eq(CardInfoPO::getCardNum, cardNum));
+                if (cardInfoPO != null && ("启用").equals(cardInfoPO.getBackup14())) {
                     log.info("read truckInfo success");
-                    Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.READ_CARD).setHeader("truckInfo", truckInfo).build();
+                    Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.READ_CARD).setHeader("truckInfo", cardInfoPO).build();
                     weighStateMachine.sendEvent(message);
                 } else {
                     log.error("card not register!!");

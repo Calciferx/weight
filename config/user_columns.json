@@ -1,5 +1,11 @@
 [
   {
+    "title": "用户ID",
+    "dataIndex": "userId",
+    "key": "userId",
+    "width": 280
+  },
+  {
     "title": "用户名",
     "dataIndex": "username",
     "key": "username",
@@ -27,7 +33,11 @@
     "title": "创建时间",
     "dataIndex": "createTime",
     "key": "createTime",
-    "width": 180
+    "width": 180,
+    "valueType": "dateRange",
+    "search": {
+      "transform": "(value) => ({ createTime_op: 'between', createTime: value })"
+    }
   },
   {
     "title": "角色",

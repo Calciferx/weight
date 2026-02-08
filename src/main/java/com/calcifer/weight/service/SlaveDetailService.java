@@ -3,8 +3,8 @@ package com.calcifer.weight.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.calcifer.weight.entity.dto.SlaveDetailInfo;
-import com.calcifer.weight.entity.po.SlaveDetail;
-import com.calcifer.weight.entity.po.SlaveInfo;
+import com.calcifer.weight.entity.po.SlaveDetailPO;
+import com.calcifer.weight.entity.po.SlaveInfoPO;
 import com.calcifer.weight.repository.SlaveDetailMapper;
 import com.calcifer.weight.repository.SlaveMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class SlaveDetailService extends ServiceImpl<SlaveDetailMapper, SlaveDetail> {
+public class SlaveDetailService extends ServiceImpl<SlaveDetailMapper, SlaveDetailPO> {
 
     @Autowired
     private SlaveMapper slaveMapper;
@@ -28,7 +28,7 @@ public class SlaveDetailService extends ServiceImpl<SlaveDetailMapper, SlaveDeta
         String targetSlaveId = slaveId;
         
         if (StringUtils.isNotBlank(slaveIp)) {
-            SlaveInfo slave = slaveMapper.selectOne(new LambdaQueryWrapper<SlaveInfo>().eq(SlaveInfo::getSlaveIp, slaveIp));
+            SlaveInfoPO slave = slaveMapper.selectOne(new LambdaQueryWrapper<SlaveInfoPO>().eq(SlaveInfoPO::getSlaveIp, slaveIp));
             if (slave == null) {
                 return new ArrayList<>();
             }
@@ -38,25 +38,25 @@ public class SlaveDetailService extends ServiceImpl<SlaveDetailMapper, SlaveDeta
             targetSlaveId = slave.getId();
         }
 
-        LambdaQueryWrapper<SlaveDetail> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(StringUtils.isNotBlank(targetSlaveId), SlaveDetail::getSlaveId, targetSlaveId);
-        wrapper.eq(StringUtils.isNotBlank(status), SlaveDetail::getStatus, status);
-        wrapper.orderByAsc(SlaveDetail::getSerialName, SlaveDetail::getSerialSort);
+        LambdaQueryWrapper<SlaveDetailPO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(StringUtils.isNotBlank(targetSlaveId), SlaveDetailPO::getSlaveId, targetSlaveId);
+        wrapper.eq(StringUtils.isNotBlank(status), SlaveDetailPO::getStatus, status);
+        wrapper.orderByAsc(SlaveDetailPO::getSerialName, SlaveDetailPO::getSerialSort);
         
-        List<SlaveDetail> details = list(wrapper);
+        List<SlaveDetailPO> details = list(wrapper);
         
         if (details.isEmpty()) {
             return new ArrayList<>();
         }
 
-        Set<String> slaveIds = details.stream().map(SlaveDetail::getSlaveId).collect(Collectors.toSet());
-        Map<String, SlaveInfo> slaveMap = slaveMapper.selectBatchIds(slaveIds).stream()
-                .collect(Collectors.toMap(SlaveInfo::getId, s -> s));
+        Set<String> slaveIds = details.stream().map(SlaveDetailPO::getSlaveId).collect(Collectors.toSet());
+        Map<String, SlaveInfoPO> slaveMap = slaveMapper.selectBatchIds(slaveIds).stream()
+                .collect(Collectors.toMap(SlaveInfoPO::getId, s -> s));
 
         return details.stream().map(d -> {
             SlaveDetailInfo info = new SlaveDetailInfo();
             BeanUtils.copyProperties(d, info);
-            SlaveInfo s = slaveMap.get(d.getSlaveId());
+            SlaveInfoPO s = slaveMap.get(d.getSlaveId());
             if (s != null) {
                 info.setSlaveIp(s.getSlaveIp());
                 info.setCoilNum(String.valueOf(s.getCoilNum()));
@@ -71,12 +71,12 @@ public class SlaveDetailService extends ServiceImpl<SlaveDetailMapper, SlaveDeta
     }
 
     public Integer addDetails(SlaveDetailInfo slaveDetailInfo) {
-        SlaveDetail po = new SlaveDetail();
+        SlaveDetailPO po = new SlaveDetailPO();
         BeanUtils.copyProperties(slaveDetailInfo, po);
         return save(po) ? 1 : 0;
     }
 
     public Integer delete(String slaveId) {
-        return remove(new LambdaQueryWrapper<SlaveDetail>().eq(SlaveDetail::getSlaveId, slaveId)) ? 1 : 0;
+        return remove(new LambdaQueryWrapper<SlaveDetailPO>().eq(SlaveDetailPO::getSlaveId, slaveId)) ? 1 : 0;
     }
 }

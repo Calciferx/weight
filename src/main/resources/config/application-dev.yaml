@@ -26,5 +26,9 @@ calcifer:
     ignore-stable-flag: true
     debug: true
 
+tunnel:
+  enabled: false
+  server-url: ws://localhost:8081/ws-tunnel
+
 logging:
   config: classpath:config/logback-spring.xml

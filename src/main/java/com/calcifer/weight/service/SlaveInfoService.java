@@ -1,7 +1,7 @@
 package com.calcifer.weight.service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.calcifer.weight.entity.po.SlaveInfo;
+import com.calcifer.weight.entity.po.SlaveInfoPO;
 import com.calcifer.weight.repository.SlaveMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -9,56 +9,56 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class SlaveInfoService extends ServiceImpl<SlaveMapper, SlaveInfo> {
+public class SlaveInfoService extends ServiceImpl<SlaveMapper, SlaveInfoPO> {
 
-    public SlaveInfo querySlaveInfoBySlaveIp(String slaveIp) {
+    public SlaveInfoPO querySlaveInfoBySlaveIp(String slaveIp) {
         return lambdaQuery()
-                .eq(SlaveInfo::getSlaveIp, slaveIp)
-                .eq(SlaveInfo::getStatus, "1")
+                .eq(SlaveInfoPO::getSlaveIp, slaveIp)
+                .eq(SlaveInfoPO::getStatus, "1")
                 .one();
     }
 
-    public List<SlaveInfo> querySlaveInfo(String slaveIp, String id, String status, String keywords) {
+    public List<SlaveInfoPO> querySlaveInfo(String slaveIp, String id, String status, String keywords) {
         return lambdaQuery()
-                .eq(StringUtils.isNotBlank(slaveIp), SlaveInfo::getSlaveIp, slaveIp)
-                .eq(StringUtils.isNotBlank(id), SlaveInfo::getId, id)
-                .eq(StringUtils.isNotBlank(status), SlaveInfo::getStatus, status)
-                .and(StringUtils.isNotBlank(keywords), w -> w.like(SlaveInfo::getSlaveIp, keywords)
-                        .or().like(SlaveInfo::getSlaveName, keywords)
-                        .or().like(SlaveInfo::getSlaveCode, keywords)
-                        .or().like(SlaveInfo::getCoilName, keywords)
-                        .or().like(SlaveInfo::getDiscreteName, keywords))
+                .eq(StringUtils.isNotBlank(slaveIp), SlaveInfoPO::getSlaveIp, slaveIp)
+                .eq(StringUtils.isNotBlank(id), SlaveInfoPO::getId, id)
+                .eq(StringUtils.isNotBlank(status), SlaveInfoPO::getStatus, status)
+                .and(StringUtils.isNotBlank(keywords), w -> w.like(SlaveInfoPO::getSlaveIp, keywords)
+                        .or().like(SlaveInfoPO::getSlaveName, keywords)
+                        .or().like(SlaveInfoPO::getSlaveCode, keywords)
+                        .or().like(SlaveInfoPO::getCoilName, keywords)
+                        .or().like(SlaveInfoPO::getDiscreteName, keywords))
                 .list();
     }
 
-    public Integer count(SlaveInfo slaveInfo) {
+    public Integer count(SlaveInfoPO slaveInfoPO) {
         return Math.toIntExact(lambdaQuery()
-                .eq(StringUtils.isNotBlank(slaveInfo.getSlaveIp()), SlaveInfo::getSlaveIp, slaveInfo.getSlaveIp())
-                .eq(StringUtils.isNotBlank(slaveInfo.getId()), SlaveInfo::getId, slaveInfo.getId())
-                .eq(StringUtils.isNotBlank(slaveInfo.getStatus()), SlaveInfo::getStatus, slaveInfo.getStatus())
+                .eq(StringUtils.isNotBlank(slaveInfoPO.getSlaveIp()), SlaveInfoPO::getSlaveIp, slaveInfoPO.getSlaveIp())
+                .eq(StringUtils.isNotBlank(slaveInfoPO.getId()), SlaveInfoPO::getId, slaveInfoPO.getId())
+                .eq(StringUtils.isNotBlank(slaveInfoPO.getStatus()), SlaveInfoPO::getStatus, slaveInfoPO.getStatus())
                 .count());
     }
 
     public Integer count(String slaveIp, String id, String status) {
         return Math.toIntExact(lambdaQuery()
-                .eq(StringUtils.isNotBlank(slaveIp), SlaveInfo::getSlaveIp, slaveIp)
-                .eq(StringUtils.isNotBlank(id), SlaveInfo::getId, id)
-                .eq(StringUtils.isNotBlank(status), SlaveInfo::getStatus, status)
+                .eq(StringUtils.isNotBlank(slaveIp), SlaveInfoPO::getSlaveIp, slaveIp)
+                .eq(StringUtils.isNotBlank(id), SlaveInfoPO::getId, id)
+                .eq(StringUtils.isNotBlank(status), SlaveInfoPO::getStatus, status)
                 .count());
     }
 
-    public Integer add(SlaveInfo slaveInfo) {
-        return save(slaveInfo) ? 1 : 0;
+    public Integer add(SlaveInfoPO slaveInfoPO) {
+        return save(slaveInfoPO) ? 1 : 0;
     }
 
-    public Integer update(SlaveInfo slaveInfo) {
-        return updateById(slaveInfo) ? 1 : 0;
+    public Integer update(SlaveInfoPO slaveInfoPO) {
+        return updateById(slaveInfoPO) ? 1 : 0;
     }
 
     public Integer delete(String id) {
         return lambdaUpdate()
-                .eq(SlaveInfo::getId, id)
-                .eq(SlaveInfo::getStatus, "2")
+                .eq(SlaveInfoPO::getId, id)
+                .eq(SlaveInfoPO::getStatus, "2")
                 .remove() ? 1 : 0;
     }
 }

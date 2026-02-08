@@ -7,32 +7,30 @@ import com.calcifer.weight.autoweigh.WeighEventEnum;
 import com.calcifer.weight.autoweigh.WeighStatusEnum;
 import com.calcifer.weight.entity.dto.SlaveDetailInfo;
 import com.calcifer.weight.entity.enums.ModBusDeviceEnum;
-import com.calcifer.weight.entity.enums.RespCodeEnum;
-import com.calcifer.weight.entity.enums.UserStatusEnum;
-import com.calcifer.weight.entity.po.TruckInfo;
+import com.calcifer.weight.entity.po.CardInfoPO;
 import com.calcifer.weight.entity.po.UserPO;
-import com.calcifer.weight.entity.po.UserSlaveInfo;
-import com.calcifer.weight.entity.vo.PageWrapper;
 import com.calcifer.weight.entity.vo.RespWrapper;
 import com.calcifer.weight.handler.WeightWebSocketHandler;
-import com.calcifer.weight.repository.*;
+import com.calcifer.weight.repository.CardMapper;
+import com.calcifer.weight.repository.UserMapper;
 import com.calcifer.weight.service.DeviceService;
 import com.calcifer.weight.service.SlaveDetailService;
-import com.calcifer.weight.service.UserSlaveService;
 import com.calcifer.weight.service.VoiceService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,9 +40,6 @@ public class TestController {
 
     @Autowired
     private UserMapper userMapper;
-
-    @Autowired
-    private UserSlaveService userSlaveService;
 
     @Autowired
     private SlaveDetailService slaveDetailService;
@@ -149,7 +144,7 @@ public class TestController {
 
     @RequestMapping("cardMapperTest/{cardNum}")
     public Object getTruckInfo(@PathVariable("cardNum") String cardNum) {
-        return cardMapper.selectOne(new LambdaQueryWrapper<TruckInfo>().eq(TruckInfo::getCardNum, cardNum));
+        return cardMapper.selectOne(new LambdaQueryWrapper<CardInfoPO>().eq(CardInfoPO::getCardNum, cardNum));
     }
 
     @RequestMapping(value = "/hello")
@@ -169,12 +164,6 @@ public class TestController {
     public Object queryUserTest(@PathVariable("name") String name) {
         UserPO admin = userMapper.selectOne(new LambdaQueryWrapper<UserPO>().eq(UserPO::getUsername, name));
         return new RespWrapper<>(admin);
-    }
-
-    @RequestMapping(value = "/userSlaveInfo/{slaveId}")
-    public Object queryUserSlaveInfoTest(@PathVariable("slaveId") String slaveId) {
-        List<UserSlaveInfo> userSlaveInfoList = userSlaveService.queryUserSlaveInfo(slaveId);
-        return new RespWrapper<>(userSlaveInfoList);
     }
 
     @RequestMapping(value = "/slaveDetail/{slaveId}")

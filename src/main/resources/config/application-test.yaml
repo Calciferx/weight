@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    url: jdbc:sqlserver://192.168.111.131:1433;databaseName=weight20
+    url: jdbc:sqlserver://192.168.20.3:1433;databaseName=weight20;encrypt=true;trustServerCertificate=true;
     username: SA
-    password: xxxx
+    password: Strong@Password!
 calcifer:
   weight:
     slave-ip: 10.206.4.243
@@ -14,6 +14,7 @@ calcifer:
     enable-auto-scan: false
     enable-modbus-device-init: false
     enable-serial-device-init: false
+    enable-voice: false
     # 称重时缓存重量值的队列长度
     sampled-time: 10
     # 当缓存队列满且重量值极差不大于该值时认为重量稳定
@@ -23,6 +24,11 @@ calcifer:
     # 等待时间，单位毫秒，超过该时间没有状态变化将重置系统
     wait-time: 60000
     ignore-stable-flag: true
+    debug: true
+
+tunnel:
+  enabled: false
+  server-url: ws://localhost:8081/ws-tunnel
 
 logging:
   config: classpath:config/logback-spring.xml

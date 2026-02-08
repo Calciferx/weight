@@ -5,6 +5,7 @@ import com.calcifer.weight.handler.WeightWebSocketHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.annotation.OnStateChanged;
 import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.annotation.WithStateMachine;
@@ -22,10 +23,11 @@ public class WeighStateListener {
     private WeightWebSocketHandler webSocketHandler;
 
     @OnStateChanged
-    public void onStateChanged(State<WeighStatusEnum, WeighEventEnum> to) {
+    public void onStateChanged(StateContext<WeighStatusEnum, WeighEventEnum> context) {
+        State<WeighStatusEnum, WeighEventEnum> to = context.getTarget();
         if (to != null) {
             WeighStatusEnum state = to.getId();
-            log.info("状态机状态变更至: {}", state);
+            log.info("State changed to: {}", state);
             Map<String, Object> data = Map.of(
                     "code", state.getCode(),
                     "msg", state.getMsg()
