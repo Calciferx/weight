@@ -13,6 +13,24 @@ calcifer:
     enable-auth: true
     enable-auto-scan: true
     enable-device-init: true
+    active-scale: ToledoT800
+    scales:
+      ToledoT800:
+        frame-length: 18
+        terminator: "0D0A"
+        weight-start: 16
+        weight-end: 28
+        status-start: 0
+        status-end: 4
+        stable-value: "5354"
+      KeliD2008:
+        frame-length: 12
+        terminator: "03"
+        weight-start: 4
+        weight-end: 16
+        status-start: 18
+        status-end: 20
+        stable-value: "01"
 
 logging:
   config: file:config/logback-spring.xml

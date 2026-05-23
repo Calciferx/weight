@@ -33,6 +33,9 @@ public class ScaleListener implements SerialPortUtil.DataAvailableListener {
     private StateMachine<WeighStatusEnum, WeighEventEnum> weighStateMachine;
     @Autowired
     private WeightWebSocketHandler webSocketHandler;
+    @Autowired
+    private com.calcifer.weight.config.ScaleConfigProperties scaleConfigProperties;
+
     @Value("${calcifer.weight.min-weight:1000}")
     private Double minWeight;
     @Value("${calcifer.weight.max-weight:100000}")
@@ -41,7 +44,20 @@ public class ScaleListener implements SerialPortUtil.DataAvailableListener {
     private int sampledTime;
     private final Queue<WeightInfo> queue = new LinkedList<>();
 
-    private final Queue<Byte> byteQueue = new LinkedBlockingQueue<>(18);
+    private Queue<Byte> byteQueue;
+    private com.calcifer.weight.config.ScaleConfigProperties.ScaleConfig activeConfig;
+
+    @javax.annotation.PostConstruct
+    public void init() {
+        if (scaleConfigProperties.getScales() != null && scaleConfigProperties.getActiveScale() != null) {
+            activeConfig = scaleConfigProperties.getScales().get(scaleConfigProperties.getActiveScale());
+        }
+        if (activeConfig == null) {
+            log.warn("Active scale config not found, using default 18-byte config");
+            activeConfig = new com.calcifer.weight.config.ScaleConfigProperties.ScaleConfig();
+        }
+        byteQueue = new LinkedBlockingQueue<>(activeConfig.getFrameLength());
+    }
 
     @Override
     public void dataAvailable(SerialPortEvent serialPortEvent) {
@@ -54,7 +70,7 @@ public class ScaleListener implements SerialPortUtil.DataAvailableListener {
             for (byte aByte : data) {
                 if (!byteQueue.offer(aByte)) {
                     String dataHex = Convert.toHex(ArrayUtils.toPrimitive(byteQueue.toArray(new Byte[0]))).toUpperCase();
-                    if (dataHex.endsWith("0D0A")) {
+                    if (dataHex.endsWith(activeConfig.getTerminator().toUpperCase())) {
                         log.debug("read scale data: {}", dataHex);
                         processScaleData(dataHex);
                         byteQueue.clear();
@@ -71,9 +87,22 @@ public class ScaleListener implements SerialPortUtil.DataAvailableListener {
 
     private void processScaleData(String validHex) {
         // 提取重量信息
-        String numHex = validHex.substring(16, 28);
-        String numStr = Convert.hexStrToStr(numHex, StandardCharsets.US_ASCII).trim();
-        String status = validHex.substring(0, 4);
+        if (validHex.length() < activeConfig.getWeightEnd()) {
+            log.warn("validHex length {} is less than weightEnd {}", validHex.length(), activeConfig.getWeightEnd());
+            return;
+        }
+        String numHex = validHex.substring(activeConfig.getWeightStart(), activeConfig.getWeightEnd());
+        String numStr = Convert.hexStrToStr(numHex, StandardCharsets.US_ASCII);
+        if (activeConfig.isReverse()) {
+            numStr = new StringBuilder(numStr).reverse().toString();
+        }
+        numStr = numStr.trim();
+
+        if (validHex.length() < activeConfig.getStatusEnd()) {
+            log.warn("validHex length {} is less than statusEnd {}", validHex.length(), activeConfig.getStatusEnd());
+            return;
+        }
+        String status = validHex.substring(activeConfig.getStatusStart(), activeConfig.getStatusEnd());
         if (numStr.matches("\\d+")) {
             int num = Integer.parseInt(numStr);
             // 如果称上有东西则不开始计时，小于100的不算
@@ -84,7 +113,7 @@ public class ScaleListener implements SerialPortUtil.DataAvailableListener {
             WSRespWrapper<WeightInfo> rtWeightInfo = new WSRespWrapper<>(weightInfo, WSCodeEnum.RT_WEIGH_NUM);
             log.debug("weight map: {}", JSON.toJSONString(rtWeightInfo));
             // 如果称的状态为稳定则开始采样计算重量，否则清空重量数据队列
-            if ("5354".equals(status)) {
+            if (activeConfig.getStableValue().equals(status)) {
                 if (queue.size() < sampledTime) {
                     queue.offer(weightInfo);
                 } else {
