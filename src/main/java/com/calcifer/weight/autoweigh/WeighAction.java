@@ -50,6 +50,7 @@ public class WeighAction {
             Boolean isReverse = (Boolean) context.getMessageHeader("reverse");
             if (isReverse) WeightContext.reverseDirection();
             modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), true);
+            modbusDeviceService.controlExtraTrafficLight(true);
             modbusDeviceService.controlModBusDevice(WeightContext.back.getTrafficLight(), true);
         };
     }
@@ -69,6 +70,7 @@ public class WeighAction {
             TruckInfo truckInfo = (TruckInfo) context.getMessageHeader("truckInfo");
             webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.TRUCK_INFO, truckInfo);
             modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), false);
+            modbusDeviceService.controlExtraTrafficLight(false);
             modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOn(), true);
             modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOn(), true);
             modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOn(), false);
@@ -90,17 +92,21 @@ public class WeighAction {
                 throw new RuntimeException("not found plateNumber in database");
             }
             this.carDO = carDO;
+            log.info("PlateReader IP: front: {}, back: {}, current: {}", plateDTO.getPlateReaderIP(), WeightContext.front.getPlateReaderIP(), WeightContext.back.getPlateReaderIP());
             // 确定进车方向，红绿灯置为红
             if (!plateDTO.getPlateReaderIP().equals(WeightContext.front.getPlateReaderIP()) && plateDTO.getPlateReaderIP().equals(WeightContext.back.getPlateReaderIP())) {
+                log.info("REVERSE DIRECTION!");
                 WeightContext.reverseDirection();
             }
             modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), true);
+            modbusDeviceService.controlExtraTrafficLight(true);
             modbusDeviceService.controlModBusDevice(WeightContext.back.getTrafficLight(), true);
             // 道闸打开，红绿灯置为绿
             TruckInfo truckInfo = new TruckInfo();
             truckInfo.setPlateNumber(plateDTO.getPlateNumber());
             webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.TRUCK_INFO, truckInfo);
             modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), false);
+            modbusDeviceService.controlExtraTrafficLight(false);
             modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOn(), true);
             modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOn(), true);
             modbusDeviceService.controlModBusDevice(WeightContext.front.getBarrierGateOn(), false);
@@ -117,6 +123,7 @@ public class WeighAction {
             webSocketHandler.sendWeightLogToAllUser("车辆驶离，停止识别车牌号...");
             // 红绿灯置为绿
             modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), false);
+            modbusDeviceService.controlExtraTrafficLight(false);
             modbusDeviceService.controlModBusDevice(WeightContext.back.getTrafficLight(), false);
         };
     }
@@ -144,6 +151,7 @@ public class WeighAction {
             webSocketHandler.sendWeightLogToAllUser("车辆已上称，等待司机刷卡...");
             // 红绿灯置为红，等待司机刷卡
             modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), true);
+            modbusDeviceService.controlExtraTrafficLight(true);
         };
     }
 
@@ -169,6 +177,7 @@ public class WeighAction {
             voiceService.voice("卡片信息读取完成，供应商名称：" + weightInfoDO.getSupplierName() + ",物料名称：" + weightInfoDO.getMaterialName() + "，开始称重");
             // 红绿灯置为红，开始称重
             modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), true);
+            modbusDeviceService.controlExtraTrafficLight(true);
             // 称重前清空上次重量信息
             weightRecordDO = null;
         };
@@ -351,6 +360,7 @@ public class WeighAction {
             modbusDeviceService.controlModBusDevice(WeightContext.back.getBarrierGateOff(), false);
             modbusDeviceService.controlModBusDevice(WeightContext.back.getBarrierGateOff(), false);
             modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), false);
+            modbusDeviceService.controlExtraTrafficLight(false);
             modbusDeviceService.controlModBusDevice(WeightContext.back.getTrafficLight(), false);
             voiceService.voice("称重结束，车辆已驶离");
         };

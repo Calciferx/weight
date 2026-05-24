@@ -64,10 +64,12 @@ public class DeviceController {
                 break;
             case "TRAFFIC_LIGHT_RED":
                 modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), true);
+                modbusDeviceService.controlExtraTrafficLight(true);
                 modbusDeviceService.controlModBusDevice(WeightContext.back.getTrafficLight(), true);
                 break;
             case "TRAFFIC_LIGHT_GREEN":
                 modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), false);
+                modbusDeviceService.controlExtraTrafficLight(false);
                 modbusDeviceService.controlModBusDevice(WeightContext.back.getTrafficLight(), false);
                 break;
         }

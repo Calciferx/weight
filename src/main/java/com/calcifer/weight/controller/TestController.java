@@ -106,12 +106,14 @@ public class TestController {
     @RequestMapping("frontLightFalse")
     public Object frontLightFalse() {
         modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), false);
+        modbusDeviceService.controlExtraTrafficLight(false);
         return "frontLightFalse";
     }
 
     @RequestMapping("frontLightTrue")
     public Object frontLightTrue() {
         modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), true);
+        modbusDeviceService.controlExtraTrafficLight(true);
         return "frontLightTrue";
     }
 

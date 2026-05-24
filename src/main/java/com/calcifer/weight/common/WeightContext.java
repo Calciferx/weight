@@ -19,6 +19,10 @@ public class WeightContext {
      */
     public static ModBusDeviceSerialSort front;
     /**
+     * 物理进方向设备（不参与反转）
+     */
+    public static ModBusDeviceSerialSort physicalFront;
+    /**
      * 出方向设备
      */
     public static ModBusDeviceSerialSort back;

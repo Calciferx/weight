@@ -56,6 +56,13 @@ public class ModbusDeviceService {
     @Value("${calcifer.weight.modbus-device-info-path}")
     private String modbusDeviceInfoPath;
 
+    @Value("${calcifer.weight.infrared-confirm-threshold:4}")
+    private int infraredConfirmThreshold;
+
+    private final int[] confirmCounters = new int[4]; // 0:front1, 1:front2, 2:back2, 3:back1
+    private final boolean[] stableStatus = new boolean[4];
+    private final boolean[] lastPhysicalStatus = new boolean[4];
+
 
     public void init() {
         log.info("init devices...");
@@ -70,7 +77,10 @@ public class ModbusDeviceService {
     private void initModbusDevice() {
         String modbusDeviceInfoJson = FileUtil.readUtf8String(modbusDeviceInfoPath);
         List<ModBusDeviceSerialSort> deviceSerialSortList = JSON.parseArray(modbusDeviceInfoJson, ModBusDeviceSerialSort.class);
-        if (!deviceSerialSortList.isEmpty()) WeightContext.front = deviceSerialSortList.get(0);
+        if (!deviceSerialSortList.isEmpty()) {
+            WeightContext.front = deviceSerialSortList.get(0);
+            WeightContext.physicalFront = deviceSerialSortList.get(0);
+        }
         if (deviceSerialSortList.size() > 1) WeightContext.back = deviceSerialSortList.get(1);
 
         initModbusMaster();
@@ -96,6 +106,30 @@ public class ModbusDeviceService {
         controlModBusDevice(WeightContext.front.getTrafficLight(), false);
         controlModBusDevice(WeightContext.back.getTrafficLight(), false);
         controlModBusDevice(WeightContext.back.getTrafficLight(), false);
+
+        // 额外红绿灯置为绿
+        log.info("set extra light green...");
+        controlExtraTrafficLight(false);
+        controlExtraTrafficLight(false);
+    }
+
+    /**
+     * 控制额外红绿灯（物理前场），互斥控制
+     *
+     * @param redStatus true表示红灯亮（绿灯灭），false表示绿灯亮（红灯灭）
+     */
+    public void controlExtraTrafficLight(boolean redStatus) {
+        if (WeightContext.physicalFront == null) return;
+        log.info("control extra traffic light, redStatus: {}", redStatus);
+        if (redStatus) {
+            // 红灯亮，绿灯灭
+            controlModBusDevice(WeightContext.physicalFront.getExtraRedLight(), true);
+            controlModBusDevice(WeightContext.physicalFront.getExtraGreenLight(), false);
+        } else {
+            // 绿灯亮，红灯灭
+            controlModBusDevice(WeightContext.physicalFront.getExtraGreenLight(), true);
+            controlModBusDevice(WeightContext.physicalFront.getExtraRedLight(), false);
+        }
     }
 
     @PreDestroy
@@ -151,6 +185,23 @@ public class ModbusDeviceService {
     }
 
     /**
+     * 更新并获取稳定的红外状态
+     */
+    private void updateStableStatus(boolean[] currentPhysical) {
+        for (int i = 0; i < 4; i++) {
+            if (currentPhysical[i] == lastPhysicalStatus[i]) {
+                confirmCounters[i]++;
+                if (confirmCounters[i] >= infraredConfirmThreshold) {
+                    stableStatus[i] = currentPhysical[i];
+                }
+            } else {
+                confirmCounters[i] = 1;
+                lastPhysicalStatus[i] = currentPhysical[i];
+            }
+        }
+    }
+
+    /**
      * 读取ModBus设备状态（红外、红绿灯、道闸）
      */
     public ModBusDeviceStatus readModBusDeviceStatus() throws ModbusProtocolException, ModbusNumberException, ModbusIOException {
@@ -158,7 +209,17 @@ public class ModbusDeviceService {
         int offset = 0;
         int quantity = coilNum;
         boolean[] discreteInputs = modbusMaster.readDiscreteInputs(slaveAddress, offset, quantity);
-        ModBusDeviceStatus modBusDeviceStatus = new ModBusDeviceStatus(discreteInputs);
+
+        // 获取当前物理红外状态进行去抖动处理
+        boolean[] currentPhysical = {
+                discreteInputs[WeightContext.front.getInfrared1()],
+                discreteInputs[WeightContext.front.getInfrared2()],
+                discreteInputs[WeightContext.back.getInfrared2()],
+                discreteInputs[WeightContext.back.getInfrared1()]
+        };
+        updateStableStatus(currentPhysical);
+
+        ModBusDeviceStatus modBusDeviceStatus = new ModBusDeviceStatus(discreteInputs, stableStatus);
         String statusChangeStr = modBusDeviceStatus.getStatusChangeStr(lastModBusDeviceStatus);
         if (StringUtils.hasText(statusChangeStr)) {
             log.info(statusChangeStr);
@@ -169,9 +230,12 @@ public class ModbusDeviceService {
 
     public class ModBusDeviceStatus {
         private final boolean[] discreteInputs;
+        private final boolean[] stableStatusSnapshot;
 
-        private ModBusDeviceStatus(boolean[] discreteInputs) {
+        private ModBusDeviceStatus(boolean[] discreteInputs, boolean[] stableStatus) {
             this.discreteInputs = discreteInputs;
+            this.stableStatusSnapshot = new boolean[stableStatus.length];
+            System.arraycopy(stableStatus, 0, this.stableStatusSnapshot, 0, stableStatus.length);
         }
 
         @Override
@@ -185,16 +249,16 @@ public class ModbusDeviceService {
             }
             ArrayList<String> list = new ArrayList<>();
             if (isFrontInfrared1() != lastStatus.isFrontInfrared1()) {
-                list.add(String.format("front infra1 changed: from %S to %S", lastStatus.isFrontInfrared1(), isFrontInfrared1()));
+                list.add(String.format("front infra1 changed (stable): from %S to %S", lastStatus.isFrontInfrared1(), isFrontInfrared1()));
             }
             if (isFrontInfrared2() != lastStatus.isFrontInfrared2()) {
-                list.add(String.format("front infra2 changed: from %S to %S", lastStatus.isFrontInfrared2(), isFrontInfrared2()));
+                list.add(String.format("front infra2 changed (stable): from %S to %S", lastStatus.isFrontInfrared2(), isFrontInfrared2()));
             }
             if (isBackInfrared2() != lastStatus.isBackInfrared2()) {
-                list.add(String.format("back infra2 changed: from %S to %S", lastStatus.isBackInfrared2(), isBackInfrared2()));
+                list.add(String.format("back infra2 changed (stable): from %S to %S", lastStatus.isBackInfrared2(), isBackInfrared2()));
             }
             if (isBackInfrared1() != lastStatus.isBackInfrared1()) {
-                list.add(String.format("back infra1 changed: from %S to %S", lastStatus.isBackInfrared1(), isBackInfrared1()));
+                list.add(String.format("back infra1 changed (stable): from %S to %S", lastStatus.isBackInfrared1(), isBackInfrared1()));
             }
             if (isButtonPressed() != lastStatus.isButtonPressed()) {
                 list.add(String.format("button changed: from %S to %S", lastStatus.isButtonPressed(), isButtonPressed()));
@@ -202,21 +266,21 @@ public class ModbusDeviceService {
             return String.join(";", list);
         }
 
-        // 红外1和红外4 遮挡为true，红外2和红外3遮挡为false,返回值统一为遮挡为true
+        // 修改为返回去抖动后的稳定状态
         public boolean isFrontInfrared1() {
-            return discreteInputs[WeightContext.front.getInfrared1()];
+            return stableStatusSnapshot[0];
         }
 
         public boolean isFrontInfrared2() {
-            return discreteInputs[WeightContext.front.getInfrared2()];
+            return stableStatusSnapshot[1];
         }
 
         public boolean isBackInfrared2() {
-            return discreteInputs[WeightContext.back.getInfrared2()];
+            return stableStatusSnapshot[2];
         }
 
         public boolean isBackInfrared1() {
-            return discreteInputs[WeightContext.back.getInfrared1()];
+            return stableStatusSnapshot[3];
         }
 
         public boolean isButtonPressed() {

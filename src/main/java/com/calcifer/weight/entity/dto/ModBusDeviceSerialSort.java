@@ -9,6 +9,8 @@ public class ModBusDeviceSerialSort {
     private int barrierGateOn;
     private int barrierGateOff;
     private int trafficLight;
+    private int extraRedLight;
+    private int extraGreenLight;
     private int printButton;
     private String plateReaderIP;
 }
