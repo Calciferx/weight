@@ -24,7 +24,7 @@ public class VoiceService {
 
     private ActiveXComponent sapi;
 
-    @Value("${calcifer.weight.enable-voice:true}")
+    @Value("${weight.enable-voice:true}")
     private boolean enableVoice;
 
     static {

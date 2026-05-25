@@ -33,10 +33,10 @@ public class AutoScanJob {
     @Resource
     private StateMachine<WeighStatusEnum, WeighEventEnum> weighStateMachine;
 
-    @Value("${calcifer.weight.enable-auto-scan:true}")
+    @Value("${weight.enable-auto-scan:true}")
     private boolean enableAutoScan;
 
-    @Value("${calcifer.weight.wait-time:60000}")
+    @Value("${weight.wait-time:60000}")
     private int waitTime;
 
     @PostConstruct
@@ -73,22 +73,7 @@ public class AutoScanJob {
             // 仅在稳定状态发生变化时才发送事件
             if (lastStatus == null) return;
 
-            if (modBusDeviceStatus.isFrontInfrared1() && !lastStatus.isFrontInfrared1()) {
-                Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.TRUCK_FOUND).setHeader("reverse", false).build();
-                weighStateMachine.sendEvent(message);
-            }
-            if (!modBusDeviceStatus.isFrontInfrared1() && lastStatus.isFrontInfrared1()) {
-                Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.CANCEL_ENTER).build();
-                weighStateMachine.sendEvent(message);
-            }
-            if (modBusDeviceStatus.isBackInfrared1() && !lastStatus.isBackInfrared1()) {
-                // 注意：TRUCK_FOUND 可能由前后红外1触发，此处逻辑需与原逻辑保持一致
-                // 原逻辑是 if (modBusDeviceStatus.isBackInfrared1()) { send TRUCK_FOUND reverse: true }
-                // 且在后面还有一个 if (modBusDeviceStatus.isBackInfrared1()) { send LEAVING }
-                // 这取决于状态机当前状态。为了保持兼容且去抖，我们只在变化时触发。
-                Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.TRUCK_FOUND).setHeader("reverse", true).build();
-                weighStateMachine.sendEvent(message);
-            }
+
             if (modBusDeviceStatus.isFrontInfrared2() && !lastStatus.isFrontInfrared2()) {
                 Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.ENTER).build();
                 weighStateMachine.sendEvent(message);
@@ -105,16 +90,6 @@ public class AutoScanJob {
                 Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.LEFT_WEIGH).build();
                 weighStateMachine.sendEvent(message);
             }
-            // 针对后红外1的 LEAVING 和 LEFT 逻辑
-            if (modBusDeviceStatus.isBackInfrared1() && !lastStatus.isBackInfrared1()) {
-                Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.LEAVING).build();
-                weighStateMachine.sendEvent(message);
-            }
-            if (!modBusDeviceStatus.isBackInfrared1() && lastStatus.isBackInfrared1()) {
-                Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.LEFT).build();
-                weighStateMachine.sendEvent(message);
-            }
-
             if (modBusDeviceStatus.isButtonPressed() && !lastStatus.isButtonPressed()) {
                 Message<WeighEventEnum> message = MessageBuilder.withPayload(WeighEventEnum.PRINT).build();
                 weighStateMachine.sendEvent(message);

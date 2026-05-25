@@ -36,11 +36,11 @@ public class ScaleListener implements SerialPortUtil.DataAvailableListener {
     @Autowired
     private com.calcifer.weight.config.ScaleConfigProperties scaleConfigProperties;
 
-    @Value("${calcifer.weight.min-weight:1000}")
+    @Value("${weight.min-weight:1000}")
     private Double minWeight;
-    @Value("${calcifer.weight.max-weight:100000}")
+    @Value("${weight.max-weight:100000}")
     private Double maxWeight;
-    @Value("${calcifer.weight.sampled-time:30}")
+    @Value("${weight.sampled-time:30}")
     private int sampledTime;
     private final Queue<WeightInfo> queue = new LinkedList<>();
 

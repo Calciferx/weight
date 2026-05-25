@@ -1,23 +1,19 @@
 [
   {
-    "infrared1": 0,
     "infrared2": 2,
     "barrierGateOn": 2,
     "barrierGateOff": 3,
-    "trafficLight": 0,
-    "extraRedLight": 6,
-    "extraGreenLight": 7,
+    "redLight": 6,
+    "greenLight": 7,
     "printButton": 3,
     "plateReaderIP": "192.168.1.100"
   },
   {
-    "infrared1": 1,
     "infrared2": 3,
     "barrierGateOn": 4,
     "barrierGateOff": 5,
-    "trafficLight": 1,
-    "extraRedLight": 8,
-    "extraGreenLight": 9,
+    "redLight": 8,
+    "greenLight": 9,
     "printButton": 3,
     "plateReaderIP": "192.168.1.100"
   }

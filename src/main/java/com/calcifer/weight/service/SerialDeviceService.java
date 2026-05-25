@@ -19,9 +19,9 @@ import java.util.List;
 @Slf4j
 @Service
 public class SerialDeviceService {
-    @Value("${calcifer.weight.enable-serial-device-init: true}")
+    @Value("${weight.enable-serial-device-init: true}")
     private boolean enableSerialDeviceInit;
-    @Value("${calcifer.weight.serial-device-info-path}")
+    @Value("${weight.serial-device-info-path}")
     private String serialDeviceInfoPath;
     @Getter
     @Resource(name = "cardListener")

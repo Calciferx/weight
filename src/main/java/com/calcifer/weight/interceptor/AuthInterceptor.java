@@ -10,7 +10,7 @@ import static com.calcifer.weight.common.WeightContext.TOKEN_USER_MAP;
 
 
 public class AuthInterceptor implements HandlerInterceptor {
-    @Value("${calcifer.weight.enable-auth:true}")
+    @Value("${weight.enable-auth:true}")
     private boolean enableAuth;
 
     @Override

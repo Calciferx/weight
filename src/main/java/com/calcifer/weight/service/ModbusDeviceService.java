@@ -34,16 +34,16 @@ import java.util.List;
 public class ModbusDeviceService {
     private ModbusMaster modbusMaster;
 
-    @Value("${calcifer.weight.slave-ip}")
+    @Value("${weight.slave-ip}")
     private String slaveIp;
 
-    @Value("${calcifer.weight.coil-num}")
+    @Value("${weight.coil-num}")
     private Integer coilNum;
 
-    @Value("${calcifer.weight.enable-modbus-device-init: true}")
+    @Value("${weight.enable-modbus-device-init: true}")
     private boolean enableModbusDeviceInit;
 
-    @Value("${calcifer.weight.modbus-control-sleep-time: 100}")
+    @Value("${weight.modbus-control-sleep-time: 100}")
     private int modbusControlSleepTime;
 
 
@@ -53,10 +53,10 @@ public class ModbusDeviceService {
     @Getter
     private boolean init;
 
-    @Value("${calcifer.weight.modbus-device-info-path}")
+    @Value("${weight.modbus-device-info-path}")
     private String modbusDeviceInfoPath;
 
-    @Value("${calcifer.weight.infrared-confirm-threshold:4}")
+    @Value("${weight.infrared-confirm-threshold:4}")
     private int infraredConfirmThreshold;
 
     private final int[] confirmCounters = new int[4]; // 0:front1, 1:front2, 2:back2, 3:back1
@@ -101,16 +101,9 @@ public class ModbusDeviceService {
         controlModBusDevice(WeightContext.back.getBarrierGateOff(), false);
 
         // 红绿灯置为绿
-        log.info("set all light green...");
-        controlModBusDevice(WeightContext.front.getTrafficLight(), false);
-        controlModBusDevice(WeightContext.front.getTrafficLight(), false);
-        controlModBusDevice(WeightContext.back.getTrafficLight(), false);
-        controlModBusDevice(WeightContext.back.getTrafficLight(), false);
-
-        // 额外红绿灯置为绿
-        log.info("set extra light green...");
-        controlExtraTrafficLight(false);
-        controlExtraTrafficLight(false);
+        log.info("set light green...");
+        controlTrafficLight(false);
+        controlTrafficLight(false);
     }
 
     /**
@@ -118,17 +111,17 @@ public class ModbusDeviceService {
      *
      * @param redStatus true表示红灯亮（绿灯灭），false表示绿灯亮（红灯灭）
      */
-    public void controlExtraTrafficLight(boolean redStatus) {
+    public void controlTrafficLight(boolean redStatus) {
         if (WeightContext.physicalFront == null) return;
         log.info("control extra traffic light, redStatus: {}", redStatus);
         if (redStatus) {
             // 红灯亮，绿灯灭
-            controlModBusDevice(WeightContext.physicalFront.getExtraRedLight(), true);
-            controlModBusDevice(WeightContext.physicalFront.getExtraGreenLight(), false);
+            controlModBusDevice(WeightContext.physicalFront.getGreenLight(), false);
+            controlModBusDevice(WeightContext.physicalFront.getRedLight(), true);
         } else {
             // 绿灯亮，红灯灭
-            controlModBusDevice(WeightContext.physicalFront.getExtraGreenLight(), true);
-            controlModBusDevice(WeightContext.physicalFront.getExtraRedLight(), false);
+            controlModBusDevice(WeightContext.physicalFront.getRedLight(), false);
+            controlModBusDevice(WeightContext.physicalFront.getGreenLight(), true);
         }
     }
 

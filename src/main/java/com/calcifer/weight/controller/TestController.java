@@ -103,32 +103,6 @@ public class TestController {
         return "frontOffFalse";
     }
 
-    @RequestMapping("frontLightFalse")
-    public Object frontLightFalse() {
-        modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), false);
-        modbusDeviceService.controlExtraTrafficLight(false);
-        return "frontLightFalse";
-    }
-
-    @RequestMapping("frontLightTrue")
-    public Object frontLightTrue() {
-        modbusDeviceService.controlModBusDevice(WeightContext.front.getTrafficLight(), true);
-        modbusDeviceService.controlExtraTrafficLight(true);
-        return "frontLightTrue";
-    }
-
-    @RequestMapping("backLightFalse")
-    public Object backLightFalse() {
-        modbusDeviceService.controlModBusDevice(WeightContext.back.getTrafficLight(), false);
-        return "backLightFalse";
-    }
-
-    @RequestMapping("backLightTrue")
-    public Object backLightTrue() {
-        modbusDeviceService.controlModBusDevice(WeightContext.back.getTrafficLight(), true);
-        return "backLightTrue";
-    }
-
 //    @RequestMapping("listenerTest")
 //    public Object listenerTest() {
 //        return deviceService.getCardListener() == null;

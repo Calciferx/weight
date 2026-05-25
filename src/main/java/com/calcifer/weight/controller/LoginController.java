@@ -30,7 +30,7 @@ public class LoginController {
 
     @Autowired
     private UserService userService;
-    @Value("${calcifer.weight.index-menu}")
+    @Value("${weight.index-menu}")
     private String indexMenuPath;
 
     @PostMapping("login/login.do")

@@ -4,7 +4,6 @@ import com.calcifer.weight.entity.enums.ICodeEnum;
 
 public enum WeighStatusEnum implements ICodeEnum {
     WAIT(1, "等待车辆驶入"),
-    READING_PLATE_NUM(2, "读取车牌号"),
     WAIT_ENTER(3, "等待车辆上称"),
     ENTERING(4, "车辆正在上称"),
     WAIT_CARD(5, "等待司机刷卡"),
@@ -12,7 +11,6 @@ public enum WeighStatusEnum implements ICodeEnum {
     WEIGHED(7, "称重完成"),
     LEAVING_WEIGH(8, "正在下称"),
     LEFT_WEIGH(9, "已下称"),
-    LEAVING(10, "正在驶离"),
     ;
 
     private final int code;

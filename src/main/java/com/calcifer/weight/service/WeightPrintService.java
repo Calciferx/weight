@@ -32,9 +32,9 @@ import java.util.List;
 @Slf4j
 @Service
 public class WeightPrintService {
-    @Value("${calcifer.weight.print-template}")
+    @Value("${weight.print-template}")
     private String printTemplatePath;
-    @Value("${calcifer.weight.print-template2}")
+    @Value("${weight.print-template2}")
     private String printTemplatePath2;
 
     public void print(WeightRecordDO weightRecordDO) throws Exception {

@@ -4,41 +4,40 @@ spring:
     url: jdbc:sqlserver://192.168.111.131:1433;databaseName=weight20
     username: xxxx
     password: xxxxxxxxx
-calcifer:
-  weight:
-    slave-ip: 10.206.4.243
-    coil-num: 6
-    enable-auth: true
-    enable-auto-scan: true
-    enable-modbus-device-init: true
-    enable-serial-device-init: true
-    enable-voice: true
-    # 称重时的采样次数
-    sampled-time: 10
-    min-weight: 1000
-    max-weight: 100000
-    # 等待时间，单位毫秒，超过该时间没有状态变化将重置系统
-    wait-time: 60000
-    modbus-device-info-path: classpath:config/modbus_device_info.json
-    serial-device-info-path: classpath:config/serial_device_info.json
-    active-scale: ToledoT800
-    scales:
-      ToledoT800:
-        frame-length: 18
-        terminator: "0D0A"
-        weight-start: 16
-        weight-end: 28
-        status-start: 0
-        status-end: 4
-        stable-value: "5354"
-      KeliD2008:
-        frame-length: 12
-        terminator: "03"
-        weight-start: 4
-        weight-end: 16
-        status-start: 16
-        status-end: 18
-        stable-value: "30"
+weight:
+  slave-ip: 10.206.4.243
+  coil-num: 6
+  enable-auth: true
+  enable-auto-scan: true
+  enable-modbus-device-init: true
+  enable-serial-device-init: true
+  enable-voice: true
+  # 称重时的采样次数
+  sampled-time: 10
+  min-weight: 1000
+  max-weight: 100000
+  # 等待时间，单位毫秒，超过该时间没有状态变化将重置系统
+  wait-time: 60000
+  modbus-device-info-path: classpath:config/modbus_device_info.json
+  serial-device-info-path: classpath:config/serial_device_info.json
+  active-scale: ToledoT800
+  scales:
+    ToledoT800:
+      frame-length: 18
+      terminator: "0D0A"
+      weight-start: 16
+      weight-end: 28
+      status-start: 0
+      status-end: 4
+      stable-value: "5354"
+    KeliD2008:
+      frame-length: 12
+      terminator: "03"
+      weight-start: 4
+      weight-end: 16
+      status-start: 16
+      status-end: 18
+      stable-value: "30"
 
 logging:
   config: file:config/logback-spring.xml

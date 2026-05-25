@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Data
 @Component
-@ConfigurationProperties(prefix = "calcifer.weight")
+@ConfigurationProperties(prefix = "weight")
 public class ScaleConfigProperties {
     private String activeScale;
     private Map<String, ScaleConfig> scales;
