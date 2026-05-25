@@ -153,7 +153,7 @@ public class WeighAction {
 
                         recordDO.setRoughWeightTime(recordDO.getWeighDate());
                         recordDO.setTareWeightTime(currentTime);
-                        recordDO.setComment("进厂刘川");
+                        recordDO.setComment("进厂");
                     } else {
                         // 先皮后毛
                         recordDO.setTareWeight(firstWeight);
@@ -162,7 +162,7 @@ public class WeighAction {
 
                         recordDO.setTareWeightTime(recordDO.getWeighDate());
                         recordDO.setRoughWeightTime(currentTime);
-                        recordDO.setComment("出厂刘川");
+                        recordDO.setComment("出厂");
                     }
                     recordDO.setWeighDate(currentTime);
                     recordDO.setWeighStatus("检斤完成");
@@ -203,8 +203,8 @@ public class WeighAction {
                     recordDO.setIsTest(weightInfoDO.getIsTest());
                     recordDO.setCarType(carDO.getCarType());
                     recordDO.setControlId("Q/CHALCO-GS-910351-JL057-2019");
-                    recordDO.setAuditor("梁成超");
-                    recordDO.setWeighMan("张杰");
+                    recordDO.setAuditor("张卫东");
+                    recordDO.setWeighMan("张军");
 
                     boolean isSave = weightRecordService.save(recordDO);
                     if (!isSave) {

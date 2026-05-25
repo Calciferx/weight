@@ -347,6 +347,29 @@
         $(".messageBox").scrollTop(top);
     }
 
+    /* 枚举定义，提高可读性 */
+    const WS_TYPE = {
+        EXPORT_SUCCESS: '0',
+        SYSTEM_SUCCESS: '1111',
+        INFR_NORTH_OUT: '1',  // 北车检红外
+        INFR_NORTH_IN: '2',   // 北计量红外
+        INFR_SOUTH_IN: '3',   // 南计量红外
+        INFR_SOUTH_OUT: '4',  // 南车检红外
+        WEIGH_LOG: '5',       // 称重日志
+        TRUCK_INFO: '6',      // 车辆信息
+        RT_WEIGH_NUM: '7',    // 实时称重KG
+        WEIGH_INFO: '8',      // 称重结果(毛/净/皮)
+        TRUCK_AND_WEIGHT: '9', // 车辆及重量信息(用于重置)
+        READ_CARD: '10',
+        READ_MATERIAL: '11',
+        READ_SUPPLIER: '12'
+    };
+
+    const SCALE_STATUS = {
+        STABLE: '5354',    // 稳定 (ST)
+        UNSTABLE: '5553'   // 不稳定/传输中 (US)
+    };
+
     /*websocket*/
     let ws_url = location.origin.replace('http', 'ws') + '/weightproject/websocket/socketServer.do?' + loginId
     //let ws_url = location.origin.replace('http', 'ws') + '/mdwisdomstore/websocket/socketServer.do?' + loginId
@@ -380,78 +403,68 @@
 
         let data = JSON.parse(e.data)
         //let result = JSON.parse(e.result)
-        if (data.type == '1111') {  //初始信息(首次返回的消息)
-            console.log('连接成功')
-        } else if (data.type == '1') {  //前红外线1---北车检---状态显示
-            if (data.data == false) {
-                $('.WeighingStatus .beforeInfr1').css('background-color', '#A60000')
-            } else if (data.data == true) {
-                $('.WeighingStatus .beforeInfr1').css('background-color', '#00B83F')
-            }
-        } else if (data.type == '2') {  //前红外线2---北计量---状态显示
-            if (data.data == false) {
-                $('.WeighingStatus .beforeInfr2').css('background-color', '#A60000')
-            } else if (data.data == true) {
-                $('.WeighingStatus .beforeInfr2').css('background-color', '#00B83F')
-            }
-        } else if (data.type == '3') {  // 后红外1---南计量---状态显示
-            if (data.data == false) {
-                $('.WeighingStatus .afterInfr1').css('background-color', '#A60000')
-            } else if (data.data == true) {
-                $('.WeighingStatus .afterInfr1').css('background-color', '#00B83F')
-            }
-        } else if (data.type == '4') {  // 后红外2---南车检---状态显示
-            if (data.data == false) {
-                $('.WeighingStatus .afterInfr2').css('background-color', '#A60000')
-            } else if (data.data == true) {
-                $('.WeighingStatus .afterInfr2').css('background-color', '#00B83F')
-            }
-        } else if (data.type == '5') {  // 称重日志
-            let div = `<div class="infoContent">
-				<span>${data.data}</span>
-				</div>`
-            $('.messageBox').append(div)
-            getScrool()
-        } else if (data.type == '6') { // 车辆信息
-            data.data.plateNumber && $('.container [name="plateNumber"]').val(data.data.plateNumber)  // 车牌号
-            data.data.roughWeight && $('.container [name="roughWeight"]').val(data.data.roughWeight)  //毛重
-            data.data.supplierName && $('.container [name="supplierName"]').val(data.data.supplierName)  //供应商名称
-            data.data.tareWeight && $('.container [name="tareWeight"]').val(data.data.tareWeight) // 皮重
-            data.data.materialName && $('.container [name="materialName"]').val(data.data.materialName)  // 物料名称
-            data.data.netWeight && $('.container [name="netWeight"]').val(data.data.netWeight)  // 净重
-            data.data.comment && $('.container [name="comment"]').val(data.data.comment)  // 备注
-        } else if (data.type == '7') {  // 称重kg
-            start(data.data.weightNum)
-            if (data.data.status == '5553') {  // 传输
-                $('.container .transBox span').css('background', 'linear-gradient(white, green)')
-            } else {
-                $('.container .transBox span').css('background', 'linear-gradient(white, red)')
-            }
-            if (data.data.status == '5354') {  // 稳定
-                $('.container .stableBox span').css('background', 'linear-gradient(white, green)')
-                if ($('#type7').prop('checked') == false && data.data.weightNum != '') {  //保存按钮
-                    $('.btn_cancel,.btn_insert1,.btn_dataCof').prop('disabled', false)
-                }
-            } else {
-                $('.container .stableBox span').css('background', 'linear-gradient(white, red)')
-                if ($('#type7').prop('checked') == false) {  //保存按钮
-                    $('.btn_cancel,.btn_insert1,.btn_dataCof').prop('disabled', true)
-                }
-            }
-        } else if (data.type == '8') {  // 毛重、淨重、皮重
-            $('.container [name="roughWeight"]').val(data.data.roughWeight)  //毛重
-            $('.container [name="tareWeight"]').val(data.data.tareWeight)  // 皮重
-            $('.container [name="netWeight"]').val(data.data.netWeight)  // 净重
-            getTables()
-        } else if (data.type == '9') {
-            clearDashboard();
-            getTables()
-        } else if (data.type == '11') {  // 物料名称
-            $('.container [name="materialName"]').val(data.data)  //物料名称
-        } else if (data.type == '12') {  // 供应商名称
-            $('.container [name="supplierName"]').val(data.data)  //供应商名称
-        } else if (data.type == '0') { //导出成功
+        switch (data.type) {
+            case WS_TYPE.SYSTEM_SUCCESS:
+                console.log('连接成功');
+                break;
+            case WS_TYPE.INFR_NORTH_OUT: //前红外线1---北车检---状态显示
+                $('.WeighingStatus .beforeInfr1').css('background-color', data.data ? '#00B83F' : '#A60000');
+                break;
+            case WS_TYPE.INFR_NORTH_IN: //前红外线2---北计量---状态显示
+                $('.WeighingStatus .beforeInfr2').css('background-color', data.data ? '#00B83F' : '#A60000');
+                break;
+            case WS_TYPE.INFR_SOUTH_IN: // 后红外1---南计量---状态显示
+                $('.WeighingStatus .afterInfr1').css('background-color', data.data ? '#00B83F' : '#A60000');
+                break;
+            case WS_TYPE.INFR_SOUTH_OUT: // 后红外2---南车检---状态显示
+                $('.WeighingStatus .afterInfr2').css('background-color', data.data ? '#00B83F' : '#A60000');
+                break;
+            case WS_TYPE.WEIGH_LOG: // 称重日志
+                let div = `<div class="infoContent"><span>${data.data}</span></div>`;
+                $('.messageBox').append(div);
+                getScrool();
+                break;
+            case WS_TYPE.TRUCK_INFO: // 车辆信息
+                data.data.plateNumber && $('.container [name="plateNumber"]').val(data.data.plateNumber);
+                data.data.roughWeight && $('.container [name="roughWeight"]').val(data.data.roughWeight);
+                data.data.supplierName && $('.container [name="supplierName"]').val(data.data.supplierName);
+                data.data.tareWeight && $('.container [name="tareWeight"]').val(data.data.tareWeight);
+                data.data.materialName && $('.container [name="materialName"]').val(data.data.materialName);
+                data.data.netWeight && $('.container [name="netWeight"]').val(data.data.netWeight);
+                data.data.comment && $('.container [name="comment"]').val(data.data.comment);
+                break;
+            case WS_TYPE.RT_WEIGH_NUM: // 实时称重KG
+                start(data.data.weightNum);
+                // 传输/稳定状态显示
+                let isStable = (data.data.status === SCALE_STATUS.STABLE);
+                let isUnstable = (data.data.status === SCALE_STATUS.UNSTABLE);
 
+                $('.container .transBox span').css('background', isUnstable ? 'linear-gradient(white, green)' : 'linear-gradient(white, red)');
+                $('.container .stableBox span').css('background', isStable ? 'linear-gradient(white, green)' : 'linear-gradient(white, red)');
+
+                if ($('#type7').prop('checked') === false) { // 非自动过磅模式
+                    let canSave = isStable && data.data.weightNum !== '';
+                    $('.btn_cancel,.btn_insert1,.btn_dataCof').prop('disabled', !canSave);
+                }
+                break;
+            case WS_TYPE.WEIGH_INFO: // 毛重、淨重、皮重 (称重完成)
+                $('.container [name="roughWeight"]').val(data.data.roughWeight);
+                $('.container [name="tareWeight"]').val(data.data.tareWeight);
+                $('.container [name="netWeight"]').val(data.data.netWeight);
+                getTables();
+                break;
+            case WS_TYPE.TRUCK_AND_WEIGHT: // 重置
+                clearDashboard();
+                getTables();
+                break;
+            case WS_TYPE.READ_MATERIAL: // 物料名称
+                $('.container [name="materialName"]').val(data.data);
+                break;
+            case WS_TYPE.READ_SUPPLIER: // 供应商名称
+                $('.container [name="supplierName"]').val(data.data);
+                break;
+            case WS_TYPE.EXPORT_SUCCESS: // 导出成功
+                break;
         }
     }
 
