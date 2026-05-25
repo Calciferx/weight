@@ -442,6 +442,7 @@
             $('.container [name="roughWeight"]').val(data.data.roughWeight)  //毛重
             $('.container [name="tareWeight"]').val(data.data.tareWeight)  // 皮重
             $('.container [name="netWeight"]').val(data.data.netWeight)  // 净重
+            getTables()
         } else if (data.type == '9') {
             clearDashboard();
             getTables()
@@ -529,13 +530,13 @@
         getTables()
     })
     dataType.startTime = moment().format('YYYY-MM-DD 00:00:00')
-    dataType.endTime = moment().format('YYYY-MM-DD HH:mm:ss')
 
     // dataType.startTime = "2024-10-01 00:00:00"
     // dataType.endTime = "2024-10-07 00:00:00"
     getTables()
 
     function getTables() {
+        dataType.endTime = moment().format('YYYY-MM-DD HH:mm:ss')
         $.post(
             'admin/weightRecord/query',
             dataType,
