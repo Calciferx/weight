@@ -14,14 +14,27 @@ weight:
   enable-modbus-device-init: false
   enable-serial-device-init: false
   enable-voice: false
+  plate-reader-address: 192.168.1.100, 192.168.1.100
+  # 控制modbus设备的时间间隔
+  modbus-control-sleep-time: 100
   # 称重时的采样次数
   sampled-time: 10
   min-weight: 1000
   max-weight: 100000
   # 等待时间，单位毫秒，超过该时间没有状态变化将重置系统
   wait-time: 60000
+  # 红外确认阈值（单位：次数，配合fixedDelay=500ms使用，4次代表2秒）
+  infrared-confirm-threshold: 4
   modbus-device-info-path: classpath:config/modbus_device_info.json
   serial-device-info-path: classpath:config/serial_device_info.json
+  # 报表生成模板
+  standard-template: classpath:config/report.jasper
+  delivery-template: classpath:config/report2.jasper
+  waste-template: classpath:config/report_waste.jasper
+  raw-template: classpath:config/report_raw.jasper
+  #菜单项
+  index-menu: classpath:config/index_menu.json
+  #称的串口配置
   active-scale: ToledoT800
   scales:
     ToledoT800:

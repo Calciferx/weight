@@ -37,8 +37,14 @@
             </div>
         </div>
         <div class="btnBar">
+            <select class="form-control custom-select" id="printFormat" lay-ignore
+                    style="width: 320px; display: inline-block; vertical-align: middle; margin-right: 10px; height: 38px;">
+                <option value="waste">一般工业固体废弃物出厂环节记录表</option>
+                <option value="raw">检斤原始记录表</option>
+            </select>
             <div class="btn-group">
-                <button class="btn_print" do-ignore>打印</button>
+                <button class="btn btn-info" id="btn_preview_report">预览报表</button>
+                <button class="btn btn-info btn_print" do-ignore>打印磅单</button>
             </div>
         </div>
     </header>
@@ -459,6 +465,18 @@
         to_update() //前往修改
     })
 
+    // 预览报表点击事件
+    $('#btn_preview_report').click(function () {
+        let format = $('#printFormat').val();
+        let params = $.param({
+            startTime: $('#startTime').val(),
+            endTime: $('#endTime').val(),
+            templateKey: format,
+            token: token
+        });
+        window.open(`admin/weightRecord/previewReport?${params}`, '_blank');
+    });
+
     // 打印
     $('.btn_print').click(function () {
         let checkeds = laytable.checkStatus('dataTable').data  //获取选中数据(复选框)
@@ -471,31 +489,15 @@
             checkeds = [thistr]
         }
         let ids = checkeds.map(item => item.id).join(',')
-        layer.confirm(`确定打印这条记录的磅单？`, {
+        let format = $('#printFormat').val();
+        layer.confirm(`确定打印选中记录吗？`, {
             btn: ['确定', '取消'] //按钮
         }, function () {
-            $.ajax(
-                {
-                    url: printUrl,
-                    type: 'POST',
-                    data: {
-                        token: token,
-                        id: ids
-                    },
-                    // contentType: 'application/json',
-                    dataType: 'json',
-                    success: res => {
-                        if (res.code == 1111) {
-                            layer.msg('已成功创建打印任务')
-                        } else {
-                            layer.msg('打印任务创建失败')
-                        }
-                    },
-                    error: res => {
-                        layer.msg('请求失败')
-                    }
-                }
-            )
+            // 如果是多条记录，调用 printReport 逻辑（按ID列表打印暂未实现全量，这里简单处理为单条或循环）
+            // 更好的做法是调用我们新写的 /admin/weightRecord/print 接口，它支持传入 ID 和 templateKey
+            $.post('admin/weightRecord/print', {id: checkeds[0].id, templateKey: format, token: token}, function (res) {
+                layer.msg(res.msg);
+            });
         })
     })
 

@@ -39,6 +39,10 @@ public class RespWrapper<T> {
         this(null, code);
     }
 
+    public RespWrapper(RespCodeEnum code, String msg) {
+        this(null, code, msg);
+    }
+
     public RespWrapper(T data, RespCodeEnum code, String msg) {
         this.data = data;
         this.code = code;

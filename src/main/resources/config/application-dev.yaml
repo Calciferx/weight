@@ -27,10 +27,12 @@ weight:
   infrared-confirm-threshold: 4
   modbus-device-info-path: classpath:config/modbus_device_info.json
   serial-device-info-path: classpath:config/serial_device_info.json
-  print-template: classpath:config/report.jasper
-  #不带出门证
-  print-template2: classpath:config/report2.jasper
+  standard-template: classpath:config/report.jasper
+  delivery-template: classpath:config/report2.jasper
+  waste-template: classpath:config/report_waste.jasper
+  raw-template: classpath:config/report_raw.jasper
   index-menu: classpath:config/index_menu.json
+
   active-scale: ToledoT800
   scales:
     ToledoT800:

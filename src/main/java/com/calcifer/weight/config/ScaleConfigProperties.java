@@ -12,6 +12,10 @@ import java.util.Map;
 public class ScaleConfigProperties {
     private String activeScale;
     private Map<String, ScaleConfig> scales;
+    private String standardTemplate;
+    private String deliveryTemplate;
+    private String wasteTemplate;
+    private String rawTemplate;
 
     @Data
     public static class ScaleConfig {
