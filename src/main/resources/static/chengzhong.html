@@ -320,120 +320,64 @@
 <script src="_plugin/jessibuca/jessibuca.js"></script>
 <!--自定义js-->
 <script src="_js/main.js"></script>
+<script src="_js/websocket_utils.js"></script>
 
 <script>
     // 一进页面自动勾选上自动过磅
     $('#type7').prop('checked', true)
     $('.box .form-control').prop('disabled', true)
     $('.handBox .btn,.btn_cancel,.btn_insert1,.btn_dataCof').prop('disabled', true)
-    getScrool()
 
-    function getScrool() {  // 滚动条始终在最下面
-        let top = $(".messageBox")[0].scrollHeight;
-        $(".messageBox").scrollTop(top);
-    }
-
-    /* 枚举定义，提高可读性 */
-    const WS_TYPE = {
-        EXPORT_SUCCESS: '0',
-        SYSTEM_SUCCESS: '1111',
-        INFR_NORTH_OUT: '1',  // 北车检红外
-        INFR_NORTH_IN: '2',   // 北计量红外
-        INFR_SOUTH_IN: '3',   // 南计量红外
-        INFR_SOUTH_OUT: '4',  // 南车检红外
-        WEIGH_LOG: '5',       // 称重日志
-        TRUCK_INFO: '6',      // 车辆信息
-        RT_WEIGH_NUM: '7',    // 实时称重KG
-        WEIGH_INFO: '8',      // 称重结果(毛/净/皮)
-        TRUCK_AND_WEIGHT: '9', // 车辆及重量信息(用于重置)
-        READ_CARD: '10',
-        READ_MATERIAL: '11',
-        READ_SUPPLIER: '12'
-    };
-
-    const SCALE_STATUS = {
-        STABLE: '5354',    // 稳定 (ST)
-        UNSTABLE: '5553'   // 不稳定/传输中 (US)
-    };
-
-    /*websocket*/
+    /* WebSocket 初始化与消息处理 */
     let ws_url = location.origin.replace('http', 'ws') + '/weightproject/websocket/socketServer.do?' + loginId
-    //let ws_url = location.origin.replace('http', 'ws') + '/mdwisdomstore/websocket/socketServer.do?' + loginId
-    // let ws_url = 'http://192.168.1.217:8080/weightproject/websocket/socketServer.do?userId=' + loginId
-    let ws = null           //ws实例
+    WsManager.init(ws_url, ws_onmessage);
 
-    ws_init()
-    setInterval(() => {   //20秒轮询
-        if (ws.readyState == 1) {
-            ws.send('heartCheck')   //正常则发送心跳
-        } else {
-            ws_init()   //断开则初始化
-        }
-    }, 20000)
-
-
-    function ws_init() {    //初始化
-        ws = new WebSocket(ws_url)
-        ws.onopen = ws_onopen         //连接
-        ws.onmessage = ws_onmessage   //接收
-        // ws.onclose = ws_onclose       //断开
-        // ws.onerror = ws_onerror       //错误
-    }
-
-    function ws_onopen() {
-        console.log('ws连接成功')
-    }
-
-    function ws_onmessage(e) {
-        console.log(e)
-
-        let data = JSON.parse(e.data)
-        //let result = JSON.parse(e.result)
+    function ws_onmessage(data) {
         switch (data.type) {
             case WS_TYPE.SYSTEM_SUCCESS:
-                console.log('连接成功');
+                console.log('WS 连接成功');
                 break;
-            case WS_TYPE.INFR_NORTH_OUT: //前红外线1---北车检---状态显示
-                $('.WeighingStatus .beforeInfr1').css('background-color', data.data ? '#00B83F' : '#A60000');
-                break;
-            case WS_TYPE.INFR_NORTH_IN: //前红外线2---北计量---状态显示
-                $('.WeighingStatus .beforeInfr2').css('background-color', data.data ? '#00B83F' : '#A60000');
-                break;
-            case WS_TYPE.INFR_SOUTH_IN: // 后红外1---南计量---状态显示
-                $('.WeighingStatus .afterInfr1').css('background-color', data.data ? '#00B83F' : '#A60000');
-                break;
-            case WS_TYPE.INFR_SOUTH_OUT: // 后红外2---南车检---状态显示
-                $('.WeighingStatus .afterInfr2').css('background-color', data.data ? '#00B83F' : '#A60000');
+            case WS_TYPE.INFR_NORTH_OUT: // 北车检红外
+            case WS_TYPE.INFR_NORTH_IN:  // 北计量红外
+            case WS_TYPE.INFR_SOUTH_IN:  // 南计量红外
+            case WS_TYPE.INFR_SOUTH_OUT: // 南车检红外
+                const infrMap = {
+                    [WS_TYPE.INFR_NORTH_OUT]: '.beforeInfr1',
+                    [WS_TYPE.INFR_NORTH_IN]: '.beforeInfr2',
+                    [WS_TYPE.INFR_SOUTH_IN]: '.afterInfr1',
+                    [WS_TYPE.INFR_SOUTH_OUT]: '.afterInfr2'
+                };
+                $(`.WeighingStatus ${infrMap[data.type]}`).css('background-color', data.data ? '#00B83F' : '#A60000');
                 break;
             case WS_TYPE.WEIGH_LOG: // 称重日志
-                let div = `<div class="infoContent"><span>${data.data}</span></div>`;
-                $('.messageBox').append(div);
+                $('.messageBox').append(`<div class="infoContent"><span>${data.data}</span></div>`);
                 getScrool();
                 break;
             case WS_TYPE.TRUCK_INFO: // 车辆信息
-                data.data.plateNumber && $('.container [name="plateNumber"]').val(data.data.plateNumber);
-                data.data.roughWeight && $('.container [name="roughWeight"]').val(data.data.roughWeight);
-                data.data.supplierName && $('.container [name="supplierName"]').val(data.data.supplierName);
-                data.data.tareWeight && $('.container [name="tareWeight"]').val(data.data.tareWeight);
-                data.data.materialName && $('.container [name="materialName"]').val(data.data.materialName);
-                data.data.netWeight && $('.container [name="netWeight"]').val(data.data.netWeight);
-                data.data.comment && $('.container [name="comment"]').val(data.data.comment);
+                const fieldMap = {
+                    plateNumber: 'plateNumber',
+                    roughWeight: 'roughWeight',
+                    supplierName: 'supplierName',
+                    tareWeight: 'tareWeight',
+                    materialName: 'materialName',
+                    netWeight: 'netWeight',
+                    comment: 'comment'
+                };
+                for (let key in fieldMap) {
+                    if (data.data[key]) $('.container [name="' + fieldMap[key] + '"]').val(data.data[key]);
+                }
                 break;
             case WS_TYPE.RT_WEIGH_NUM: // 实时称重KG
                 start(data.data.weightNum);
-                // 传输/稳定状态显示
-                let isStable = (data.data.status === SCALE_STATUS.STABLE);
-                let isUnstable = (data.data.status === SCALE_STATUS.UNSTABLE);
-
+                const isStable = (data.data.status === SCALE_STATUS.STABLE);
+                const isUnstable = (data.data.status === SCALE_STATUS.UNSTABLE);
                 $('.container .transBox span').css('background', isUnstable ? 'linear-gradient(white, green)' : 'linear-gradient(white, red)');
                 $('.container .stableBox span').css('background', isStable ? 'linear-gradient(white, green)' : 'linear-gradient(white, red)');
-
-                if ($('#type7').prop('checked') === false) { // 非自动过磅模式
-                    let canSave = isStable && data.data.weightNum !== '';
-                    $('.btn_cancel,.btn_insert1,.btn_dataCof').prop('disabled', !canSave);
+                if (!$('#type7').prop('checked')) {
+                    $('.btn_cancel,.btn_insert1,.btn_dataCof').prop('disabled', !(isStable && data.data.weightNum !== ''));
                 }
                 break;
-            case WS_TYPE.WEIGH_INFO: // 毛重、淨重、皮重 (称重完成)
+            case WS_TYPE.WEIGH_INFO: // 称重结果
                 $('.container [name="roughWeight"]').val(data.data.roughWeight);
                 $('.container [name="tareWeight"]').val(data.data.tareWeight);
                 $('.container [name="netWeight"]').val(data.data.netWeight);
@@ -443,337 +387,118 @@
                 clearDashboard();
                 getTables();
                 break;
-            case WS_TYPE.READ_MATERIAL: // 物料名称
+            case WS_TYPE.READ_MATERIAL:
                 $('.container [name="materialName"]').val(data.data);
                 break;
-            case WS_TYPE.READ_SUPPLIER: // 供应商名称
+            case WS_TYPE.READ_SUPPLIER:
                 $('.container [name="supplierName"]').val(data.data);
-                break;
-            case WS_TYPE.EXPORT_SUCCESS: // 导出成功
                 break;
         }
     }
 
     function clearDashboard() {
-        $('.container [name="plateNumber"]').val('')  // 车牌号
-        $('.container [name="roughWeight"]').val('')  //毛重
-        $('.container [name="supplierName"]').val('')  //供应商名称
-        $('.container [name="tareWeight"]').val('') // 皮重
-        $('.container [name="materialName"]').val('')  // 物料名称
-        $('.container [name="netWeight"]').val('')  // 净重
-        $('.container [name="comment"]').val('') // 备注
+        $('.container .form-control').val('');
     }
 
-    //页面关闭前
-    /*onbeforeunload = function () {
-        opener.$('#export').removeAttr('disabled')   //启用父级页面"导出"按钮
-        ws.close()  //断开连接
-    }*/
-
+    function getScrool() {
+        let top = $(".messageBox")[0].scrollHeight;
+        $(".messageBox").scrollTop(top);
+    }
 </script>
 <script>
     //数字滚动
-    var chartNum = ['0', '0', '0', '0', '0', '0'];     // 默认总数
+    var chartNum = ['0', '0', '0', '0', '0', '0'];
     start('000000');
 
     function start(num) {
-        console.log(num)
-        var strHtml = "";
-        for (var i = 0; i < chartNum.length; i++) {
-            strHtml += `<li class="number-item">
-				        <span><i class="item" ref="numberItem">0123456789</i></span></li>`;
+        let strHtml = "";
+        for (let i = 0; i < 6; i++) {
+            strHtml += `<li class="number-item"><span><i class="item">0123456789</i></span></li>`;
         }
         $("#TNum").html(strHtml);
         toOrderNum(num);
         setNumberTransform();
-        // 定时改变数字
-        /*setInterval(function setInt() {
-            toOrderNum('34534');
-            setNumberTransform();
-        }, 1000)*/
     }
 
     function toOrderNum(num) {
-        num = num.toString()     // 数字变成字符串
-        if (num.length < 6) {  // 如未满位数，添加"0"补位
-            num = '0' + num
-            toOrderNum(num) // 递归添加"0"补位
-        } else if (num.length === 6) {      // 数中加入逗号
-            // num = num.slice(0, 2) + ',' + num.slice(2, 5) + ',' + num.slice(5, 8)
-            chartNum = num.split('') // 将其便变成数据
-        } else {
-            alert('显示异常');
+        num = num.toString().padStart(6, '0');
+        if (num.length > 6) {
+            console.error('重量数值超出显示范围');
+            num = '999999';
         }
+        chartNum = num.split('');
     }
 
     function setNumberTransform() {
-        var numberItems = $('.item');
-        const numberArr = chartNum.filter(item => !isNaN(item));
-        for (var index = 0; index < numberItems.length; index++) {
-            const elem = numberItems[index];
-            elem.style.transform = 'translate(-50%, -' + numberArr[index] * 10 + '%)'
-        }
+        const numberItems = $('.item');
+        chartNum.forEach((num, i) => {
+            if (numberItems[i]) {
+                numberItems[i].style.transform = `translate(-50%, -${num * 10}%)`;
+            }
+        });
     }
 
-    //称重记录
-    let dataType = {
-        token,
-    }
-    $('#bodyInsert [data-id="recordType"]').change(function () {  // 记录查询
-        dataType.recordType = $(this).find('option:checked').val()
-        getTables()
-    })
-
-    $('#bodyInsert [data-id="logType"]').change(function () { // 记录查询
-        dataType.completeStatus = $(this).find('option:checked').val()
-        getTables()
-    })
-    dataType.startTime = moment().format('YYYY-MM-DD 00:00:00')
-
-    // dataType.startTime = "2024-10-01 00:00:00"
-    // dataType.endTime = "2024-10-07 00:00:00"
-    getTables()
+    // 称重记录查询
+    let dataType = {token};
+    $('#bodyInsert select').change(() => {
+        dataType.recordType = $('#bodyInsert [data-id="recordType"]').val();
+        dataType.completeStatus = $('#bodyInsert [data-id="logType"]').val();
+        getTables();
+    });
+    dataType.startTime = moment().format('YYYY-MM-DD 00:00:00');
+    getTables();
 
     function getTables() {
-        dataType.endTime = moment().format('YYYY-MM-DD HH:mm:ss')
-        $.post(
-            'admin/weightRecord/query',
-            dataType,
-            res => {
-                if (res.code != 1111) {
-                    layer.msg(res.msg)
-                    return false
-                }
-                let data = res.data
-                $('#tableInsert tbody').empty()
-                data.forEach(function (item, i) {
-                    addRow()
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl1"]').val(item.id)  //序号
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl2"]').val(item.weighId)  //检斤编号
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl3"]').val(item.supplierName)  //供应商名称
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl4"]').val(item.materialName)  //物料名称
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl5"]').val(item.plateNumber)  //车牌号
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl6"]').val(item.roughWeight)  //毛重
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl7"]').val(item.tareWeight)  //皮重
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl8"]').val(item.netWeight)  //净重
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl9"]').val(item.weighDate)  //检斤日期
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl10"]').val(item.weighStatus)  //检斤状态
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl11"]').val(item.isPrint)  //是否打印
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl12"]').val(item.controlId)  //受控编号
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl13"]').val(item.comment)  //备注
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl14"]').val(item.weighMan)  //检斤员
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl15"]').val(item.auditor)  //审核员
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl16"]').val(item.isTest)  //是否化验
-                    $('#tableInsert tbody tr').eq(i).find('[data-id="jl17"]').val(item.carType)  //车辆类型
-                })
-                totalAmount()
-            }
-        )
-    }
-
-    function addRow(i) {
-        let row = `<tr>
-				<td><input class="form-control disabled" disabled data-id="jl1" title="序号"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl2" title="检斤编号"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl3" title="供应商名称"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl4" title="物料名称"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl5" title="车牌号"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl6" title="毛重"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl7" title="皮重"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl8" title="净重"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl9" title="检斤日期"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl10" title="检斤状态"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl11" title="是否打印"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl12" title="受控编号"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl13" title="备注"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl14" title="检斤员"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl15" title="审核员"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl16" title="是否化验"/></td>
-				<td><input class="form-control disabled" disabled data-id="jl17" title="车辆类型"/></td>
-				</tr>`
-        if (i == null) {
-            $('#tableInsert tbody').append(row)
-        } else {
-            $('#tableInsert tbody tr').eq(i).after(row)
-        }
-        $('#tableInsert tbody .lineNumber').each(function (i) { //更新行号
-            $(this).val(i + 1)
-        })
-    }
-
-    //合计数量/金额
-    function totalAmount() {
-        let roughWeight = 0, tareWeight = 0, netWeight = 0
-        //合计毛重
-        $('#tableInsert tbody [data-id="jl6"]').each(function () {
-            roughWeight = zMath.plus(roughWeight, $(this).val() * 1)
-        })
-        //合计皮重
-        $('#tableInsert tbody [data-id="jl7"]').each(function () {
-            tareWeight = zMath.plus(tareWeight, $(this).val() * 1)
-        })
-        //合计净重
-        $('#tableInsert tbody [data-id="jl8"]').each(function () {
-            netWeight = zMath.plus(netWeight, $(this).val() * 1)
-        })
-        $('#tableInsert tfoot .roughWeight').text(roughWeight.toFixed(toDecimal))  //毛重
-        $('#tableInsert tfoot .tareWeight').text(tareWeight.toFixed(toDecimal)) //皮重
-        $('#tableInsert tfoot .netWeight').text(netWeight.toFixed(toDecimal)) //净重
-    }
-
-
-    //初始化设备
-    $('.btn_reset').click(function () {
-        $.post(
-            'admin/initSystem',
-            {
-                token,
-            },
-            res => {
-                if (res.code != 1111) {
-                    layer.msg(res.msg)
-                    return false
-                }
-                layer.msg(res.msg)
-            }
-        )
-    })
-
-
-    //过磅类型选择
-    $(".WeighingType input[type='radio']").click(function () {
-        $(this).prop('checked', true)
-        $(this).siblings().prop('checked', false)
-        let val = $('input:radio:checked').val();
-    });
-
-    //过磅模式选择
-    $(".WeighingMode input[type='radio']").click(function () {
-        $(this).prop('checked', true)
-        $(this).siblings().prop('checked', false)
-        let val = $('input:radio:checked').val();
-    });
-
-    //是否自动过磅
-    $('#type7').click(function () {
-        // console.log($(this).prop('checked'))
-        if ($(this).prop('checked') == true) {
-            $('.box .form-control').prop('disabled', true)
-            $('.handBox .btn,.btn_cancel,.btn_insert1,.btn_dataCof').prop('disabled', true)
-        } else {
-            $('.box .form-control').prop('disabled', false)
-            $('.handBox .btn').prop('disabled', false)
-        }
-    })
-
-    // 清空按钮
-    $('.btn_cancel').click(function () {
-        clearDashboard()
-    })
-
-    // 保存按钮
-    $('.btn_insert1').click(function () {
-        let field = {
-            carNum: $('.container [name="carCode"]').val(), //车号
-            type: 'PO', // 过磅类型
-            faHuo: $('.container [name="address"]').val(), //发货单位
-            shouHuo: $('.container [name="reAddress"]').val(), // 收货单位
-            goodsName: $('.container [name="huoming"]').val(), // 货名
-            spec: $('.container [name="guige"]').val(), // 规格
-            userName: loginRealName,  // 录入人名称
-        }
-        field.token = token
-        $.post(
-            '../adminx/record/add.do',
-            field,
-            res => {
-                if (res.code != 1111) {
-                    layer.msg(res.msg)
-                    return false
-                }
-                layer.msg(res.msg)
-            }
-        )
-    })
-
-    $('.btn_dataCof').click(function () {
-        $('.container [name="maoZ"]').val(data.map.毛重)  //毛重
-        $('.container [name="piZ"]').val(data.map.皮重)  // 皮重
-        $('.container [name="jingZ"]').val(data.map.净重)  // 净重
-    })
-
-    if (loginSlaveList == '') {
-        layer.open({
-            type: 1,
-            title: '信息',
-            area: ['350px', '203px'], //宽高
-            content: $('#formVerify')
-        })
-    }
-
-    //返回
-    $('.btn_submit').click(function () {
-        layer.closeAll('page');
-    })
-    //道闸 起杆、落杆
-    $('.btn_beforePole,.btn_afterPole').click(function () {
-        let deviceName = $(this).attr('data-type')
-        $.post(
-            '/device/modbus/name',
-            {
-                token,
-                deviceName
-            },
-            res => {
-                layer.msg(res.msg)
-            }
-        )
-    })
-    // $.post(
-    //     'device/wsURL',
-    //     function (data) {
-    //         createLive(data)
-    //     }
-    // )
-
-    function createLive(addresses) {
-        addresses.forEach((address, index) => {
-            let player = create($('.flv-container')[index])
-            player.play(address)
-        })
-    }
-
-    // let player1 = create($('#container1')[0])
-    // player1.play("ws://192.168.1.100:9080/ws.flv?token=d2805fca-d5c3-bf4b-2b0d-d49ce64f4f41&channel=0");
-    function create(containerDom) {
-        let jessibuca = new Jessibuca({
-            decoder: '/_plugin/jessibuca/decoder.js',
-            container: containerDom,
-            videoBuffer: 0.2, // 缓存时长
-            isResize: false,
-            text: "",
-            loadingText: "加载中",
-            debug: true,
-            showBandwidth: true, // 显示网速
-            operateBtns: {
-                fullscreen: true,
-                screenshot: true,
-                play: true,
-                audio: true,
-            },
-            forceNoOffscreen: true,
-            isNotMute: false,
+        dataType.endTime = moment().format('YYYY-MM-DD HH:mm:ss');
+        $.post('admin/weightRecord/query', dataType, res => {
+            if (res.code != 1111) return layer.msg(res.msg);
+            const $tbody = $('#tableInsert tbody').empty();
+            res.data.forEach((item, i) => {
+                const $row = $(addRow());
+                const fields = ['id', 'weighId', 'supplierName', 'materialName', 'plateNumber', 'roughWeight', 'tareWeight', 'netWeight', 'weighDate', 'weighStatus', 'isPrint', 'controlId', 'comment', 'weighMan', 'auditor', 'isTest', 'carType'];
+                fields.forEach((field, index) => {
+                    $row.find(`[data-id="jl${index + 1}"]`).val(item[field] || '');
+                });
+                $tbody.append($row);
+            });
+            totalAmount();
         });
-
-        jessibuca.onLog = msg => console.error(msg);
-        jessibuca.onRecord = (status) => console.log('onRecord', status);
-        jessibuca.onPause = () => console.log('onPause');
-        jessibuca.onPlay = () => console.log('onPlay');
-        jessibuca.onFullscreen = msg => console.log('onFullscreen', msg);
-        jessibuca.onMute = msg => console.log('onMute', msg);
-
-        return jessibuca
     }
+
+    function addRow() {
+        let inputs = "";
+        for (let i = 1; i <= 17; i++) {
+            inputs += `<td><input class="form-control disabled" disabled data-id="jl${i}"/></td>`;
+        }
+        return `<tr>${inputs}</tr>`;
+    }
+
+    function totalAmount() {
+        let rough = 0, tare = 0, net = 0;
+        $('#tableInsert tbody tr').each(function () {
+            rough = zMath.plus(rough, $(this).find('[data-id="jl6"]').val() || 0);
+            tare = zMath.plus(tare, $(this).find('[data-id="jl7"]').val() || 0);
+            net = zMath.plus(net, $(this).find('[data-id="jl8"]').val() || 0);
+        });
+        $('#tableInsert tfoot .roughWeight').text(rough.toFixed(toDecimal));
+        $('#tableInsert tfoot .tareWeight').text(tare.toFixed(toDecimal));
+        $('#tableInsert tfoot .netWeight').text(net.toFixed(toDecimal));
+    }
+
+    $('.btn_reset').click(() => {
+        $.post('admin/initSystem', {token}, res => layer.msg(res.msg));
+    });
+
+    $('#type7').click(function () {
+        const checked = $(this).prop('checked');
+        $('.box .form-control, .handBox .btn, .btn_cancel, .btn_insert1').prop('disabled', checked);
+    });
+
+    $('.btn_cancel').click(clearDashboard);
+
+    $('.btn_beforePole, .btn_afterPole').click(function () {
+        $.post('/device/modbus/name', {token, deviceName: $(this).attr('data-type')}, res => layer.msg(res.msg));
+    });
 </script>
 </body>
 </html>

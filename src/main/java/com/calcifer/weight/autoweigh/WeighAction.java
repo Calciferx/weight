@@ -233,7 +233,8 @@ public class WeighAction {
         return context -> {
             log.info("========truckLeavingWeigh action========");
             webSocketHandler.sendWeightLogToAllUser("车辆正在下称...");
-            // 车辆正在下称
+            // 清理打印数据
+            weightRecordDO = null;
         };
     }
 
@@ -284,6 +285,8 @@ public class WeighAction {
         return context -> {
             log.info("========reset action========");
             webSocketHandler.sendWSJsonToAllUser(WSCodeEnum.TRUCK_AND_WEIGHT, "清空页面数据显示");
+            // 清理打印数据
+            weightRecordDO = null;
             synchronized (AutoScanJob.class) {
                 log.info("reset all devices...");
                 try {

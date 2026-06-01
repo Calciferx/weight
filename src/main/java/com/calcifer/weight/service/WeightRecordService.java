@@ -9,25 +9,51 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class WeightRecordService extends ServiceImpl<WeightRecordMapper, WeightRecordDO> implements IService<WeightRecordDO> {
+
+    private final ConcurrentHashMap<String, AtomicLong> idCounters = new ConcurrentHashMap<>();
+
     public String generateWeighId(String materialCode) {
-        List<WeightRecordDO> recordDOList = this.lambdaQuery()
-                .select(WeightRecordDO::getWeighId)
-                .likeRight(WeightRecordDO::getWeighId, materialCode)
-                .apply("DATEDIFF(MONTH, [检斤日期], GETDATE()) = 0")
-                .orderByDesc(WeightRecordDO::getWeighId)
-                .list();
         String dateStr = DateUtil.format(new Date(), "yyMM");
-        if (recordDOList.isEmpty()) {
-            return materialCode + dateStr + "001";
-        } else {
-            String numStr = recordDOList.get(0).getWeighId().trim().replaceAll("[a-zA-Z]", "").substring(4);
-            int num = Integer.parseInt(numStr);
-            String incNumStr = String.format("%03d", num + 1);
-            return materialCode + dateStr + incNumStr;
-        }
+        String key = materialCode + dateStr;
+
+        AtomicLong counter = idCounters.computeIfAbsent(key, k -> {
+            List<WeightRecordDO> recordDOList = this.lambdaQuery()
+                    .select(WeightRecordDO::getWeighId)
+                    .likeRight(WeightRecordDO::getWeighId, materialCode + dateStr)
+                    .list();
+
+            if (recordDOList.isEmpty()) {
+                return new AtomicLong(0);
+            } else {
+                String prefix = materialCode + dateStr;
+                long maxNum = 0;
+
+                for (WeightRecordDO record : recordDOList) {
+                    String weighId = record.getWeighId().trim();
+                    if (weighId.startsWith(prefix)) {
+                        String seqStr = weighId.substring(prefix.length()).replaceAll("[^0-9]", "");
+                        if (!seqStr.isEmpty()) {
+                            try {
+                                long currentNum = Long.parseLong(seqStr);
+                                if (currentNum > maxNum) {
+                                    maxNum = currentNum;
+                                }
+                            } catch (NumberFormatException ignored) {
+                            }
+                        }
+                    }
+                }
+                return new AtomicLong(maxNum);
+            }
+        });
+
+        long nextNum = counter.incrementAndGet();
+        return materialCode + dateStr + String.format("%05d", nextNum);
     }
 
 }

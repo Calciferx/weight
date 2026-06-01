@@ -228,66 +228,37 @@
 <!--自定义js-->
 <script src="_js/main.js"></script>
 <script>
-    let queryUrl = 'admin/weightRecord/query'
-    let deleteUrl = 'admin/weightRecord/delete'
-    let saveOrUpdateUrl = 'admin/weightRecord/saveOrUpdate'
-    let printUrl = 'device/print'
+    const queryUrl = 'admin/weightRecord/query';
+    const deleteUrl = 'admin/weightRecord/delete';
+    const saveOrUpdateUrl = 'admin/weightRecord/saveOrUpdate';
 
-    let supplierList = []
-    let materialList = []
-    let carList = []
-    let userList = []
+    // 时间插件初始化
+    const commonDateCfg = {max: 0, type: 'datetime', trigger: 'click'};
+    laydate.render({...commonDateCfg, elem: '#startTime', value: moment().format('YYYY-MM-DD 00:00:00')});
+    laydate.render({...commonDateCfg, elem: '#endTime', value: new Date()});
+    laydate.render({...commonDateCfg, elem: '.form-control[name="weighDate"]'});
 
+    datasl.startTime = $('#startTime').val();
+    datasl.endTime = $('#endTime').val();
 
-    laydate.render({
-        elem: '#startTime', //指定元素
-        max: 0,
-        type: 'datetime',
-        trigger: 'click',
-        value: moment().format('YYYY-MM-DD 00:00:00')
-    })
+    $('.btn_select1').click(() => {
+        datasl.startTime = $('#startTime').val();
+        datasl.endTime = $('#endTime').val();
+        getTable();
+    });
 
-    laydate.render({
-        elem: '#endTime', //指定元素
-        max: 0,
-        type: 'datetime',
-        trigger: 'click',
-        value: new Date()
-    })
-
-    laydate.render({
-        elem: '.form-control[name="weighDate"]', //指定元素
-        max: 0,
-        type: 'datetime',
-        trigger: 'click'
-    })
-
-    datasl.startTime = $('#startTime').val()
-    datasl.endTime = $('#endTime').val()
-
-
-    $('.btn_select1').click(function () {
-        datasl.startTime = $('#startTime').val()
-        datasl.endTime = $('#endTime').val()
-        getTable()
-    })
-
-    //获取表格
     function getTable() {
-        datasl.token = token
+        datasl.token = token;
         laytable.render({
             elem: '#dataTable',
             url: queryUrl,
             where: datasl,
             method: 'post',
-            headers: {token: token},
-            height: 'full-100',  //设定高度-差值
+            headers: {token},
+            height: 'full-100',
             cols: [[
                 {width: 45, type: 'radio'},
-                {
-                    minWidth: 80, title: '序号',
-                    templet: `<div><a href="##" class="btn_xiangqing">{{d.id}}</a></div>`
-                },
+                {minWidth: 80, title: '序号', templet: `<div><a href="##" class="btn_xiangqing">{{d.id}}</a></div>`},
                 {minWidth: 120, title: '检斤编号', field: 'weighId'},
                 {minWidth: 150, title: '供应商名称', field: 'supplierName'},
                 {minWidth: 120, title: '物料名称', field: 'materialName'},
@@ -304,219 +275,76 @@
                 {minWidth: 120, title: '是否化验', field: 'isTest'},
                 {minWidth: 120, title: '备注', field: 'comment'},
             ]],
-            page: {
-                layout: ['prev', 'page', 'next', 'skip', 'count', 'limit'], //组件
-                limits: [10, 20, 30, 50, 100, 150, 1000, 3000],  //每页展示条数
-                limit: 20,  //默认每页展示条数
-            },
-            request: {
-                pageName: 'page',    //页码的参数名称，默认：page
-                limitName: 'pageSize'   //每页数据量的参数名，默认：limit
-            },
-            response: {
-                statusCode: 1111  //规定成功状态码，table 组件默认为 0
-            },
-            parseData: function (res) { //表格渲染前的数据预处理
-                return {
-                    code: res.code,    //解析接口状态
-                    msg: res.msg,      //解析提示文本,当code与statusCode不等(即失败)时提示
-                    count: res.total,  //解析数据长度
-                    data: res.data     //解析数据列表
-                };
-            },
-            done: function (res) {
-                done_table(res)   //加载表格后的处理
-            }
-        })
+            page: {layout: ['prev', 'page', 'next', 'skip', 'count', 'limit'], limits: [10, 20, 50, 100], limit: 20},
+            request: {pageName: 'page', limitName: 'pageSize'},
+            response: {statusCode: 1111},
+            parseData: res => ({code: res.code, msg: res.msg, count: res.total, data: res.data}),
+            done: res => done_table(res)
+        });
     }
 
-    //获取详情
     function getDetail() {
-        layform.val('formInsert', thistr)
-        //当前表单数据(暂存, 修改页点击返回时判断是否有改动)(放在最后)
-        thisform = layform.val('formInsert')
-        $('.form-control[name="id"]').prop('disabled', true)
-        console.log(thistr)
+        layform.val('formInsert', thistr);
+        thisform = layform.val('formInsert');
+        $('.form-control[name="id"]').prop('disabled', true);
     }
 
     function getItemList() {
-        if (supplierList.length === 0) {
-            $.post(
-                "admin/supplierInfo/queryAll",
-                {},
-                res => {
-                    supplierList = res.data
-                    supplierList.forEach(supplier => {
-                        $('.form-control[name="supplierName"]').append(
-                            $('<option>').val(supplier.supplierName).text(supplier.supplierName)
-                        )
-                    })
-                }
-            )
-        }
-        if (materialList.length === 0) {
-            $.post(
-                "admin/material/queryAll",
-                {},
-                res => {
-                    materialList = res.data
-                    materialList.forEach(material => {
-                        $('.form-control[name="materialName"]').append(
-                            $('<option>').val(material.materialName).text(material.materialName)
-                        )
-                    })
-                }
-            )
-        }
-        if (carList.length === 0) {
-            $.post(
-                "admin/car/queryAll",
-                {},
-                res => {
-                    carList = res.data
-                    carList.forEach(car => {
-                        $('.form-control[name="plateNumber"]').append(
-                            $('<option>').val(car.plateNumber).text(car.plateNumber)
-                        )
-                    })
-                }
-            )
-        }
-        if (userList.length === 0) {
-            $.post(
-                "admin/user/queryAll",
-                {},
-                res => {
-                    userList = res.data
-                    userList.forEach(user => {
-                        $('.form-control[name="weighMan"]').append(
-                            $('<option>').val(user.realName).text(user.realName)
-                        )
-                    })
-                }
-            )
-        }
+        loadSelectList("admin/supplierInfo/queryAll", 'select[name="supplierName"]', "supplierName", "supplierName");
+        loadSelectList("admin/material/queryAll", 'select[name="materialName"]', "materialName", "materialName");
+        loadSelectList("admin/car/queryAll", 'select[name="plateNumber"]', "plateNumber", "plateNumber");
+        loadSelectList("admin/user/queryAll", 'select[name="weighMan"]', "realName", "realName");
     }
-</script>
-<script>
-    //新增
-    $('.btn_insert').click(function () {
-        // 填充表单中的下拉菜单
-        getItemList()
-        $('.form-control[name="id"]').prop('disabled', true)
-    })
 
-    //删除
-    $('.btn_delete').click(function () {
-        let checkeds = laytable.checkStatus('dataTable').data  //获取选中数据(复选框)
-        if (!$('body').attr('thisdo')) {
-            if (!checkeds.length) {
-                layer.msg('请至少选择一条数据')
-                return false
-            }
-        } else {
-            checkeds = [thistr]
-        }
-        let ids = checkeds.map(item => item.id).join(',')
-        layer.confirm(`删除后无法恢复，确定删除这${checkeds.length}条记录？`, {
-            btn: ['确定', '取消'] //按钮
-        }, function () {
-            $.ajax(
-                {
-                    url: deleteUrl,
-                    type: 'POST',
-                    data: JSON.stringify({
-                        token: token,
-                        id: ids
-                    }),
-                    contentType: 'application/json',
-                    dataType: 'json',
-                    success: res => {
-                        done(res)   //常规操作后的处理
-                    }
-                }
-            )
-        })
-    })
+    $('.btn_insert').click(() => {
+        getItemList();
+        $('.form-control[name="id"]').prop('disabled', true);
+    });
 
-    //----------------------------------
-    //修改
-    $(document).on('click', '.btn_update', function () {
-        // 填充表单中的下拉菜单
-        getItemList()
-        if ($(this).attr('class').includes('btnTd')) { //行内按钮
-            let i = $('.btn_update.btnTd').index($(this))
-            thistr = thistable[i]
-        } else {
-            let checkeds = laytable.checkStatus('dataTable').data  //获取选中数据(复选框)
-            if (!$('body').attr('thisdo')) {
-                if (!checkeds.length) {
-                    layer.msg('请选择一条数据')
-                    return false
-                }
-                if (checkeds.length > 1) {
-                    layer.msg('每次只能修改一条数据')
-                    return false
-                }
-                thistr = checkeds[0]
-            }
+    $('.btn_update').click(function () {
+        getItemList();
+        const checkeds = laytable.checkStatus('dataTable').data;
+        if (!checkeds.length) return layer.msg('请选择一条数据');
+        if (checkeds.length > 1) return layer.msg('每次只能修改一条数据');
+        thistr = checkeds[0];
+        to_update();
+    });
 
-        }
-        to_update() //前往修改
-    })
+    $('.btn_delete').click(() => {
+        const checkeds = laytable.checkStatus('dataTable').data;
+        if (!checkeds.length) return layer.msg('请至少选择一条数据');
+        const ids = checkeds.map(item => item.id).join(',');
+        layer.confirm(`确定删除选中的 ${checkeds.length} 条记录吗？`, index => {
+            ajaxPost(deleteUrl, {token, id: ids}, res => done(res), '删除失败');
+        });
+    });
 
-    // 预览报表点击事件
-    $('#btn_preview_report').click(function () {
-        let format = $('#printFormat').val();
-        let params = $.param({
+    $('#btn_preview_report').click(() => {
+        const format = $('#printFormat').val();
+        const params = $.param({
             startTime: $('#startTime').val(),
             endTime: $('#endTime').val(),
             templateKey: format,
-            token: token
+            token
         });
         window.open(`admin/weightRecord/previewReport?${params}`, '_blank');
     });
 
-    // 打印
-    $('.btn_print').click(function () {
-        let checkeds = laytable.checkStatus('dataTable').data  //获取选中数据(复选框)
-        if (!$('body').attr('thisdo')) {
-            if (!checkeds.length) {
-                layer.msg('请至少选择一条数据')
-                return false
-            }
-        } else {
-            checkeds = [thistr]
-        }
-        let ids = checkeds.map(item => item.id).join(',')
-        let format = $('#printFormat').val();
-        layer.confirm(`确定打印选中记录吗？`, {
-            btn: ['确定', '取消'] //按钮
-        }, function () {
-            // 如果是多条记录，调用 printReport 逻辑（按ID列表打印暂未实现全量，这里简单处理为单条或循环）
-            // 更好的做法是调用我们新写的 /admin/weightRecord/print 接口，它支持传入 ID 和 templateKey
-            $.post('admin/weightRecord/print', {id: checkeds[0].id, templateKey: format, token: token}, function (res) {
+    $('.btn_print').click(() => {
+        const checkeds = laytable.checkStatus('dataTable').data;
+        if (!checkeds.length) return layer.msg('请选择一条数据');
+        layer.confirm(`确定打印磅单吗？`, index => {
+            $.post('admin/weightRecord/print', {id: checkeds[0].id, token}, res => {
                 layer.msg(res.msg);
+                layer.close(index);
             });
-        })
-    })
+        });
+    });
 
-    //保存_执行 (表单内容, 按钮名称)
     function doSubmit(field, btn) {
-        field.token = token
-        let url = saveOrUpdateUrl
-        $.ajax({
-            url: url,
-            type: 'POST',
-            data: JSON.stringify(field),
-            contentType: 'application/json',
-            dataType: 'json',
-            success: res => {
-                done_submit(res, btn)
-            }
-        })
+        field.token = token;
+        ajaxPost(saveOrUpdateUrl, field, res => done_submit(res, btn), '保存失败');
     }
-
 </script>
 </body>
 </html>

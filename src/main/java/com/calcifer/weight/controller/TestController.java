@@ -61,8 +61,8 @@ public class TestController {
     }
 
     @RequestMapping("mptest")
-    public Object mpTest() {
-        String dhj = weightRecordService.generateWeighId("DHJ");
+    public Object mpTest(String materialCode) {
+        String dhj = weightRecordService.generateWeighId(materialCode);
         return dhj;
     }
 

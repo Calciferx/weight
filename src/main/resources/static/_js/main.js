@@ -825,3 +825,49 @@ function toHump(name) {
         return letter.toUpperCase();
     });
 }
+
+/**
+ * 通用下拉菜单加载器
+ * @param {string} url 接口地址
+ * @param {string} selector jQuery 选择器
+ * @param {string} valueField 值字段名
+ * @param {string} textField 显示文本字段名
+ * @param {function} callback 加载完成后的回调
+ */
+function loadSelectList(url, selector, valueField, textField, callback) {
+    const $select = $(selector);
+    if ($select.children('option').length > 0 && !$select.data('force-reload')) return;
+
+    $.post(url, {}, res => {
+        if (res.code === 1111) {
+            $select.empty().append('<option value="">请选择</option>');
+            res.data.forEach(item => {
+                $select.append($('<option>').val(item[valueField]).text(item[textField]));
+            });
+            if (callback) callback(res.data);
+            layui.form.render('select');
+        }
+    });
+}
+
+/**
+ * 标准化 AJAX Post 请求
+ */
+function ajaxPost(url, data, successCallback, errorMsg = '请求失败') {
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: typeof data === 'object' ? JSON.stringify(data) : data,
+        contentType: data instanceof FormData ? false : 'application/json',
+        processData: !(data instanceof FormData),
+        dataType: 'json',
+        success: res => {
+            if (res.code === 1111) {
+                if (successCallback) successCallback(res);
+            } else {
+                layer.msg(res.msg || errorMsg);
+            }
+        },
+        error: () => layer.msg(errorMsg)
+    });
+}
