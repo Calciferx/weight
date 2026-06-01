@@ -17,6 +17,10 @@ public class ScaleConfigProperties {
     private String wasteTemplate;
     private String rawTemplate;
 
+    private String wasteTransUnit;
+    private String wasteReceiveUnit;
+    private String rawTransOrientation;
+
     @Data
     public static class ScaleConfig {
         private int frameLength = 18;

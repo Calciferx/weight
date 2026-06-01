@@ -55,8 +55,8 @@ weight:
 | `number`          | `qchjj.净重`   | 自动转换为字符串显示          |
 | `code`            | 常量           | 固定值：SW59            |
 | `name`            | 常量           | 固定值：一般工业固体废物        |
-| `transUnit`       | 常量           | 固定值：甘肃宏盛信息科技有限公司    |
-| `receiveUnit`     | 常量           | 固定值：白银市宏盛环保有限公司     |
+| `transUnit`       | 配置项         | 可在 application.yaml 中配置    |
+| `receiveUnit`     | 配置项         | 可在 application.yaml 中配置     |
 | `transType`       | 常量           | 固定值：公路              |
 | `flowType`        | 常量           | 固定值：省内转移            |
 | `weighDateShort`  | `qchjj.检斤日期` | 格式：yyyy-MM-dd       |

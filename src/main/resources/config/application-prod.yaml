@@ -20,6 +20,14 @@ weight:
   wait-time: 60000
   modbus-device-info-path: classpath:config/modbus_device_info.json
   serial-device-info-path: classpath:config/serial_device_info.json
+  # 一般工业固体废物出长环节记录表
+  # 运输单位
+  waste-trans-unit: 甘肃宏盛信息科技有限公司
+  # 接收单位
+  waste-receive-unit: 白银市宏盛环保有限公司
+  # 甘肃华鹭铝业有限公司汽车衡检斤原始记录
+  # 流向
+  raw-trans-orientation: 甘肃宏盛信息科技有限公司
   active-scale: ToledoT800
   scales:
     ToledoT800:

@@ -31,6 +31,14 @@ weight:
   delivery-template: classpath:config/report2.jasper
   waste-template: classpath:config/report_waste.jasper
   raw-template: classpath:config/report_raw.jasper
+  # 一般工业固体废物出长环节记录表
+  # 运输单位
+  waste-trans-unit: 甘肃宏盛信息科技有限公司
+  # 接收单位
+  waste-receive-unit: 白银市宏盛环保有限公司
+  # 甘肃华鹭铝业有限公司汽车衡检斤原始记录
+  # 流向
+  raw-trans-orientation: 甘肃宏盛信息科技有限公司
   index-menu: classpath:config/index_menu.json
 
   active-scale: ToledoT800

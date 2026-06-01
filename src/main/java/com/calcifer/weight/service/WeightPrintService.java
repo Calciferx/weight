@@ -199,7 +199,7 @@ public class WeightPrintService {
             // 出厂环节经办人
             map.put("manager", "");
             // 运输单位
-            map.put("transUnit", "甘肃宏盛信息科技有限公司");
+            map.put("transUnit", properties.getWasteTransUnit());
             // 车牌号
             map.put("plateNumber", record.getPlateNumber());
 
@@ -219,7 +219,7 @@ public class WeightPrintService {
             // 运输方式
             map.put("transType", "公路");
             // 接收单位
-            map.put("receiveUnit", "白银市宏盛环保有限公司");
+            map.put("receiveUnit", properties.getWasteReceiveUnit());
             // 流向类型
             map.put("flowType", "省内转移");
         } else if ("raw".equals(templateKey)) {
@@ -238,7 +238,7 @@ public class WeightPrintService {
             // 净重
             map.put("netWeight", record.getNetWeight() != null ? record.getNetWeight().toString() : "0");
             // 流向
-            map.put("transOrientation", "甘肃宏盛信息科技有限公司");
+            map.put("transOrientation", properties.getRawTransOrientation());
             // 检斤员
             map.put("weighMan", record.getWeighMan());
         }
