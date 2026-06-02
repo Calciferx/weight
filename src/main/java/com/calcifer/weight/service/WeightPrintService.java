@@ -159,6 +159,14 @@ public class WeightPrintService {
         if (recordList == null || recordList.isEmpty()) return;
 
         parameters.putIfAbsent("sheetId", DateUtil.format(recordList.get(0).getWeighDate(), "yyyyMMdd") + "001");
+
+        // 计算总车辆数和总净重
+        parameters.put("totalTruckNum", String.valueOf(recordList.size()));
+        double totalNet = recordList.stream()
+                .filter(r -> r.getNetWeight() != null)
+                .mapToDouble(WeightRecordDO::getNetWeight)
+                .sum();
+        parameters.put("totalNetWeight", String.format("%.2f", totalNet));
     }
 
     private Map<String, Object> convertToMap(WeightRecordDO record, String templateKey, int seq) {
